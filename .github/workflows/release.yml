@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install zip
+        run: sudo apt-get install zip
+
+      - name: Prepare files
+        run: |
+          zip -r install/paramo.zip app config src autoload.php LICENSE
+          zip -r paramo.zip install/
+
+      - name: Bump version and push tag
+        id: create_tag
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+          DEFAULT_BUMP: patch
+
+      - name: GH Release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          prerelease: true
+          files: ./paramo.zip
+          tag_name: ${{ steps.create_tag.outputs.new_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

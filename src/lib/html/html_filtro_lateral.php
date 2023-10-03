@@ -1,0 +1,229 @@
+<?php
+
+class html_filtro_lateral extends html_input
+{
+
+private $itens;
+
+public function get_itens()
+{
+    if (!isset($this->itens))
+        $this->itens = array();
+
+    return $this->itens;
+}
+
+public function preencher($pa_filtro_listagem, $pa_parametros_campo)
+{
+    $va_itens = array();
+    $va_filtro = array();
+
+    if (isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]]) && is_array($pa_filtro_listagem[$pa_parametros_campo["atributo"]]))
+    {
+        $this->adicionar_item("_NO_", "[Sem atribução]");
+        return true;
+    }
+
+    if (isset($pa_parametros_campo["dependencia"]))
+    {
+        if (isset($pa_parametros_campo["dependencia"]["campo"]))
+            $va_dependencias = array($pa_parametros_campo["dependencia"]);
+        else
+            $va_dependencias = $pa_parametros_campo["dependencia"];
+
+        foreach ($va_dependencias as $va_dependencia)
+        {
+            if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]])
+            {
+                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
+            }
+            else
+            {
+                // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
+                if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
+                    return false;
+            }
+        }
+    }
+
+    if (isset($pa_parametros_campo["filtro"]))
+    {
+        foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
+        {
+            if (isset($va_filtro_combo["operador"]))
+                $va_filtro[$va_filtro_combo["atributo"]] = [$va_filtro_combo["valor"], $va_filtro_combo["operador"]];
+            else
+                $va_filtro[$va_filtro_combo["atributo"]] = $va_filtro_combo["valor"];
+        }
+    }
+    
+    if (isset($pa_parametros_campo["objeto"]))
+    {
+        if (isset($pa_parametros_campo["parametros_inicializacao"]))
+        {
+            $vo_objeto = new $pa_parametros_campo["objeto"]($pa_parametros_campo["parametros_inicializacao"]);
+        }
+        else
+        {
+            $vs_id_objeto = $pa_parametros_campo["objeto"];
+            $vo_objeto = new $vs_id_objeto($vs_id_objeto);
+        }
+
+        if (isset($pa_parametros_campo["visualizacao"]))
+            $vs_visualizacao = $pa_parametros_campo["visualizacao"];
+        else
+            $vs_visualizacao = "lista";
+
+        $va_visualizacao = $vo_objeto->get_visualizacao($vs_visualizacao);
+
+        $vn_primeiro_registro = 0;
+        $vn_numero_maximo_itens = 0;
+        if (isset($pa_parametros_campo["numero_maximo_itens"]))
+        {
+            $vn_primeiro_registro = 1;
+            $vn_numero_maximo_itens = $pa_parametros_campo["numero_maximo_itens"];
+        }
+
+        //var_dump(get_class($vo_objeto), $va_filtro);
+
+        $va_itens = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens);
+
+        //var_dump($va_itens);
+    }
+    
+    foreach($va_itens as $va_item)
+    {
+        if (isset($pa_parametros_campo["atributos"]))
+        {
+            $va_keys_atributos = array_keys($pa_parametros_campo["atributos"]);
+            
+            if (!is_array($pa_parametros_campo["atributos"][$va_keys_atributos[0]]))
+                $vn_item_lista_option = $va_item[$pa_parametros_campo["atributos"][$va_keys_atributos[0]]];
+            else
+                $vn_item_lista_option = $va_item[$va_keys_atributos[0]];
+
+            $vs_campo_hierarquia = "";
+            $vb_ler_hierarquia = true;
+
+            if (!is_array($pa_parametros_campo["atributos"][$va_keys_atributos[1]]))
+                $vs_campo_item_lista_value = $pa_parametros_campo["atributos"][$va_keys_atributos[1]];
+            else
+            {
+                $vs_campo_item_lista_value = $va_keys_atributos[1];
+                $vs_campo_hierarquia = $pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"];
+            }
+
+            // Temos que generalizar essa montagem numa função
+            //////////////////////////////////////////////////
+
+            $va_item_lista_value = array();
+
+            while ($vb_ler_hierarquia)
+            {
+                $vs_valor_item_lista = $this->ler_valor_textual($va_item, $vs_campo_item_lista_value);
+                
+                if (isset($pa_parametros_campo["atributos"][$va_keys_atributos[1]]["sentido"]))
+                    $va_item_lista_value[] = $vs_valor_item_lista;
+                else
+                    array_unshift($va_item_lista_value, $vs_valor_item_lista);
+                
+                if (isset($va_item[$vs_campo_hierarquia]))
+                {
+                    $va_item = $va_item[$vs_campo_hierarquia];
+                    $vs_valor_item_lista = $va_item;
+                }
+                else
+                    $vb_ler_hierarquia = false;
+            }
+
+            $vs_item_lista_value = join(" >  ", $va_item_lista_value);
+
+            //////////////////////////////////////////////////
+            // Temos que generalizar essa montagem numa função
+        }
+        else
+        {
+            $contador = 1;
+            foreach ($va_visualizacao["campos"] as $va_campos_visualizacao)
+            {
+                if ($contador == 1)
+                {
+                    // O primeiro campo da visualização é, por conveniência, o código do item
+                    $vn_item_lista_option = $va_item[$va_campos_visualizacao["nome"]];
+                }
+                else
+                {
+                    // O último campo da visualização será, por conveniência, o valor a ser exibido do item
+                    $vs_item_lista_value = $va_item[$va_campos_visualizacao["nome"]];
+                }
+                    
+                $contador++;
+            }
+        }
+
+        $this->adicionar_item($vn_item_lista_option, $vs_item_lista_value);
+    }
+
+    // Se atributo_inverso está configurado, vamos verificar
+    // se existem relacionamentos não criados entre o filtro 
+    // e o objeto que ele filtra
+    ////////////////////////////////////////////////////////
+
+    if (isset($pa_parametros_campo["objeto_filtrado"]) && (!isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]])) && count($va_itens))
+    {
+        $vo_objeto_filtrado = new $pa_parametros_campo["objeto_filtrado"]('');
+
+        $va_atributos = explode(",", $pa_parametros_campo["atributo"]);
+
+        $pa_filtro_listagem[$va_atributos[0]] = ["0", "_EXISTS_"];
+
+        $vn_numero_relacionamentos = $vo_objeto_filtrado->ler_numero_registros($pa_filtro_listagem);
+    
+        if ($vn_numero_relacionamentos)
+            $this->adicionar_item("_NO_", "[Sem atribução]");
+    }
+    
+    ////////////////////////////////////////////////////////
+}
+
+public function adicionar_item($ps_key, $ps_valor)
+{
+    if (!isset($this->itens))
+        $this->itens = array();
+
+    $this->itens[$ps_key] = $ps_valor;
+}
+
+public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $ps_path_campo_filtro="")
+{
+    $vs_tela = $this->get_tela();
+    $vs_ui_element = $this->get_ui_element();
+
+    $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
+
+    //var_dump($pa_parametros_campo);
+    $this->preencher($pa_valores_form, $pa_parametros_campo);
+    $va_itens_campo = $this->get_itens();
+
+    $vs_valor_campo = "";
+    if (isset($pa_valores_form[$pa_parametros_campo["atributo"]]))
+    {
+        if (is_array($pa_valores_form[$pa_parametros_campo["atributo"]]))
+            $vs_valor_campo = "_NO_";
+        else
+            $vs_valor_campo = $pa_valores_form[$pa_parametros_campo["atributo"]];
+    }
+    
+    
+    if ($ps_path_campo_filtro != "")
+    {
+        require $ps_path_campo_filtro;
+    }
+    else
+    {
+        require dirname(__FILE__)."/../../../app/components/campo_filtro_lateral.php";
+    }
+    
+}
+
+}
