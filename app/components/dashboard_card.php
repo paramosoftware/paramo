@@ -13,7 +13,7 @@ $va_itens = $va_card["itens"] ?? [];
     <div class="card deashboard-card mb-4">
         <div class="card-header small" <?php echo $vs_cor != "" ? 'style="background-color:' . $vs_cor . ';"' : ''; ?>>
             <a class="btn-tab small link-sem-estilo" id="<?php echo $vs_codigo; ?>" href="<?php echo htmlspecialchars($vs_tipo == "acervo" ? $vs_href : "javascript:void(0);"); ?>">
-                <strong><?php echo htmlspecialchars($vs_titulo); ?></strong>
+                <strong><?php echo $vs_titulo; ?></strong>
             </a>
         </div>
         <div class="card-body" style="font-size:12px;">
@@ -27,7 +27,7 @@ $va_itens = $va_card["itens"] ?? [];
                     <?php if ($vs_tipo == "acervo"): ?>
                         <?php foreach ($va_itens as $vs_item): ?>
                             <?php if ($vs_item != ""): ?>
-                                <?php echo htmlspecialchars($vs_item); ?><br>
+                                <?php echo $vs_item; ?><br>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     <?php else: ?>

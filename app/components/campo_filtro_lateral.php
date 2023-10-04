@@ -64,7 +64,7 @@ if (!count($va_itens_campo) || !$vb_pode_exibir)
         </ul>
     </div>
 
-    <input type="hidden" name="<?php print $vs_nome_campo; ?>" id="<?php print $vs_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
+    <input type="hidden" name="<?php print $vs_nome_campo; ?>" id="<?php print $vs_nome_campo; ?>" value="<?php print $vs_valor_campo; ?>"
     <?php
         if (!$vs_valor_campo)
             print " disabled;"

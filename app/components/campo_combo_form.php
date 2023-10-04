@@ -211,14 +211,14 @@ if (!$vb_pode_exibir)
                 $vs_valor_campo = $vn_key_item_campo;
                 
         ?>
-                <option value="<?php print htmlspecialchars($vn_key_item_campo) ?>"
+                <option value="<?php print $vn_key_item_campo ?>"
                 <?php 
                 if (strval($vn_key_item_campo) == strval($vs_valor_campo))
                 {
                     print " selected ";
                 }
                 ?>
-                ><?php print htmlspecialchars($vs_valor_item_campo); ?></option>
+                ><?php print $vs_valor_item_campo; ?></option>
         <?php
             $contador++;
         }
