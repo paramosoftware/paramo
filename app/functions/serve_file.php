@@ -5,10 +5,13 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
 
-utils::start_session();
-if (!utils::validate_user_session())
+if (!isset($vb_ignorar_autenticacao))
 {
-    send_not_found_response();
+    utils::start_session();
+    if (!utils::validate_user_session())
+    {
+        send_not_found_response();
+    }
 }
 
 $vs_file = $_GET['file'] ?? send_not_found_response();
