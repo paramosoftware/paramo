@@ -128,7 +128,7 @@ if ($vn_numero_registros)
                         else
                         {
                         ?>
-                            onClick="adicionar_<?php print $vs_campo_modal ?>('<?php print $vn_objeto_codigo; ?>', '<?php print htmlspecialchars($va_item_listagem["main_field"]); ?>'); return false;"
+                            onClick="adicionar_<?php print $vs_campo_modal ?>('<?php print $vn_objeto_codigo; ?>', '<?php print $va_item_listagem["main_field"]; ?>'); return false;"
 
                         <?php 
                         }
@@ -136,7 +136,7 @@ if ($vn_numero_registros)
                         >
                         <?php
                             if (isset($va_item_listagem["main_field"]))
-                                print htmlspecialchars($va_item_listagem["main_field"]);
+                                print $va_item_listagem["main_field"];
                         ?>
                         </a>
                     </h5>
@@ -151,7 +151,7 @@ if ($vn_numero_registros)
                             <span class="texto-nome-titulo">
                                 <?php
                                     if(isset($va_item_listagem["id_field"]))
-                                        print htmlspecialchars($va_item_listagem["id_field"]);
+                                        print $va_item_listagem["id_field"];
                                 ?>
                             </span>
                         </div>

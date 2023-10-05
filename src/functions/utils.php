@@ -150,7 +150,15 @@ class utils
         else if ($url["host"] == "soundcloud.com" || $url["host"] == "on.soundcloud.com")
         {
             $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;
-            $soundcloud_api_response = file_get_contents($soundcloud_api_url);
+
+            $context = stream_context_create(
+                [
+                    "http" => [
+                        "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+                    ]
+                ]
+            );
+            $soundcloud_api_response = file_get_contents($soundcloud_api_url, false, $context);
             $soundcloud_api_response = json_decode($soundcloud_api_response, true);
             return $soundcloud_api_response["html"] ?? "";
         }

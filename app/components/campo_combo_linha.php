@@ -119,7 +119,7 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
                         print " selected ";
                     }
                     ?>
-                    ><?php print htmlspecialchars($vs_valor_item_campo) ?></option>
+                    ><?php print $vs_valor_item_campo ?></option>
                 <?php
                 }
                 ?>
@@ -139,7 +139,7 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
         {
         ?>
             <label class="form-label"><?php print $vs_label_campo; ?></label>
-            <input type="text" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_textual_campo); ?>">
+            <input type="text" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print $vs_valor_textual_campo; ?>">
         <?php
         }
         ?>

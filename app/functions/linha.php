@@ -109,7 +109,7 @@
             <div class="row mb-3">
                 <div class="">
                     <?php
-                        print htmlspecialchars($vs_linha_valor);
+                        print $vs_linha_valor;
 
                         if (count($va_campos_linha) && (isset($va_parametros_campo["esconder_subcampos"]) && !$va_parametros_campo["esconder_subcampos"]))
                         {

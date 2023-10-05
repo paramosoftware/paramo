@@ -42,11 +42,11 @@
             foreach ($va_itens_campo as $vn_key_valor_campo => $vs_valor_valor_campo)
             {
             ?>
-                    <option value="<?php print htmlspecialchars($vn_key_valor_campo) ?>"
+                    <option value="<?php print $vn_key_valor_campo ?>"
                     <?php if ($contador == 1)
                         print " selected ";
                     ?>
-                    ><?php print htmlspecialchars($vs_valor_valor_campo) ?></option>
+                    ><?php print $vs_valor_valor_campo ?></option>
             <?php
                 $contador++;
             }

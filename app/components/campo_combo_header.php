@@ -48,7 +48,7 @@
             print " selected ";
         }
         ?>
-        ><?php print htmlspecialchars($vs_valor_item_campo) ?></option>
+        ><?php print $vs_valor_item_campo ?></option>
     <?php
     }
     ?>

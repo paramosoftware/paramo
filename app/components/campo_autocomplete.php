@@ -397,7 +397,7 @@
                    maxlength="<?php print $vn_tamanho_maximo; ?>"
                    name="<?php print $vs_nome_campo_lookup ?>"
                    id="<?php print $vs_nome_campo_lookup ?>"
-                   value="<?php print htmlspecialchars($vs_valor_campo_nome);
+                   value="<?php print $vs_valor_campo_nome;
                    ?>"
     <?php
         }
