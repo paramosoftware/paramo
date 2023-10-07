@@ -147,7 +147,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                             }
                                             elseif ($vs_rd_formato == "pdf")
                                             {
-                                                $vs_download_path = utils::get_file_url($vs_rd_path, "large");
+                                                $vs_download_path = utils::get_file_url($vs_rd_path, "original");
 
                                                 print '<span href="' . $vs_download_path . '" target="_blank">';
                                                 print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top iframe-viewer", null, $vs_rp_legenda);

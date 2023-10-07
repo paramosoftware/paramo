@@ -2672,6 +2672,7 @@ CREATE TABLE `representante_digital` (
   `publicado_online` tinyint(1) DEFAULT 1,
   `tipo_codigo` int(11) DEFAULT NULL,
   `legenda` varchar(250) DEFAULT NULL,
+  `nome_original` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   UNIQUE KEY `codigo` (`codigo`),
   KEY `recurso_sistema_codigo` (`recurso_sistema_codigo`),

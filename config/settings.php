@@ -49,10 +49,11 @@ return [
         ]
     ],
 
-    # ================================================ UPLOAD EM LOTE  ================================================ #
-
+    # ================================================ UPLOAD  ================================================ #
     # Lista de recursos do sistema que podem ser enviados em lote
     "upload_lote_permitido" => ["livro", "documento", "textual"," iconografico", "periodico", "objeto", "cartografico", "audiovisual"],
+    # Salva uma cópia do arquivo original no momento do upload
+    "salvar_arquivo_original" => true,
 
     # =============================================== FUNCIONALIDADES =============================================== #
     # São prefixadas com "f_".

@@ -3138,16 +3138,8 @@ class objeto_base
 
         $vb_salvou_arquivo_disco = false;
 
-        $va_extensoes_permitidas = config::get(["extensoes_permitidas"]);
         $va_pasta_media = config::get(["pasta_media"]);
-
-        $vs_path_documentos = $va_pasta_media["documents"];
-
         $va_pasta_images = $va_pasta_media["images"];
-        $vs_path_imagens_large = $va_pasta_images["large"];
-        $vs_path_imagens_medium = $va_pasta_images["medium"];
-        $vs_path_imagens_thumb = $va_pasta_images["thumb"];
-
 
         if ($this->recurso_sistema_codigo) 
         {
@@ -3168,23 +3160,10 @@ class objeto_base
 
                 foreach ($va_codigos_excluir as $vn_codigo_excluir)
                 {
-                    $va_representante_digital = $vo_representante_digital->ler($vn_codigo_excluir, "lista");
+                    $va_representante_digital = $vo_representante_digital->ler($vn_codigo_excluir);
                     if (count($va_representante_digital))
                     {
-                        foreach ($va_pasta_images as $vs_pasta_images)
-                        {
-                            $vs_arquivo_destino = $vs_pasta_images . $va_representante_digital['representante_digital_path'];
-                            if (file_exists($vs_arquivo_destino))
-                            {
-                                if (!unlink($vs_arquivo_destino))
-                                {
-                                    utils::log("erro", "Erro ao apagar arquivo: " . $vs_arquivo_destino);
-                                    echo "Erro ao apagar arquivo: " . $vs_arquivo_destino;
-                                    exit();
-                                }
-                            }
-                        }
-
+                        $this->apagar_arquivo_pasta_media($va_representante_digital['representante_digital_path']);
                     }
                 }
 
@@ -3254,10 +3233,6 @@ class objeto_base
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             $va_arquivos_importados_ids = array();
-
-            $vn_formato_imagem_codigo = 1;
-            if (isset($pa_valores["formato_imagem_codigo"]))
-                $vn_formato_imagem_codigo = $pa_valores["formato_imagem_codigo"];
 
             foreach ($pa_arquivos as $va_arquivo) 
             {
@@ -3413,11 +3388,36 @@ class objeto_base
                         $contador_sequencial = $this->ler_proximo_numero_sequencia_representante_digital($pa_valores[$this->chave_primaria[0]], $pa_valores["representante_digital_tipo_codigo"]);
 
                     /////////////////////////////////////////////////////////////////
+                    ///
+
+                    $vb_salvar_arquivo_original = isset($pa_valores["salvar_arquivo_original"]) ?
+                        boolval($pa_valores["salvar_arquivo_original"]) :
+                        config::get(["salvar_arquivo_original"]);
+
+                    $va_extensoes_permitidas = config::get(["extensoes_permitidas"]);
+                    $media_types = config::get(["media_types"]) ?? [];
+
+                    $vs_novo_nome_arquivo = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"]);
+
+                    $va_path_arquivo_destino = [
+                        "large" => [
+                            "path" => $va_pasta_images["large"],
+                            "width" => 1440,
+                        ],
+                        "medium" => [
+                            "path" => $va_pasta_images["medium"],
+                            "width" => 800,
+                        ],
+                        "thumb" => [
+                            "path" => $va_pasta_images["thumb"],
+                            "width" => 360,
+                        ]
+                    ];
 
                     $vb_salvou_arquivo_disco = false;
 
-                    // Vamos tratar os pdfs separadamente
-                    /////////////////////////////////////
+                    $vs_mime_type = mime_content_type($va_arquivo["tmp_name"]);
+                    $vs_formato = $media_types[$vs_mime_type]["format"] ?? null;
 
                     if (mime_content_type($va_arquivo["tmp_name"]) == $va_extensoes_permitidas["pdf"])
                     {
@@ -3425,107 +3425,84 @@ class objeto_base
 
                         if (class_exists('Imagick'))
                         {
-                            $vs_nome_arquivo_destino = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"]) . ".jpg";
+                            foreach ($va_path_arquivo_destino as $key => $value)
+                            {
+                                $size = $value["width"];
+                                $path = $value["path"] . $vs_novo_nome_arquivo . ".jpg";
 
-                            $vs_path_arquivo_medium_destino = $vs_path_imagens_medium . $vs_nome_arquivo_destino;
-                            $vs_path_arquivo_thumb_destino = $vs_path_imagens_thumb . $vs_nome_arquivo_destino;
-
-                            $this->gerar_jpg_pdf($va_arquivo["tmp_name"], 800, $vs_path_arquivo_medium_destino);
-                            $this->gerar_jpg_pdf($va_arquivo["tmp_name"], 360, $vs_path_arquivo_thumb_destino);
+                                $this->gerar_jpg_pdf($va_arquivo["tmp_name"], $size, $path);
+                            }
                         }
 
-                        $vs_nome_arquivo_destino = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"]) . ".pdf";
+                        $vs_novo_nome_arquivo = $vs_novo_nome_arquivo . "." . $vs_formato;
 
-                        if ($this->mover_arquivo($va_arquivo["tmp_name"], $vs_path_imagens_large . $vs_nome_arquivo_destino))
+                        if ($this->mover_arquivo($va_arquivo["tmp_name"], $va_pasta_images["original"] . $vs_novo_nome_arquivo))
                         {
                             $vb_salvou_arquivo_disco = true;
+                        }
+                        else
+                        {
+                            utils::log("erro", "Erro ao mover arquivo: " . $va_arquivo["tmp_name"] . " - " . $va_pasta_images["original"] . $vs_novo_nome_arquivo);
                         }
 
                     }
                     elseif (@getimagesize($va_arquivo["tmp_name"]))
                     {
                         $vs_formato = "jpg";
+                        $vs_novo_nome_arquivo = $vs_novo_nome_arquivo . "." . $vs_formato;
 
-                        $vs_nome_arquivo_destino = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"]) . ".jpg";
+                        $vn_imagens_processadas = 0;
 
-                        $vs_path_arquivo_large_destino = $vs_path_imagens_large . $vs_nome_arquivo_destino;
-                        $vs_path_arquivo_medium_destino = $vs_path_imagens_medium . $vs_nome_arquivo_destino;
-                        $vs_path_arquivo_thumb_destino =  $vs_path_imagens_thumb . $vs_nome_arquivo_destino;
-
-                        switch ($vn_formato_imagem_codigo)
+                        foreach ($va_path_arquivo_destino as $key => $value)
                         {
-                            case 1:
+                            $size = $value["width"];
+                            $path = $value["path"] . $vs_novo_nome_arquivo;
 
-                                $vn_imagens_processadas = 0;
-
-                                if ($this->processar_imagem($va_arquivo["tmp_name"], 1440, $vs_path_arquivo_large_destino))
-                                {
-                                    $vn_imagens_processadas++;
-                                }
-                                if ($this->processar_imagem($va_arquivo["tmp_name"], 800, $vs_path_arquivo_medium_destino))
-                                {
-                                    $vn_imagens_processadas++;
-                                }
-                                if ($this->processar_imagem($va_arquivo["tmp_name"], 360, $vs_path_arquivo_thumb_destino))
-                                {
-                                    $vn_imagens_processadas++;
-                                }
-
-                                if ($vn_imagens_processadas > 0)
-                                {
-                                    $vb_salvou_arquivo_disco = true;
-                                }
-                                break;
-                            case 2:
-                                if ($this->mover_arquivo($va_arquivo["tmp_name"], $vs_path_arquivo_thumb_destino))
-                                {
-                                    $vb_salvou_arquivo_disco = true;
-                                }
-                                break;
-                            case 3:
-                                if ($this->processar_imagem($va_arquivo["tmp_name"], 800, $vs_path_arquivo_medium_destino))
-                                {
-                                    $vb_salvou_arquivo_disco = true;
-                                }
-                                break;
-                            case 4:
-                                if ($this->processar_imagem($va_arquivo["tmp_name"], 360, $vs_path_arquivo_thumb_destino))
-                                {
-                                    $vb_salvou_arquivo_disco = true;
-                                }
-                                break;
+                            if ($this->processar_imagem($va_arquivo["tmp_name"], $size, $path))
+                            {
+                                $vn_imagens_processadas++;
+                            }
+                            else
+                            {
+                                utils::log("erro", "Erro ao processar imagem: " . $va_arquivo["tmp_name"] . " - " . $size . " - " . $path);
+                            }
                         }
-                    }
-                    elseif (in_array($va_arquivo["type"], ["audio/mpeg"]))
-                    {
-                        // Move o arquivo sem fazer nada com ele
-                        ////////////////////////////////////////
 
-                        $va_pasta_audios = $va_pasta_media["audios"];
-                        $vs_nome_arquivo_destino = $va_arquivo["name"];
-                        $vs_formato = "mp3";
+                        if ($vb_salvar_arquivo_original)
+                        {
+                            if ($this->mover_arquivo($va_arquivo["tmp_name"], $va_pasta_images["original"] . $vs_novo_nome_arquivo))
+                            {
+                                $vn_imagens_processadas++;
+                            }
+                        }
 
-                        $vs_path_arquivo_destino = $va_pasta_audios . utils::sanitize_file_name($va_arquivo["name"]);
-
-                        if (move_uploaded_file($va_arquivo["tmp_name"], $vs_path_arquivo_destino))
+                        if ($vn_imagens_processadas > 1)
                         {
                             $vb_salvou_arquivo_disco = true;
                         }
                     }
-                    elseif (in_array($va_arquivo["type"], ["video/mp4"]))
+                    elseif (in_array($va_arquivo["type"], array_values($va_extensoes_permitidas)))
                     {
-                        // Move o arquivo sem fazer nada com ele
-                        ////////////////////////////////////////
-
-                        $va_pasta_videos = $va_pasta_media["videos"];
-                        $vs_nome_arquivo_destino = $va_arquivo["name"];
-                        $vs_formato = "mp4";
-
-                        $vs_path_arquivo_destino = $va_pasta_videos . utils::sanitize_file_name($va_arquivo["name"]);
-
-                        if (move_uploaded_file($va_arquivo["tmp_name"], $vs_path_arquivo_destino))
+                        foreach ($media_types as $type => $media)
                         {
-                            $vb_salvou_arquivo_disco = true;
+                            if ($va_arquivo["type"] == $type)
+                            {
+                                $vs_pasta_media = $va_pasta_media[$media["folder"]];
+                                $vs_formato = $media["format"];
+                                $vs_novo_nome_arquivo = $vs_novo_nome_arquivo . "." . $vs_formato;
+
+                                $va_path_arquivo_destino = $vs_pasta_media .  $vs_novo_nome_arquivo;
+
+                                if ($this->mover_arquivo($va_arquivo["tmp_name"], $va_path_arquivo_destino))
+                                {
+                                    $vb_salvou_arquivo_disco = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    utils::log("erro", "Erro ao mover arquivo: " . $va_arquivo["tmp_name"] . " - " . $va_path_arquivo_destino);
+                                }
+                            }
                         }
                     }
 
@@ -3551,7 +3528,7 @@ class objeto_base
 
                         $this->va_campos[] = "path";
                         $this->va_tipos_parametros[] = "s";
-                        $this->va_parametros[] = $vs_nome_arquivo_destino;
+                        $this->va_parametros[] = $vs_novo_nome_arquivo;
 
                         $this->va_campos[] = "sequencia";
                         $this->va_tipos_parametros[] = "i";
@@ -3560,6 +3537,10 @@ class objeto_base
                         $this->va_campos[] = "publicado_online";
                         $this->va_tipos_parametros[] = "i";
                         $this->va_parametros[] = 1;
+
+                        $this->va_campos[] = "nome_original";
+                        $this->va_tipos_parametros[] = "s";
+                        $this->va_parametros[] = $va_arquivo["name"];
 
                         if (isset($pa_valores["tipo_representante_digital_codigo"]))
                         {
@@ -3635,6 +3616,51 @@ class objeto_base
                 utils::log("erro", "Erro ao mover arquivo: " . $ps_origem . " - " . $ps_destino);
                 return false;
             }
+        }
+
+        return true;
+    }
+
+
+    function apagar_arquivo_pasta_media($ps_arquivo): bool
+    {
+        $va_pasta_media = config::get(["pasta_media"]);
+
+        foreach ($va_pasta_media as $pasta)
+        {
+            if (is_array($pasta))
+            {
+                foreach ($pasta as $vs_pasta_media)
+                {
+                    $vs_arquivo = $vs_pasta_media . $ps_arquivo;
+                    $this->apagar_arquivo($vs_arquivo);
+                }
+            }
+            else
+            {
+                $vs_arquivo = $pasta . $ps_arquivo;
+                $this->apagar_arquivo($vs_arquivo);
+            }
+        }
+
+        return true;
+    }
+
+    function apagar_arquivo($ps_arquivo): bool
+    {
+        if (file_exists($ps_arquivo))
+        {
+            if (!unlink($ps_arquivo))
+            {
+                utils::log("erro", "Erro ao apagar arquivo: " . $ps_arquivo);
+                return false;
+            }
+        }
+
+        if (pathinfo($ps_arquivo, PATHINFO_EXTENSION) == "pdf")
+        {
+            $vs_arquivo_jpg = str_replace(".pdf", ".jpg", $ps_arquivo);
+            $this->apagar_arquivo($vs_arquivo_jpg);
         }
 
         return true;
@@ -3739,40 +3765,18 @@ class objeto_base
     public function excluir_representantes_digitais($pn_objeto_codigo)
     {
 
-        $va_pasta_media = config::get(["pasta_media"]);
-
         $vo_representante_digital = new representante_digital;
 
         $va_representantes_digitais = $this->ler_representantes_digitais($pn_objeto_codigo);
 
-        foreach ($va_representantes_digitais as $va_representante_digital) {
+        foreach ($va_representantes_digitais as $va_representante_digital)
+        {
+            $vs_arquivo = $va_representante_digital['representante_digital_path'];
 
-            foreach ($va_pasta_media as $folders)
+            if ($this->apagar_arquivo_pasta_media($vs_arquivo))
             {
-                if (is_array($folders))
-                {
-                    foreach ($folders as $subfolder) {
-                        $vs_arquivo_destino = $subfolder . $va_representante_digital['representante_digital_path'];
-                        if (file_exists($vs_arquivo_destino)) {
-                            if (!unlink($vs_arquivo_destino)) {
-                                utils::log("Erro ao apagar arquivo", $vs_arquivo_destino);
-                                echo "Erro ao apagar arquivo!";
-                            }
-                        }
-                    }
-                }
-                elseif (is_string($folders)) {
-                    $vs_arquivo_destino = $folders . $va_representante_digital['representante_digital_path'];
-                    if (file_exists($vs_arquivo_destino)) {
-                        if (!unlink($vs_arquivo_destino)) {
-                            utils::log("Erro ao apagar arquivo", $vs_arquivo_destino);
-                            echo "Erro ao apagar arquivo!";
-                        }
-                    }
-                }
+                $vo_representante_digital->excluir($va_representante_digital["representante_digital_codigo"]);
             }
-
-            $vo_representante_digital->excluir($va_representante_digital["representante_digital_codigo"]);
         }
     }
 

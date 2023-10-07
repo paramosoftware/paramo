@@ -55,7 +55,7 @@ function get_image_path($ps_file, $ps_size = null): string
     krsort($va_pasta_images);
     $vs_file_path = "";
 
-    if (strpos($ps_file, ".pdf") !== false && $ps_size != "large")
+    if (strpos($ps_file, ".pdf") !== false && $ps_size != "original")
     {
         $ps_file = str_replace(".pdf", ".jpg", $ps_file);
     }
