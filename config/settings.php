@@ -54,6 +54,14 @@ return [
     "upload_lote_permitido" => ["livro", "documento", "textual"," iconografico", "periodico", "objeto", "cartografico", "audiovisual"],
     # Salva uma cópia do arquivo original no momento do upload
     "salvar_arquivo_original" => true,
+    # Lista de extensões permitidas para upload de arquivos
+    "extensoes_permitidas" => [
+        "jpeg" => "image/jpeg",
+        "jpg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "pdf" => "application/pdf"
+    ],
 
     # =============================================== FUNCIONALIDADES =============================================== #
     # São prefixadas com "f_".
