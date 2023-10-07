@@ -150,7 +150,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                                 $vs_download_path = utils::get_file_url($vs_rd_path, "large");
 
                                                 print '<span href="' . $vs_download_path . '" target="_blank">';
-                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top pdf-viewer", null, $vs_rp_legenda);
+                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top iframe-viewer", null, $vs_rp_legenda);
                                                 print '</span>';
 
                                             }
@@ -364,7 +364,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 <?php
 if ($pa_parametros_campo["tipo"] == 1 || $pa_parametros_campo["tipo"] == 2) {
 ?>
-$(document).on('click', ".image-viewer, .pdf-viewer", function () {
+$(document).on('click', ".image-viewer, .iframe-viewer", function () {
 
     if (this.timeout) {
         clearTimeout(this.timeout);
@@ -391,18 +391,16 @@ $(document).on('click', ".image-viewer, .pdf-viewer", function () {
             $("#div-image-container").show();
             $("#btn_fechar_imagem").show();
         });
-    } else if ($(this).hasClass('pdf-viewer')) {
+    } else if ($(this).hasClass('iframe-viewer')) {
         let path = $(this).parent().attr('href');
 
-        let embed = document.createElement('embed');
-        embed.src = path;
-        embed.width = '100%';
-        embed.height = '200%';
+        let iframe = document.createElement('iframe');
+        iframe.src = path;
+        iframe.width = '100%';
+        iframe.height = $(window).height() * 0.75;
 
         let div = document.createElement('div');
-        div.appendChild(embed);
-        div.style.height = '300px';
-        div.style.width = '100%';
+        div.appendChild(iframe);
 
         $("#div_<?php print $vs_nome_campo ?>").hide();
         $("#div-image-container").html(div);

@@ -123,7 +123,7 @@ class utils
         }
     }
 
-    public static function get_embedded_media($url, $width = 190, $height = 100): string
+    public static function get_embedded_media($url, $width = 190, $height = 120): string
     {
         $url = parse_url($url);
         $url["host"] = str_replace("www.", "", $url["host"]);
@@ -161,6 +161,28 @@ class utils
             $soundcloud_api_response = file_get_contents($soundcloud_api_url, false, $context);
             $soundcloud_api_response = json_decode($soundcloud_api_response, true);
             return $soundcloud_api_response["html"] ?? "";
+        }
+        else if ($url["host"] == "drive.google.com" || $url["host"] == "docs.google.com")
+        {
+            preg_match('/\/d\/(.+?)\//', $url["path"], $matches);
+            $file_id = $matches[1];
+
+            $src = "https://drive.google.com/file/d/" . $file_id . "/preview";
+            $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
+
+            $headers = get_headers($src);
+
+            if (strpos($headers[0], '200') !== false)
+            {
+                $html = '<span href="' . $src . '" target="_blank">';
+                $html .= '<img src="' . $thumbnail . '" class="iframe-viewer" onerror="this.onerror=null;this.src=\'assets/img/placeholder-drive.png\'">';
+                $html .= '</span>';
+                return $html;
+            }
+            else
+            {
+                return '<img src="assets/img/placeholder-drive.png">';
+            }
         }
 
         return "";
