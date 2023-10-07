@@ -147,7 +147,6 @@ class visualizacao extends objeto_base
             "label" => "Contexto",
             "objeto" => "contexto_visualizacao",
             "atributos" => ["contexto_visualizacao_codigo", "contexto_visualizacao_nome"],
-            "atributo" => "contexto_visualizacao_codigo",
             "formato" => "multi_selecao"
         ];
 
@@ -179,7 +178,9 @@ class visualizacao extends objeto_base
             "formato" => ["campo" => "campo_sistema_nome"]
         ];
 
-        $va_campos_visualizacao["visualizacao_habilitado"] = ["nome" => "visualizacao_habilitado"];
+        $va_campos_visualizacao["visualizacao_habilitado"] = [
+            "nome" => "visualizacao_habilitado"
+        ];
 
         $this->visualizacoes["navegacao"]["campos"] = $va_campos_visualizacao;
         $this->visualizacoes["navegacao"]["order_by"] = ["visualizacao_nome" => "Nome"];
