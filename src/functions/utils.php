@@ -123,31 +123,20 @@ class utils
         }
     }
 
-    public static function get_embedded_media($url, $width = 190, $height = 100): string
+    public static function get_embedded_media($url, $width = 190, $height = 120): string
     {
         $url = parse_url($url);
         $url["host"] = str_replace("www.", "", $url["host"]);
 
-        if ($url["host"] == "youtube.com" || $url["host"] == "youtu.be")
+        if (in_array($url["host"], ["youtube.com", "youtu.be", "vimeo.com"]))
         {
-            if ($url["host"] == "youtube.com")
-            {
-                $video_id = explode("v=", $url["query"]);
-            }
-            else
-            {
-                $video_id = explode("/", $url["path"]);
-            }
-            $video_id = $video_id[1];
 
-            return '<iframe width="' . $width . '" height="' . $height . '" src="https://www.youtube.com/embed/' . $video_id . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+            $video_id = $url["host"] == "youtube.com" ? explode("v=", $url["query"])[1] : explode("/", $url["path"])[1];
+            $src = $url["host"] == "vimeo.com" ? "https://player.vimeo.com/video/" . $video_id : "https://www.youtube.com/embed/" . $video_id;
+
+            return '<iframe width="' . $width . '" height="' . $height . '" src="' . $src . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
         }
-        else if ($url["host"] == "vimeo.com")
-        {
-            $video_id = explode("/", $url["path"]);
-            return '<iframe src="https://player.vimeo.com/video/' . $video_id[1] . '" width="' . $width . '" height="' . $height . '" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen></iframe>';
-        }
-        else if ($url["host"] == "soundcloud.com" || $url["host"] == "on.soundcloud.com")
+        else if (in_array($url["host"], ["soundcloud.com", "on.soundcloud.com"]))
         {
             $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;
 
@@ -158,12 +147,39 @@ class utils
                     ]
                 ]
             );
+
             $soundcloud_api_response = file_get_contents($soundcloud_api_url, false, $context);
             $soundcloud_api_response = json_decode($soundcloud_api_response, true);
-            return $soundcloud_api_response["html"] ?? "";
+
+            if (isset($soundcloud_api_response["html"]))
+            {
+                return $soundcloud_api_response["html"];
+            }
+        }
+        else if (in_array($url["host"], ["drive.google.com", "docs.google.com"]))
+        {
+            preg_match('/\/d\/(.+?)\//', $url["path"], $matches);
+            $file_id = $matches[1];
+
+            $src = "https://drive.google.com/file/d/" . $file_id . "/preview";
+            $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
+
+            $headers = get_headers($src);
+
+            if (strpos($headers[0], '200') !== false)
+            {
+                $html = '<span href="' . $src . '" target="_blank">';
+                $html .= '<img src="' . $thumbnail . '" class="iframe-viewer" onerror="this.onerror=null;this.src=\'assets/img/placeholder-drive.png\'">';
+                $html .= '</span>';
+                return $html;
+            }
+            else
+            {
+                return '<img src="assets/img/placeholder-drive.png">';
+            }
         }
 
-        return "";
+        return '<img src="assets/img/placeholder-link.png">';
     }
 
     public static function log(string $summary, string $stacktrace) : string
