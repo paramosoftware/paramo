@@ -49,6 +49,11 @@ return [
         ]
     ],
 
+    # ================================================ UPLOAD EM LOTE  ================================================ #
+
+    # Lista de recursos do sistema que podem ser enviados em lote
+    "upload_lote_permitido" => ["livro", "documento", "textual"," iconografico", "periodico", "objeto", "cartografico", "audiovisual"],
+
     # =============================================== FUNCIONALIDADES =============================================== #
     # São prefixadas com "f_".
 
