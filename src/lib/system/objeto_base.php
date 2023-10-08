@@ -5079,8 +5079,18 @@ class objeto_base
                                 $vb_tem_valores_preenchidos = true;
                             } 
                             elseif (isset($pa_valores_form[$vs_campo_relacionamento . "_" . $contador]) && (trim($pa_valores_form[$vs_campo_relacionamento . "_" . $contador]) == ""))
+                            {
                                 $va_valores[$vs_campo_relacionamento] = NULL;
-                            
+                            }
+                            elseif (isset($va_relacionamento["campos_relacionamento"][$vs_campo_relacionamento]["valor_sequencial"]))
+                            {
+                                $vn_posicao = array_search($vs_campo_base_relacionamento . '_' . $contador, array_keys($pa_valores_form));
+                                $vn_primeiro_campo = array_search($vs_campo_base_relacionamento . '_' . 1, array_keys($pa_valores_form));
+                                $vn_sequencia = ($vn_posicao - $vn_primeiro_campo) + 2;
+
+                                $va_valores[$vs_campo_relacionamento] = $vn_sequencia;
+                            }
+
                             else
                             {
                                 unset($va_tipos_campos_relacionamento[array_search($vs_campo_relacionamento, array_keys($va_campos_relacionamento))]);
