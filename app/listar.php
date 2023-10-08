@@ -122,7 +122,8 @@
                                             <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
 
                                             <?php
-                                                $va_objetos_upload = ["livro","documento","textual","iconografico","periodico","objeto","cartografico","audiovisual"];
+
+                                                $va_objetos_upload = config::get(["upload_lote_permitido"]) ?? [];
                                                 
                                                 if (in_array($vs_id_objeto_tela, $va_objetos_upload) && $vb_pode_editar)
                                                 {

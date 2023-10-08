@@ -27,7 +27,7 @@ CREATE TABLE `acervo` (
   `instituicao_codigo` int(11) DEFAULT NULL,
   `entidade_codigo` int(11) DEFAULT NULL,
   `setor_sistema_codigo` int(11) DEFAULT NULL,
-  `nome` varchar(2500) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   `identificador` varchar(250) DEFAULT NULL,
   `tipo_codigo` int(11) DEFAULT NULL,
   `tipo_arquivo_codigo` int(11) DEFAULT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE `agrupamento` (
   KEY `Acervo_Codigo` (`acervo_codigo`),
   CONSTRAINT `agrupamento_ibfk_1` FOREIGN KEY (`agrupamento_superior_codigo`) REFERENCES `agrupamento` (`codigo`),
   CONSTRAINT `agrupamento_ibfk_2` FOREIGN KEY (`acervo_codigo`) REFERENCES `acervo` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,7 +269,7 @@ DROP TABLE IF EXISTS `agrupamento_dados_textuais`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `agrupamento_dados_textuais` (
   `agrupamento_codigo` int(11) NOT NULL,
-  `nome` varchar(200) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   `idioma_codigo` int(11) NOT NULL,
   PRIMARY KEY (`agrupamento_codigo`,`idioma_codigo`),
@@ -323,7 +323,7 @@ DROP TABLE IF EXISTS `area_conhecimento`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `area_conhecimento` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(250) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -346,8 +346,8 @@ DROP TABLE IF EXISTS `assunto`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `assunto` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) DEFAULT NULL,
-  `descricao` varchar(250) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -370,7 +370,7 @@ DROP TABLE IF EXISTS `atividade_geradora`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `atividade_geradora` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(500) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -396,7 +396,7 @@ CREATE TABLE `campo_sistema` (
   `codigo` int(11) NOT NULL,
   `recurso_sistema_codigo` int(11) DEFAULT NULL,
   `tipo_codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `alias` varchar(100) DEFAULT NULL,
   `tabela_intermediaria` varchar(50) DEFAULT NULL,
   `objeto_chave_estrangeira` varchar(50) DEFAULT NULL,
@@ -461,8 +461,8 @@ DROP TABLE IF EXISTS `colecao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `colecao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(1000) NOT NULL,
-  `descricao` text CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   `acervo_codigo` int(11) NOT NULL,
   `entidade_codigo` int(11) DEFAULT NULL,
   `tipos_materiais` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
@@ -605,7 +605,7 @@ DROP TABLE IF EXISTS `contexto_dados_textuais`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contexto_dados_textuais` (
   `contexto_codigo` int(11) NOT NULL,
-  `nome` varchar(1000) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `sinopse` text DEFAULT NULL,
   `descricao` text DEFAULT NULL,
   `idioma_codigo` int(11) NOT NULL,
@@ -684,7 +684,7 @@ DROP TABLE IF EXISTS `contexto_visualizacao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contexto_visualizacao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(150) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -708,7 +708,7 @@ DROP TABLE IF EXISTS `cromia`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cromia` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(250) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -901,7 +901,7 @@ CREATE TABLE `entidade` (
   `codigo` int(11) NOT NULL,
   `tipo_codigo` int(11) DEFAULT NULL,
   `entidade_principal_codigo` int(11) DEFAULT NULL,
-  `nome` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `Genero_Gramatical_Codigo` int(11) DEFAULT NULL,
   `Qualificador_Nome_Codigo` int(11) DEFAULT NULL,
   `Data_Nascimento_Inicial` date DEFAULT NULL,
@@ -1094,7 +1094,7 @@ DROP TABLE IF EXISTS `especie_documental`;
 CREATE TABLE `especie_documental` (
   `Codigo` int(11) NOT NULL,
   PRIMARY KEY (`Codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1116,14 +1116,14 @@ DROP TABLE IF EXISTS `especie_documental_dados_textuais`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `especie_documental_dados_textuais` (
   `especie_documental_codigo` int(11) NOT NULL,
-  `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   `idioma_codigo` int(11) NOT NULL,
   PRIMARY KEY (`especie_documental_codigo`,`idioma_codigo`),
   KEY `idioma_codigo` (`idioma_codigo`),
   CONSTRAINT `especie_documental_dados_textuais_ibfk_1` FOREIGN KEY (`especie_documental_codigo`) REFERENCES `especie_documental` (`Codigo`),
   CONSTRAINT `especie_documental_dados_textuais_ibfk_2` FOREIGN KEY (`idioma_codigo`) REFERENCES `idioma` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1145,9 +1145,9 @@ DROP TABLE IF EXISTS `estado_conservacao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `estado_conservacao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1169,7 +1169,7 @@ DROP TABLE IF EXISTS `estado_organizacao_acervo`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `estado_organizacao_acervo` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1252,16 +1252,16 @@ DROP TABLE IF EXISTS `evento`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `evento` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `descricao` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   `tipo_codigo` int(11) DEFAULT NULL,
   `data_inicial` date DEFAULT NULL,
   `data_final` date DEFAULT NULL,
   `data_presumida` tinyint(1) DEFAULT NULL,
   `sem_data` tinyint(1) DEFAULT NULL,
   `localidade_codigo` int(11) DEFAULT NULL,
-  `item_acervo_introdutorio` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `fonte_informacao` varchar(1000) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
+  `item_acervo_introdutorio` text DEFAULT NULL,
+  `fonte_informacao` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1355,7 +1355,7 @@ DROP TABLE IF EXISTS `formato`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `formato` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1379,7 +1379,7 @@ DROP TABLE IF EXISTS `formato_entrevista`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `formato_entrevista` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1404,7 +1404,7 @@ DROP TABLE IF EXISTS `formato_pagina`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `formato_pagina` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(200) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `altura` float NOT NULL,
   `largura` float NOT NULL,
   PRIMARY KEY (`codigo`)
@@ -1430,8 +1430,8 @@ DROP TABLE IF EXISTS `genero`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genero` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1454,8 +1454,8 @@ DROP TABLE IF EXISTS `genero_documental`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genero_documental` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1479,9 +1479,9 @@ DROP TABLE IF EXISTS `genero_gramatical`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genero_gramatical` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1502,10 +1502,10 @@ DROP TABLE IF EXISTS `genero_textual`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `genero_textual` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `descricao` varchar(250) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1526,7 +1526,7 @@ DROP TABLE IF EXISTS `grupo_usuario`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `grupo_usuario` (
   `Codigo` int(11) NOT NULL,
-  `Nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `controlar_acesso_acervos` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`Codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1585,7 +1585,7 @@ DROP TABLE IF EXISTS `idioma`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `idioma` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `sigla` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1610,7 +1610,7 @@ DROP TABLE IF EXISTS `importacao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `importacao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `recurso_sistema_codigo` int(11) NOT NULL,
   `habilitado` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
@@ -1744,14 +1744,14 @@ DROP TABLE IF EXISTS `instituicao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `instituicao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(1000) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   `entidade_codigo` int(11) DEFAULT NULL,
   `admin` tinyint(1) DEFAULT NULL COMMENT 'Especifica se os usuários dessa instituição podem gerenciar outras instituições.',
   `sigla` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   KEY `Entidade_Codigo` (`entidade_codigo`),
   CONSTRAINT `instituicao_ibfk_1` FOREIGN KEY (`entidade_codigo`) REFERENCES `entidade` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1945,7 +1945,7 @@ DROP TABLE IF EXISTS `item_acervo_estado_conservacao`;
 CREATE TABLE `item_acervo_estado_conservacao` (
   `item_acervo_codigo` int(11) DEFAULT NULL,
   `estado_conservacao_codigo` int(11) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `descricao` text DEFAULT NULL,
   KEY `item_acervo_estado_conservacao_item_acervo_codigo_fk` (`item_acervo_codigo`),
   KEY `item_acervo_estado_conservacao_estado_conservacao_codigo_fk` (`estado_conservacao_codigo`),
   CONSTRAINT `item_acervo_estado_conservacao_estado_conservacao_codigo_fk` FOREIGN KEY (`estado_conservacao_codigo`) REFERENCES `estado_conservacao` (`codigo`),
@@ -2106,19 +2106,19 @@ DROP TABLE IF EXISTS `livro`;
 CREATE TABLE `livro` (
   `codigo` int(11) NOT NULL,
   `item_acervo_codigo` int(11) NOT NULL,
-  `classificacao` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `classificacao` varchar(50)  DEFAULT NULL,
   `volume` int(11) DEFAULT NULL,
-  `titulo_volume` varchar(2000) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `titulo_volume` varchar(2000) DEFAULT NULL,
   `colecao` varchar(500) DEFAULT NULL,
-  `numero_item_colecao` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numero_item_colecao` varchar(20) DEFAULT NULL,
   `edicao_princeps` tinyint(1) DEFAULT NULL,
-  `edicao` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `edicao` varchar(50) DEFAULT NULL,
   `tipo_edicao_codigo` int(11) DEFAULT NULL,
   `numero_paginas` int(11) DEFAULT NULL,
-  `ISBN` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `ISBN` varchar(50) DEFAULT NULL,
   `ISSN` varchar(10) DEFAULT NULL,
-  `cutter_pha` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `creditos` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cutter_pha` varchar(50) DEFAULT NULL,
+  `creditos` varchar(1000) DEFAULT NULL,
   `exemplar` int(11) DEFAULT NULL,
   `tipo_material_codigo` int(11) DEFAULT NULL,
   `tombo` varchar(500) DEFAULT NULL,
@@ -2126,7 +2126,7 @@ CREATE TABLE `livro` (
   `numero` varchar(500) DEFAULT NULL,
   `tomo` varchar(500) DEFAULT NULL,
   `genero_textual_codigo` int(11) DEFAULT NULL,
-  `epc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `epc` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   KEY `item_acervo_Codigo` (`item_acervo_codigo`),
   KEY `Tipo_Edicao_Codigo` (`tipo_edicao_codigo`),
@@ -2136,7 +2136,7 @@ CREATE TABLE `livro` (
   CONSTRAINT `livro_ibfk_2` FOREIGN KEY (`item_acervo_codigo`) REFERENCES `item_acervo` (`codigo`),
   CONSTRAINT `livro_ibfk_3` FOREIGN KEY (`tipo_edicao_codigo`) REFERENCES `tipo_edicao` (`codigo`),
   CONSTRAINT `livro_tipo_material_null_fk` FOREIGN KEY (`tipo_material_codigo`) REFERENCES `tipo_material` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2265,7 +2265,7 @@ DROP TABLE IF EXISTS `local_armazenamento`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `local_armazenamento` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(200) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `instituicao_codigo` int(11) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
@@ -2290,9 +2290,9 @@ DROP TABLE IF EXISTS `localidade`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `localidade` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2341,7 +2341,7 @@ DROP TABLE IF EXISTS `log_evento`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_evento` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `data` datetime NOT NULL,
   `sucesso` tinyint(1) NOT NULL,
   `mensagem` text DEFAULT NULL,
@@ -2367,8 +2367,8 @@ DROP TABLE IF EXISTS `material`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `material` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2502,7 +2502,7 @@ DROP TABLE IF EXISTS `pagina_etiquetas`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pagina_etiquetas` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(200) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `formato_codigo` int(11) NOT NULL,
   `margem_superior` float NOT NULL,
   `margem_esquerda` float NOT NULL,
@@ -2534,7 +2534,7 @@ DROP TABLE IF EXISTS `palavra_chave`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `palavra_chave` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(150) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2557,8 +2557,8 @@ DROP TABLE IF EXISTS `projeto`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `projeto` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(250) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2581,7 +2581,7 @@ DROP TABLE IF EXISTS `raca`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `raca` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2672,6 +2672,7 @@ CREATE TABLE `representante_digital` (
   `publicado_online` tinyint(1) DEFAULT 1,
   `tipo_codigo` int(11) DEFAULT NULL,
   `legenda` varchar(250) DEFAULT NULL,
+  `nome_original` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   UNIQUE KEY `codigo` (`codigo`),
   KEY `recurso_sistema_codigo` (`recurso_sistema_codigo`),
@@ -2786,7 +2787,7 @@ DROP TABLE IF EXISTS `selecao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `selecao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(1000) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `tipo_codigo` int(11) DEFAULT NULL,
   `usuario_codigo` int(11) NOT NULL,
   `data` date NOT NULL,
@@ -2846,7 +2847,7 @@ CREATE TABLE `serie` (
   `codigo` int(11) NOT NULL,
   `acervo_codigo` int(11) DEFAULT NULL,
   `codigo_referencia` varchar(250) DEFAULT NULL,
-  `nome` varchar(500) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `identificador` varchar(250) DEFAULT NULL,
   `agrupamento_codigo` int(11) DEFAULT NULL,
   `especie_documental_codigo` int(11) DEFAULT NULL,
@@ -2943,7 +2944,7 @@ DROP TABLE IF EXISTS `setor_sistema`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `setor_sistema` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(1000) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `recurso_sistema_padrao_codigo` int(11) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   KEY `setor_sistema_FK` (`recurso_sistema_padrao_codigo`),
@@ -3020,7 +3021,7 @@ DROP TABLE IF EXISTS `suporte`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `suporte` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3044,8 +3045,8 @@ DROP TABLE IF EXISTS `tecnica`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tecnica` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3068,7 +3069,7 @@ DROP TABLE IF EXISTS `tema`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tema` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(1000) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `acervo_codigo` int(11) DEFAULT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`),
@@ -3095,7 +3096,7 @@ DROP TABLE IF EXISTS `tipo_acervo`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_acervo` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3118,7 +3119,7 @@ DROP TABLE IF EXISTS `tipo_acesso`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_acesso` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3141,7 +3142,7 @@ DROP TABLE IF EXISTS `tipo_arquivo`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_arquivo` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3164,9 +3165,9 @@ DROP TABLE IF EXISTS `tipo_autor`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_autor` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3188,7 +3189,7 @@ DROP TABLE IF EXISTS `tipo_campo_sistema`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_campo_sistema` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3212,7 +3213,7 @@ DROP TABLE IF EXISTS `tipo_contexto`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_contexto` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3235,7 +3236,7 @@ DROP TABLE IF EXISTS `tipo_dado`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_dado` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3258,7 +3259,7 @@ DROP TABLE IF EXISTS `tipo_dimensao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_dimensao` (
   `Codigo` int(11) NOT NULL,
-  `Nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`Codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3309,7 +3310,7 @@ DROP TABLE IF EXISTS `tipo_documental`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_documental` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(500) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `especie_documental_codigo` int(11) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`),
@@ -3336,7 +3337,7 @@ DROP TABLE IF EXISTS `tipo_edicao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_edicao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3359,7 +3360,7 @@ DROP TABLE IF EXISTS `tipo_entrevista`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_entrevista` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(500) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3383,7 +3384,7 @@ DROP TABLE IF EXISTS `tipo_material`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_material` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(500) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3407,8 +3408,8 @@ DROP TABLE IF EXISTS `tipo_objeto`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_objeto` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
-  `descricao` varchar(500) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3431,8 +3432,8 @@ DROP TABLE IF EXISTS `tipo_operacao_log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_operacao_log` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `descricao` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3456,7 +3457,7 @@ DROP TABLE IF EXISTS `tipo_representante_digital`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_representante_digital` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
   `descricao` text DEFAULT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3480,7 +3481,7 @@ DROP TABLE IF EXISTS `tipo_saida_item_acervo`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tipo_saida_item_acervo` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `status_item_acervo_saida_codigo` int(11) DEFAULT NULL,
   `status_item_acervo_retorno_codigo` int(11) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
@@ -3488,7 +3489,7 @@ CREATE TABLE `tipo_saida_item_acervo` (
   KEY `status_item_acervo_saida_codigo` (`status_item_acervo_saida_codigo`),
   CONSTRAINT `tipo_saida_item_acervo_ibfk_1` FOREIGN KEY (`status_item_acervo_retorno_codigo`) REFERENCES `status_item_acervo` (`codigo`),
   CONSTRAINT `tipo_saida_item_acervo_ibfk_2` FOREIGN KEY (`status_item_acervo_saida_codigo`) REFERENCES `status_item_acervo` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3511,8 +3512,8 @@ CREATE TABLE `unidade_armazenamento` (
   `codigo` int(11) NOT NULL,
   `instituicao_codigo` int(11) DEFAULT NULL,
   `acervo_codigo` int(11) DEFAULT NULL,
-  `nome` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `descricao` varchar(5000) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `descricao` text DEFAULT NULL,
   `unidade_armazenamento_superior_codigo` int(11) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   KEY `Acervo_Codigo` (`acervo_codigo`),
@@ -3521,7 +3522,7 @@ CREATE TABLE `unidade_armazenamento` (
   CONSTRAINT `unidade_armazenamento_ibfk_1` FOREIGN KEY (`acervo_codigo`) REFERENCES `acervo` (`codigo`),
   CONSTRAINT `unidade_armazenamento_ibfk_2` FOREIGN KEY (`instituicao_codigo`) REFERENCES `instituicao` (`codigo`),
   CONSTRAINT `unidade_armazenamento_ibfk_3` FOREIGN KEY (`unidade_armazenamento_superior_codigo`) REFERENCES `unidade_armazenamento` (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3542,7 +3543,7 @@ DROP TABLE IF EXISTS `unidade_medida`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `unidade_medida` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3568,18 +3569,18 @@ CREATE TABLE `usuario` (
   `codigo` int(11) NOT NULL,
   `instituicao_codigo` int(11) DEFAULT NULL,
   `tipo_codigo` int(11) DEFAULT NULL,
-  `nome` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `login` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `senha` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `nome` varchar(250) NOT NULL,
+  `login` varchar(100) DEFAULT NULL,
+  `senha` varchar(250) DEFAULT NULL,
   `telefone` varchar(100) DEFAULT NULL,
-  `email` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `email` varchar(200) DEFAULT NULL,
   `ativo` int(11) DEFAULT NULL,
   `token` varchar(500) DEFAULT NULL,
   `ultimo_login` datetime DEFAULT NULL,
   `senha_provisoria` varchar(250) DEFAULT NULL,
   `expiracao_senha_provisoria` datetime DEFAULT NULL,
   PRIMARY KEY (`codigo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3704,7 +3705,7 @@ DROP TABLE IF EXISTS `visualizacao`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `visualizacao` (
   `codigo` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
+  `nome` varchar(250) NOT NULL,
   `recurso_sistema_codigo` int(11) NOT NULL,
   `habilitado` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
@@ -3732,7 +3733,7 @@ DROP TABLE IF EXISTS `visualizacao_campo_sistema`;
 CREATE TABLE `visualizacao_campo_sistema` (
   `visualizacao_codigo` int(11) NOT NULL,
   `campo_sistema_codigo` int(11) NOT NULL,
-  `ordem` int(11) DEFAULT NULL
+  `sequencia` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

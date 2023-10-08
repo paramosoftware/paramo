@@ -4,52 +4,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class utils
 {
-    public static function get_thumb_pdf($ps_image_path): string
-    {
-        if (!file_exists($ps_image_path))
-        {
-            return "";
-        }
-
-        if (class_exists('Imagick'))
-        {
-            try
-            {
-                $img_data = new Imagick();
-
-                $img_data->readImage($ps_image_path . "[0]");
-                $img_data->setImageFormat("jpeg");
-
-                return $img_data;
-            }
-            catch(Exception $e)
-            {
-                print $e->getMessage();
-            }
-        }
-        
-        return "";
-    }
-
-    public static function get_image($ps_image_path): string
-    {
-        if (!file_exists($ps_image_path))
-        {
-            return "";
-        }
-
-        try
-        {      
-            return file_get_contents($ps_image_path);
-        }
-        catch(Exception $e)
-        {
-            print $e->getMessage();
-        }
-        
-        return "";
-    }
-
     public static function get_image_base64($image_path, $ps_formato='image'): string
     {
         if (!file_exists($image_path))
@@ -61,18 +15,7 @@ class utils
         return 'data:' . $ps_formato . '/' . $type . ';base64,' . base64_encode($data);
     }
 
-    public static function get_file_base64($file_path): string
-    {
-        if (!file_exists($file_path))
-        {
-            return "";
-        }
-        $type = self::get_file_extension($file_path);
-        $data = file_get_contents($file_path);
-        return 'data:application/' . $type . ';base64,' . base64_encode($data);
-    }
-
-    public static function get_file_extension($file_path)
+    public static function get_file_extension($file_path): array|string
     {
         return pathinfo($file_path, PATHINFO_EXTENSION);
     }
@@ -250,18 +193,15 @@ class utils
     {
         $vs_extensao = pathinfo($ps_image_path, PATHINFO_EXTENSION);
         $vs_folder = self::get_media_folder($vs_extensao);
+        $vs_folder = substr($vs_folder, 0, -1);
 
         if ($vs_extensao == "pdf")
         {
             $vs_placeholder = "assets/img/placeholder-pdf.png";
         }
-        elseif ($vs_folder == "videos")
+        elseif (file_exists("assets/img/placeholder-" . $vs_folder . ".png"))
         {
-            $vs_placeholder = "assets/img/placeholder-video.png";
-        }
-        elseif ($vs_folder == "audios")
-        {
-            $vs_placeholder = "assets/img/placeholder-audio.png";
+            $vs_placeholder = "assets/img/placeholder-" . $vs_folder . ".png";
         }
         else
         {
@@ -271,22 +211,23 @@ class utils
         return $vs_placeholder;
     }
 
-
     public static function get_media_folder($ps_ext): string
     {
         $vs_folder = "";
 
-        if (in_array($ps_ext, ["jpg", "jpeg", "png", "gif", "pdf", "bmp", "svg", "tiff", "tif", "raw"])) {
-            $vs_folder = "images";
-        } elseif (in_array($ps_ext, ["mp4", "webm", "avi", "mov", "wmv", "flv", "mkv"])) {
-            $vs_folder = "videos";
-        } elseif (in_array($ps_ext, ["mp3", "m4a", "wav", "wma"])) {
-            $vs_folder = "audios";
+        $media_types = config::get(["media_types"]);
+
+        foreach ($media_types as $vs_mime_type => $va_media_type)
+        {
+            if ($va_media_type["format"] == $ps_ext)
+            {
+                $vs_folder = $va_media_type["folder"];
+                break;
+            }
         }
 
         return $vs_folder;
     }
-
 
     public static function get_media_html_element($ps_object_path, $ps_id = null): string
     {
