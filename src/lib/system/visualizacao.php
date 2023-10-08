@@ -59,14 +59,22 @@ class visualizacao extends objeto_base
         $va_relacionamentos = array();
 
         $va_relacionamentos['visualizacao_campo_sistema_codigo'] = [
-            ['visualizacao_campo_sistema_codigo'],
+            [
+                'visualizacao_campo_sistema_codigo',
+                'visualizacao_campo_sistema_sequencia'
+
+            ],
             'tabela_intermediaria' => 'visualizacao_campo_sistema',
             'chave_exportada' => 'visualizacao_codigo',
             'campos_relacionamento' =>
                 [
-                    'visualizacao_campo_sistema_codigo' => 'campo_sistema_codigo'
+                    'visualizacao_campo_sistema_codigo' => 'campo_sistema_codigo',
+                    'visualizacao_campo_sistema_sequencia' => [
+                        'sequencia',
+                        'valor_sequencial' => true
+                    ],
                 ],
-            'tipos_campos_relacionamento' => ['i'],
+            'tipos_campos_relacionamento' => ['i', 'i'],
             'tabela_relacionamento' => 'campo_sistema',
             'objeto' => 'campo_sistema',
             'alias' => 'campos do sistema'
@@ -138,7 +146,8 @@ class visualizacao extends objeto_base
                         "campo_pai" => "visualizacao_campo_sistema_codigo"
                     ]
 
-            ]
+            ],
+            "draggable" => true,
         ];
 
         $va_campos_edicao["visualizacao_contexto_visualizacao_codigo"] = [

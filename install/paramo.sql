@@ -3733,7 +3733,7 @@ DROP TABLE IF EXISTS `visualizacao_campo_sistema`;
 CREATE TABLE `visualizacao_campo_sistema` (
   `visualizacao_codigo` int(11) NOT NULL,
   `campo_sistema_codigo` int(11) NOT NULL,
-  `ordem` int(11) DEFAULT NULL
+  `sequencia` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
