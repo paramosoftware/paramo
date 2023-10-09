@@ -781,7 +781,11 @@ class objeto_base
 
             if (isset($va_valor_filtro)) {
                 if (!is_array($va_valor_filtro)) {
-                    $va_valores_filtro = explode("|", $va_valor_filtro);
+                    
+                    if ($ps_operador == "LIKE")
+                        $va_valores_filtro = explode(" ", $va_valor_filtro);
+                    else
+                        $va_valores_filtro = explode("|", $va_valor_filtro);
 
                     $va_interrogracoes = array();
 
@@ -808,7 +812,8 @@ class objeto_base
                         }
                     }
 
-                    if (count($va_interrogracoes) > 1) {
+                    if ( (count($va_interrogracoes) > 1) && ($ps_operador != "LIKE") )
+                    {
                         $ps_interrogacoes = "(" . join(",", $va_interrogracoes) . ")";
 
                         if ($ps_operador != "NOT IN")
@@ -1104,11 +1109,15 @@ class objeto_base
                         }
 
                         $va_atributo_filtro_relacionamento = $vo_objeto_relacionamento->atributos[$va_filtro[2]];
-
-                        $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
+                       
+                        if ($ps_operador != "LIKE")
+                            $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
 
                         foreach ($pa_valores_busca as $va_valor_busca) 
                         {
+                            if ($ps_operador != "LIKE")
+                                $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
+
                             $pa_parametros_select[] = $va_valor_busca;
                             $pa_tipos_parametros_select[] = $va_atributo_filtro_relacionamento["tipo_dado"];
                         }
@@ -1118,10 +1127,14 @@ class objeto_base
                         $vn_index_tipo_campo = array_search($va_filtro[1], array_keys($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"]));
                         $vs_tipo_dado_campo = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$vn_index_tipo_campo];
 
-                        $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
+                        if ($ps_operador != "LIKE")
+                            $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
 
                         foreach ($pa_valores_busca as $va_valor_busca) 
                         {
+                            if ($ps_operador == "LIKE")
+                                $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
+
                             $pa_parametros_select[] = $va_valor_busca;
                             $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
                         }
@@ -1333,13 +1346,18 @@ class objeto_base
                 $vs_tipo_dado_campo = reset($po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"]);
             }
 
-            if (($vs_campo_tabela) && ($ps_operador != "_EXISTS_")) {
+            if (($vs_campo_tabela) && ($ps_operador != "_EXISTS_")) 
+            {
                 if ($ps_operador == "NOT")
                     $pa_wheres_select[] = $ps_operador . " " . $vs_tabela_banco . "." . $vs_campo_tabela . "<=>" . $ps_interrogacoes;
-                else
+                elseif ($ps_operador != "LIKE")
                     $pa_wheres_select[] = $vs_tabela_banco . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
 
-                foreach ($pa_valores_busca as $va_valor_busca) {
+                foreach ($pa_valores_busca as $va_valor_busca) 
+                {
+                    if ($ps_operador == "LIKE")
+                        $pa_wheres_select[] = $vs_tabela_banco . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
+
                     $pa_parametros_select[] = $va_valor_busca;
                     $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
                 }
