@@ -164,7 +164,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                             <?php if ($vb_pode_remover && !$vs_preview_only)
                                             {
                                             ?>
-                                                <div class="card-body no-pad-lr cor-interna-edit">
+                                                <div class="card-body no-pad-lr bg-light">
                                                     <?php
                                                         $va_parametros_campo = [
                                                             "html_combo_input",
