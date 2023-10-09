@@ -68,7 +68,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
         </div>
 
         <script src="assets/libraries/ckeditor/ckeditor.js"></script>
-        <textarea class="texto input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"><?php print $vs_valor_campo; ?></textarea>
+        <textarea class="texto input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"><?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?></textarea>
 
         <script>
             ClassicEditor
@@ -89,7 +89,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
         ?>">
             <div class="">
                 <label class="form-label"><?php print $vs_label_campo; ?></label>
-                <input type="date" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print $vs_valor_campo; ?>">
+                <input type="date" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>">
             </div>
         </div>
     <?php
@@ -108,7 +108,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
             </div>
 
             <div class="col-4">
-                <input type="text" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print $vs_valor_campo; ?>">
+                <input type="text" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>">
             </div>
         </div>
     <?php
@@ -124,7 +124,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
         ">
             <div class="">
                 <label class="form-label"><?php print $vs_label_campo; ?></label>
-                <input type="text" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print $vs_valor_campo; ?>">
+                <input type="text" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>">
             </div>
         </div>
     <?php
@@ -143,7 +143,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
             </div>
 
             <div class="col-6">
-                <textarea class="form-control input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"><?php print $vs_valor_campo;; ?></textarea>
+                <textarea class="form-control input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"><?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false);; ?></textarea>
             </div>
         </div>
     <?php
@@ -197,7 +197,7 @@ else
         if ($vs_formato == "senha")
         {
         ?>
-            <input type="password" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print $vs_valor_campo; ?>"
+            <input type="password" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>"
             <?php
                 if (!$vb_pode_exibir)
                     print ' disabled';
@@ -225,7 +225,7 @@ else
                     if (isset($pa_parametros_campo["readonly"]))
                         print ' readonly';
                 ?>
-                ><?php print $vs_valor_campo; ?></textarea>
+                ><?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?></textarea>
 
                 <script>
                     var editor_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?> = ClassicEditor
@@ -257,7 +257,7 @@ else
             if (!$vs_valor_campo)
                 $vs_valor_campo = "#FFFFFF";
         ?>
-            <input type="color" class="input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print $vs_valor_campo; ?>"
+            <input type="color" class="input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -268,7 +268,7 @@ else
         elseif ($vs_formato == "date")
         {
         ?>
-            <input type="date" class="form-control input <?php print $vs_css_class; ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print $vs_valor_campo; ?>"
+            <input type="date" class="form-control input <?php print $vs_css_class; ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -282,7 +282,7 @@ else
         elseif ($vn_numero_linhas == 1)
         {
         ?>
-            <input type="text" class="form-control input <?php print $vs_css_class; ?>" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print $vs_valor_campo; ?>"
+            <input type="text" class="form-control input <?php print $vs_css_class; ?>" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -301,7 +301,7 @@ else
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
             ?>
-            ><?php print $vs_valor_campo; ?></textarea>
+            ><?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?></textarea>
         <?php
         }
         ?>

@@ -67,12 +67,12 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
             
             <span>
                 <a href="#" onclick="carregar_valores_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>(); return false;"><?php print $vs_valor_textual_campo; ?></a>
-                <input type="hidden" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print $vs_valor_campo; ?>">
+                <input type="hidden" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>">
 
                 <?php if (isset($pa_parametros_campo["campo_tip"]) && $pa_parametros_campo["campo_tip"]) 
                 { 
                 ?>
-                    <a class="link-sem-estilo" id="tip_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" onclick="ler_tip_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>('<?php print $vs_valor_campo; ?>'); return false;">
+                    <a class="link-sem-estilo" id="tip_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" onclick="ler_tip_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>('<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>'); return false;">
                          <svg class="icon"><use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-flag-alt"></use></svg>
                     </a>
                 <?php
@@ -112,7 +112,7 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
                 foreach ($va_itens_campo as $vn_key_item_campo => $vs_valor_item_campo)
                 {
                 ?>
-                    <option value="<?php print $vn_key_item_campo ?>"
+                    <option value="<?php print htmlentities($vn_key_item_campo, ENT_QUOTES, "UTF-8", false) ?>"
                     <?php
                     if ($vn_key_item_campo == $vs_valor_campo)
                     {
@@ -139,7 +139,7 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
         {
         ?>
             <label class="form-label"><?php print $vs_label_campo; ?></label>
-            <input type="text" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print $vs_valor_textual_campo; ?>">
+            <input type="text" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlentities($vs_valor_textual_campo, ENT_QUOTES, "UTF-8", false); ?>">
         <?php
         }
         ?>
