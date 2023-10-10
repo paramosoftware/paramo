@@ -106,13 +106,26 @@
                 }
                 else
                 {
-                    $vs_valor = trim($va_parametros_submit[$vs_campo]);
+                    $vs_valor = $va_parametros_submit[$vs_campo];
 
+                    $vb_tem_valor_busca = true;
+
+                    if (is_array($vs_valor))
+                    {
+                        foreach ($vs_valor as $vs_valor_individual)
+                        {
+                            if (trim($vs_valor_individual) == "")
+                                $vb_tem_valor_busca = false;
+                        }
+                    }
+                    elseif (trim($vs_valor) == "")
+                        $vb_tem_valor_busca = false;
+                    
                     // Pensar: só adiciono o filtro se vier algum valor escolhido
                     // Como fazer quando o usuário realmente quiser que o valor seja vazio?
                     ///////////////////////////////////////////////////////////////////////
 
-                    if ($vs_valor != "")
+                    if ($vb_tem_valor_busca)
                     {
                         $va_parametros_filtros_form[$vs_campo] = $vs_valor;
                         
