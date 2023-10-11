@@ -68,6 +68,15 @@ class utils
 
     public static function get_embedded_media($url, $width = 190, $height = 120): string
     {
+
+        $context = stream_context_create(
+            [
+                "http" => [
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+                ]
+            ]
+        );
+
         $url = parse_url($url);
         $url["host"] = str_replace("www.", "", $url["host"]);
 
@@ -82,15 +91,6 @@ class utils
         else if (in_array($url["host"], ["soundcloud.com", "on.soundcloud.com"]))
         {
             $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;
-
-            $context = stream_context_create(
-                [
-                    "http" => [
-                        "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
-                    ]
-                ]
-            );
-
             $soundcloud_api_response = file_get_contents($soundcloud_api_url, false, $context);
             $soundcloud_api_response = json_decode($soundcloud_api_response, true);
 
@@ -107,19 +107,31 @@ class utils
             $src = "https://drive.google.com/file/d/" . $file_id . "/preview";
             $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
 
-            $headers = get_headers($src);
+            $response = file_get_contents($src, false, $context);
+            $response_ok = strpos($http_response_header[0], "200") !== false;
+            preg_match('/"docs-dm":"(.+?)"/', $response, $matches);
+            $type = $matches[1] ? explode("/", $matches[1])[0] : null;
 
-            if (strpos($headers[0], '200') !== false)
+
+            if ($response_ok && !in_array($type, ["audio", "video"]))
             {
                 $html = '<span href="' . $src . '" target="_blank">';
-                $html .= '<img src="' . $thumbnail . '" class="iframe-viewer" onerror="this.onerror=null;this.src=\'assets/img/placeholder-drive.png\'">';
+                $html .= '<img src="' . $thumbnail . '" class="iframe-viewer" onerror="this.onerror=null;this.src=\'assets/img/placeholder-drive.png\'" width="100%">';
                 $html .= '</span>';
-                return $html;
+
+            }
+            elseif ($response_ok)
+            {
+                $html = '<div style="overflow-x: auto; width: 100%;">';
+                $html .= '<iframe src="' . $src . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                $html .= '</div>';
             }
             else
             {
-                return '<img src="assets/img/placeholder-drive.png">';
+                $html = '<img src="assets/img/placeholder-drive.png">';
             }
+
+            return $html;
         }
 
         return '<img src="assets/img/placeholder-link.png">';
