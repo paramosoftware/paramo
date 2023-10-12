@@ -304,4 +304,31 @@ class utils
         header("Location: login.php");
     }
 
+    public static function get_data_csv($ps_file_path, $ps_delimiter = ",", $pn_limit_num_rows = 0, $pb_remove_header = false): array
+    {
+        $handle = fopen($ps_file_path, "r");
+        $rows = array();
+
+        if ($handle !== false)
+        {
+            $row = 0;
+            while (($data = fgetcsv($handle, 0, $ps_delimiter)) !== false)
+            {
+                $rows[] = $data;
+                $row++;
+                if ($pn_limit_num_rows > 0 && $row >= $pn_limit_num_rows)
+                {
+                    break;
+                }
+            }
+            fclose($handle);
+        }
+
+        if ($pb_remove_header)
+        {
+            unset($rows[0]);
+        }
+
+        return $rows;
+    }
 }

@@ -1,7 +1,71 @@
 <?php
+require_once dirname(__FILE__) . "/../src/vendors/simplexlsx/SimpleXLSX.php";
+require_once dirname(__FILE__) . "/../src/vendors/simplexlsx/SimpleXLSXEx.php";
+
+global $vs_recurso_sistema_nome_plural, $vs_id_objeto_tela;
+
+$vs_id_objeto_tela = $_GET["obj"] ?? $_POST["obj"];
 
 $vb_montar_menu = true;
 require_once dirname(__FILE__) . "/components/entry_point.php";
+
+$vn_step = $_POST["step"] ?? 1;
+
+switch ($vn_step)
+{
+    case 1:
+        break;
+    case 2:
+        $vs_caminho_arquivo = move_import_file();
+        $va_rows = get_header_file($vs_caminho_arquivo, pathinfo($vs_caminho_arquivo, PATHINFO_EXTENSION));
+        $va_campos = get_campos_edicao($vs_id_objeto_tela);
+        break;
+    case 3:
+}
+
+function get_header_file($ps_caminho_arquivo, $ps_extensao): array
+{
+    $va_rows = array();
+
+    if ($ps_extensao == "csv")
+    {
+        $va_rows = utils::get_data_csv($ps_caminho_arquivo, ',', 1);
+    } else
+    {
+        if ($xlsx = SimpleXLSX::parse($ps_caminho_arquivo))
+        {
+            $va_rows = iterator_to_array($xlsx->readRows(0, 1));
+        }
+    }
+
+    return $va_rows;
+}
+
+function move_import_file(): string
+{
+    $vs_pasta_import = config::get(["pasta_media", "import"]);
+
+    if (!isset($_FILES["arquivo"]) || $_FILES["arquivo"]["error"] != UPLOAD_ERR_OK)
+    {
+        return "";
+    }
+
+    $va_arquivo = $_FILES["arquivo"];
+    $vs_caminho_arquivo = $vs_pasta_import . utils::sanitize_file_name($va_arquivo["name"]);
+
+    if (move_uploaded_file($va_arquivo["tmp_name"], $vs_caminho_arquivo))
+    {
+        return $vs_caminho_arquivo;
+    }
+
+    return "";
+}
+
+function get_campos_edicao($ps_id_objeto_tela)
+{
+    $vo_objeto = new $ps_id_objeto_tela();
+    return $vo_objeto->inicializar_campos_edicao();
+}
 
 ?>
 
@@ -12,113 +76,111 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
 <body>
 
-<?php
-    if (!$vb_pode_editar)
-        exit();
-
-    $vb_sobrescrever_valores = true;
-    if (!isset($_POST["sobrescrever"]))
-        $vb_sobrescrever_valores = false;
-
-    require_once dirname(__FILE__) ."/components/sidebar.php";
-?>
+<?php require_once dirname(__FILE__) . "/components/sidebar.php"; ?>
 
 <div class="wrapper d-flex flex-column min-vh-100 bg-light">
-    <?php require_once dirname(__FILE__) ."/components/header.php"; ?>
+    <?php require_once dirname(__FILE__) . "/components/header.php"; ?>
 
     <div class="body flex-grow-1 px-3">
         <div class="container-lg">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card mb-4">
-                        <div class="card-header">Importar <?php print $vs_recurso_sistema_nome_plural; ?></div>
+                        <div class="card-header">Importar <?= $vs_recurso_sistema_nome_plural; ?></div>
 
                         <div class="card-body">
-                            <form method="post" enctype="multipart/form-data" action="importar.php">
-                                <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">
-                                
-                                <div class="row no-margin-side" id="filtro">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="file" name="arquivo" class="form-control">
-                                            <input type="checkbox" name="sobrescrever" <?php if ($vb_sobrescrever_valores) print " checked"; ?>> Substituir valores
+                            <?php if ($vn_step == 1) : ?>
+                                <form method="post" enctype="multipart/form-data" action="importar.php">
+                                    <input type="hidden" name="obj" value="<?= $vs_id_objeto_tela; ?>">
+                                    <input type="hidden" name="step" value="2">
+                                    <div class="row no-margin-side" id="filtro">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <input type="file" name="arquivo" class="form-control" required>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="row" style="margin-top:10px">
-                                    <div class="text-center">
-                                        <button class="btn btn-primary btn-importar" type="submit">
-                                            Importar
-                                        </button>
+                                    <div class="row mt-3 pr-3">
+                                        <div class="text-end">
+                                            <button class="btn btn-primary btn-importar" type="submit">
+                                                Continuar
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
 
-                            <div class="campo_formulario">
-                            <?php
-                                if (count($_FILES))
-                                {
-                                    $vs_arquivo_destino = "import/" . $_FILES["arquivo"]["name"];
+                                <?php require_once dirname(__FILE__) . "/components/importar_instrucoes.php"; ?>
 
-                                    if (!move_uploaded_file($_FILES["arquivo"]["tmp_name"], $vs_arquivo_destino))
-                                    {
-                                        print "Erro ao salvar arquivo!";
-                                        exit();
-                                    }
+                            <?php elseif ($vn_step == 2) : ?>
 
-                                    ini_set('output_buffering','On');
-                                    ob_implicit_flush(true);
-                                    ob_end_flush(); 
+                                <?php if ($vs_caminho_arquivo == "" || count($va_rows) == 0) : ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php if ($vs_caminho_arquivo == "") : ?>
+                                            <p>Erro ao carregar arquivo.</p>
+                                        <?php elseif (count($va_rows) == 0) : ?>
+                                            <p>Arquivo vazio.</p>
+                                        <?php endif; ?>
+                                    </div>
 
-                                    $v_file = @fopen($vs_arquivo_destino, "r");
+                                    <div class="row mt-3 pr-3">
+                                        <div class="text-end">
+                                            <a href="importar.php" class="btn btn-primary btn-importar">
+                                                Voltar
+                                            </a>
+                                        </div>
+                                    </div>
+                                <?php else : ?>
+                                    <form method="post" enctype="multipart/form-data" action="importar.php">
+                                        <input type="hidden" name="obj" value="<?= $vs_id_objeto_tela; ?>">
+                                        <input type="hidden" name="step" value="3">
+                                        <input type="hidden" name="caminho_arquivo" value="<?= $vs_caminho_arquivo; ?>">
 
-                                    if ($v_file) 
-                                    {
-                                        set_time_limit(3600);
+                                        <table class="table table-bordered table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>Coluna de origem</th>
+                                                <th>Campo de destino</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <?php foreach ($va_rows[0] as $vn_index => $vs_header) : ?>
+                                                <tr>
+                                                    <td><?= $vs_header; ?></td>
+                                                    <td>
+                                                        <select class="form-control" name="<?= $vn_index; ?>">
+                                                            <option value="">Selecione</option>
+                                                            <?php foreach ($va_campos as $vs_id => $va_atributos) : ?>
+                                                                <option value="<?= $vs_id ?>"
+                                                                    <?= strpos(strtolower($va_atributos["label"]), strtolower($vs_header)) !== false ? "selected" : ""; ?> >
+                                                                    <?= $va_atributos["label"]; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
 
-                                        print "Importando...: ";
-                                        
-                                        $va_objeto = array();
-                                        $contador_linhas = 1;
-                                        
-                                        while ( (($vs_linha = fgetcsv($v_file, 4096)) !== false) )
-                                        {
-                                            $va_atributos = $vs_linha;
-
-                                            $vo_objeto = new $vs_id_objeto_tela;
-
-                                            $vo_objeto->importar($va_atributos, $vn_usuario_logado_codigo, $vb_sobrescrever_valores);
-
-                                            if ($contador_linhas > 1)
-                                                print ", ";
-
-                                            print trim($va_atributos[0]);
-                                            @ob_flush();
-                                            flush();
-
-                                            $contador_linhas++;
-                                        }
-
-                                        if (!feof($v_file)) 
-                                        {
-                                            echo "Erro: falha na leitura do arquivo!\n";
-                                        }
-
-                                        fclose($v_file);
-                                    }
-                                }
-                            ?>
-                            </div>
+                                        <div class="row mt-3 pr-3">
+                                            <div class="text-end">
+                                                <button class="btn btn-primary btn-importar" type="submit">
+                                                    Continuar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
-
 </div>
+
+<?php require_once dirname(__FILE__) . "/components/footer.php"; ?>
 </body>
 </html>
