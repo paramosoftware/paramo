@@ -43,6 +43,7 @@ return [
         "downloads" => dirname(__FILE__) . "/../app/media/downloads/",
         "videos" => dirname(__FILE__) . "/../app/media/videos/",
         "audios" => dirname(__FILE__) . "/../app/media/audios/",
+        "import" => dirname(__FILE__) . "/../app/media/import/",
         "images" => [
             "large" => dirname(__FILE__) . "/../app/media/images/large/",
             "medium" => dirname(__FILE__) . "/../app/media/images/medium/",
