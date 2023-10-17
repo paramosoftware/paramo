@@ -70,6 +70,8 @@ class Banco
                             }
                             elseif ($vs_concatenador == "NOT")
                                 $vs_concatenador = "AND NOT";
+                            elseif ($vs_concatenador == "_SEM_VALOR_")
+                                $vs_concatenador = "AND";
                                     
                             $vs_wheres .= $vs_concatenador . " " . $vs_where . ") ";
                             $vs_parenteses_inicio_where .= "(";                            

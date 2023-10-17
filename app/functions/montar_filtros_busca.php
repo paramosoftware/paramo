@@ -111,6 +111,11 @@
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
                         $va_parametros_filtros_consulta[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
                 }
+                elseif ($va_parametros_submit[$vs_campo] == "_SEM_VALOR_")
+                {
+                    $va_parametros_filtros_form[$vs_campo] = $vs_valor;
+                    $va_parametros_filtros_consulta[$vs_campo] = ["0", "_EXISTS_"];
+                }
                 else
                 {
                     $vs_valor = $va_parametros_submit[$vs_campo];

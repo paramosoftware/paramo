@@ -168,6 +168,21 @@ function remover_filtro_busca(ps_campo_id, ps_filtro_id)
     va_contador_filtros_busca[ps_filtro_id] = va_contador_filtros_busca[ps_filtro_id] - 1;
 }
 
+function atualizar_filtro(select, ps_filtro_id)
+{
+    if (select.options[select.selectedIndex].value == "_SEM_VALOR_")
+    {
+        $("#"+ps_filtro_id).append('<option value="_SEM_VALOR_">SEM VALOR</option>');
+        $("#"+ps_filtro_id).val("_SEM_VALOR_");
+        $("#"+ps_filtro_id + " option:not(:selected)").attr("disabled", true);
+    }
+    else
+    {
+        $("#"+ps_filtro_id + " option[value='_SEM_VALOR_']").remove();
+        $("#"+ps_filtro_id + " option:not(:selected)").attr("disabled", false);
+    }
+}
+
 function toggle_filtro()
 {
     var div = document.getElementById('filtro');

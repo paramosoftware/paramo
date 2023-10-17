@@ -19,7 +19,7 @@
             Operador
         </label>
 
-        <select class="form-select input" name="concatenadores[]">
+        <select class="form-select input" name="concatenadores[]" onchange="atualizar_filtro(this, '<?php print $vs_novo_id_campo; ?>');">
             <?php if ($vn_contador_filtros_adicionados == 0)
             {
             ?>
@@ -50,6 +50,12 @@
                 print " selected";
             ?>
             >NÃO</option>
+
+            <option value="_SEM_VALOR_"
+            <?php if ($vs_valor_concatenador == "_SEM_VALOR_")
+                print " selected";
+            ?>
+            >SEM VALOR</option>
         </select>
     </div>
 
