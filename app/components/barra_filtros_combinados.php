@@ -36,40 +36,52 @@ if (!$vb_exibir_filtro)
     <div class="col-2"></div>
 
     <div class="col-8" id="filtros">
-        <?php
-            $vs_modo = "listagem";
-            require dirname(__FILE__) . "/../functions/configurar_campos_tela.php";
+        <div class="row">
+        <div class="col-11">
+            <?php
+                $vs_modo = "listagem";
+                require dirname(__FILE__) . "/../functions/configurar_campos_tela.php";
 
-            foreach ($va_campos as $vs_campo_key => $va_campo)
-            {
-                $va_filtros_navegacao[$vs_campo_key] = $va_campo["label"];
-            }
+                foreach ($va_campos as $vs_campo_key => $va_campo)
+                {
+                    $va_filtros_navegacao[$vs_campo_key] = $va_campo["label"];
+                }
 
-            $va_parametros_campo = [
-                "html_combo_input", 
-                "nome" => "campo_sistema_nome",
-                "label" => "Buscar por",
-                "sem_valor" => false,
-                "valores" => $va_filtros_navegacao
-            ];
-        
-            $vo_combo_campos_busca = new html_combo_input($vs_id_objeto_tela, "campo_sistema_nome");
-            $vo_combo_campos_busca->build($va_parametros_filtros_form, $va_parametros_campo);
-        ?>
+                $va_parametros_campo = [
+                    "html_combo_input", 
+                    "nome" => "campo_sistema_nome",
+                    "label" => "Adicionar filtro",
+                    "sem_valor" => false,
+                    "valores" => $va_filtros_navegacao
+                ];
+            
+                $vo_combo_campos_busca = new html_combo_input($vs_id_objeto_tela, "campo_sistema_nome");
+                $vo_combo_campos_busca->build($va_parametros_filtros_form, $va_parametros_campo);
+            ?>
+        </div>
 
-        <button class="btn btn-primary" type="button" onclick="adicionar_filtro_busca()">
-            <svg class="icon">
-                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
-            </svg>
-        </button>
+        <div class="col-1" style="margin-top:32px">
+            <button class="btn btn-primary" type="button" onclick="adicionar_filtro_busca()">
+                <svg class="icon">
+                    <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
+                </svg>
+            </button>
+        </div>
+        </div>
 
         <div id="filtros_disponiveis">
         <?php
             $vb_multiplas_instancias_campo = true;
             $va_contador_filtros_busca = array();
 
+            $vn_contador = 0;
+            $vn_contador_filtros_adicionados = 0;
+
             foreach ($va_parametros_filtros_form as $vs_id_campo => $va_filtro)
             {
+                if (strpos($vs_id_campo, "_F_") !== false)
+                    $vs_id_campo = substr($vs_id_campo, 0, strpos($vs_id_campo, "_F_"));
+                    
                 if (!is_array($va_filtro))
                     $va_filtro = array($va_filtro);
 
@@ -82,11 +94,20 @@ if (!$vb_exibir_filtro)
                     else
                         $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
 
-                    $vs_novo_id_campo = $vs_id_campo . "_" . $va_contador_filtros_busca[$vs_id_campo];
+                    $vs_novo_id_campo = $vs_id_campo . "_F_" . $va_contador_filtros_busca[$vs_id_campo];
 
-                    $va_objeto[$vs_id_campo . "[]"] = $vs_filtro;
+                    $va_objeto[$vs_novo_id_campo] = $vs_filtro;
+                                            
+                    if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
+                    {
+                        $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
 
-                    require dirname(__FILE__)."/../functions/montar_campos.php";
+                        require dirname(__FILE__)."/../functions/montar_filtro_combinado.php";
+
+                        $vn_contador_filtros_adicionados++;
+                    }
+
+                    $vn_contador++;
                 }
             }
         ?>
@@ -106,34 +127,45 @@ if (!$vb_exibir_filtro)
 
 <script>
 
-var va_filtros_busca = [];
+var va_filtros_busca = <?php print json_encode(array_keys($va_contador_filtros_busca)); ?>;
 var va_contador_filtros_busca = [];
+
+<?php foreach ($va_contador_filtros_busca as $vs_filtro_busca => $vn_contador)
+{
+?>
+    va_contador_filtros_busca["<?php print $vs_filtro_busca; ?>"] = <?php print $vn_contador; ?>;
+<?php
+}
+?>
 
 function adicionar_filtro_busca()
 {
+    //Para chamar corretamente o $.get mais de uma vez
+    jQuery.ajaxSetup({async:false});
+
     vs_campo = $("#campo_sistema_nome").val();
     
-    vs_url_filtro_busca = 'functions/montar_campos.php?obj=<?php print $vs_id_objeto_tela; ?>&campo='+vs_campo+'&multiplas_instancias=1&modo=listagem';
-    
+    if (va_filtros_busca.indexOf(vs_campo) >= 0)
+        va_contador_filtros_busca[vs_campo] += 1;
+    else
+    {
+        va_filtros_busca.push(vs_campo);
+        va_contador_filtros_busca[vs_campo] = 1;
+    }
+
+    vs_url_filtro_busca = 'functions/montar_filtro_combinado.php?obj=<?php print $vs_id_objeto_tela; ?>&campo='+vs_campo+'&multiplas_instancias=1&modo=listagem&instancia='+va_contador_filtros_busca[vs_campo]+"&numero_filtros="+document.getElementById("filtros_disponiveis").children.length;
+
     $.get(vs_url_filtro_busca, function(data, status)
     {
-        var v_updated_field = document.createElement('div');
-        v_updated_field.innerHTML = data;
-
-        document.getElementById("filtros_disponiveis").appendChild(v_updated_field);
-
-        if (va_filtros_busca.indexOf(vs_campo) >= 0)
-            va_contador_filtros_busca[vs_campo] += 1;
-        else
-        {
-            va_filtros_busca.push(vs_campo);
-            va_contador_filtros_busca[vs_campo] = 1;
-        }
-
-        //document.getElementById(vs_campo).name = vs_campo+"_"+va_contador_filtros_busca[vs_campo];
-        //document.getElementById(vs_campo).name = vs_campo+"[]";
-        //document.getElementById(vs_campo).id = vs_campo+"_"+va_contador_filtros_busca[vs_campo];
+        document.getElementById("filtros_disponiveis").innerHTML += data;
     });
+}
+
+function remover_filtro_busca(ps_campo_id, ps_filtro_id)
+{
+    $("#div_"+ps_campo_id).remove();
+
+    va_contador_filtros_busca[ps_filtro_id] = va_contador_filtros_busca[ps_filtro_id] - 1;
 }
 
 function toggle_filtro()

@@ -42,10 +42,44 @@ class Banco
                     $vs_select = $vs_select . " " . join(" ", $va_select["joins"]);
             }
 
-            if (isset($va_select["wheres"])) {
-                if (count($va_select["wheres"])) {
-                    $vs_select = $vs_select . " WHERE "
-                        . join(" AND ", $va_select["wheres"]);
+            if (isset($va_select["wheres"])) 
+            {
+                if (count($va_select["wheres"])) 
+                {
+                    $vs_select .= " WHERE ";
+
+                    if (!isset($va_select["concatenadores"]) || !count($va_select["concatenadores"]))
+                        $vs_select .= join(" AND ", $va_select["wheres"]);
+                    else
+                    {
+                        $vs_wheres = "";
+                        $vn_contador = 0;
+                        $vs_parenteses_inicio_where = "";
+
+                        foreach ($va_select["wheres"] as $vs_where)
+                        {
+                            $vs_concatenador = "AND";
+
+                            if (isset($va_select["concatenadores"][$vn_contador]))
+                                $vs_concatenador = $va_select["concatenadores"][$vn_contador];
+
+                            if ($vn_contador == 0) 
+                            {
+                                if ($vs_concatenador != "NOT")
+                                    $vs_concatenador = "";
+                            }
+                            elseif ($vs_concatenador == "NOT")
+                                $vs_concatenador = "AND NOT";
+                                    
+                            $vs_wheres .= $vs_concatenador . " " . $vs_where . ") ";
+                            $vs_parenteses_inicio_where .= "(";                            
+
+                            $vn_contador++;
+                        }
+
+                        $vs_select .= $vs_parenteses_inicio_where . $vs_wheres;
+                        //var_dump($vs_select, $pa_valores);
+                    }
                 }
             }
 

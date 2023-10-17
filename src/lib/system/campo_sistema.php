@@ -366,7 +366,8 @@ class campo_sistema extends objeto_base
         $this->visualizacoes["navegacao"]["order_by"] = ["campo_sistema_alias" => "Nome"];
         $this->visualizacoes["navegacao"]["ordem_campos"] = [
             "campo_sistema_alias" => ["label" => "Nome", "main_field" => true],
-            "campo_sistema_recurso_sistema_codigo" => "Recurso do sistema"
+            "campo_sistema_recurso_sistema_codigo" => "Recurso do sistema",
+            "campo_sistema_nome" => "Id"
         ];
 
         $this->visualizacoes["ficha"]["campos"] = $va_campos_visualizacao;

@@ -146,7 +146,7 @@
     $contador = 1;
     foreach ($va_abas_form as $vs_key_aba => $va_aba)
     {
-        if (!$vb_atualizacao_campo)
+        if (!$vb_atualizacao_campo && isset($va_aba["campos"]) && count($va_aba["campos"]))
         {
         ?>
             <div class="tab" id="tab_<?php print $vs_key_aba; ?>" style="margin-top:10px;

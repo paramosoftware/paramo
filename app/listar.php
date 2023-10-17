@@ -188,7 +188,7 @@
                             
                                 <!-- FILTRO-->
 
-                                <?php require_once dirname(__FILE__)."/components/barra_filtros_navegacao.php"; ?>
+                                <?php require_once dirname(__FILE__)."/components/barra_filtros_combinados.php"; ?>
                                 
                                 <!-- / FILTRO-->
 

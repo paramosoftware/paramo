@@ -70,7 +70,7 @@
 ?>>
     <?php if ($vs_ui_element != "linha") {
     ?>
-        <div class="row mb-1">
+        <div class="row">
             <div class="col-9">
                 <label class="form-label" for="exampleFormControlInput1" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
                     <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])

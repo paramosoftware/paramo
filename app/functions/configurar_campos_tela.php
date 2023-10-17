@@ -223,10 +223,11 @@
 
             if (isset($vb_multiplas_instancias_campo) && $vb_multiplas_instancias_campo)
             {
-                $va_campos[$vs_id_campo]["nome"] = $va_campos[$vs_id_campo]["nome"] . "[]";
-
                 if (isset($vs_novo_id_campo))
-                    $va_campos[$vs_id_campo]["id"] = $vs_novo_id_campo;
+                {
+                    $va_campos[$vs_id_campo]["nome"] = $vs_novo_id_campo;
+                    //$va_campos[$vs_id_campo]["id"] = $vs_novo_id_campo;
+                }
             }
 
             $va_campos[$vs_id_campo]["atualizacao"] = $vb_atualizacao_campo;

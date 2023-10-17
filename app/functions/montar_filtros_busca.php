@@ -46,15 +46,22 @@
         $vb_aplicar_controle_acesso = true;
         $va_controles_acesso_aplicados = array();
 
-        foreach($va_campos as $va_campo_filtro)
+        foreach ($va_parametros_submit as $vs_key_filtro => $vs_valor_filtro)
         {
-            if (is_array($va_campo_filtro["nome"]))
-                $vs_campo = $va_campo_filtro["nome"][1];
-            else
-                $vs_campo = $va_campo_filtro["nome"];
+            // Se for um filtro de busca que pode aparecer mais de uma vez na tela
+            //////////////////////////////////////////////////////////////////////
 
-            if (isset($va_parametros_submit[$vs_campo]))
+            $vs_campo = $vs_key_filtro;
+            if (preg_match('/\w+(_F_\d+)$/', $vs_campo))
             {
+                $vs_campo = substr($vs_key_filtro, 0, strpos($vs_key_filtro, "_F_"));
+            }
+
+            if (isset($va_campos[$vs_campo]))
+            {
+                $va_campo_filtro = $va_campos[$vs_campo];
+                $vs_campo = $vs_key_filtro;
+                
                 // Vamos tratar as datas
                 ////////////////////////
 
@@ -154,6 +161,9 @@
             if (count($va_parametros_filtros_form))
                 $vb_tem_filtros_consulta = true;
         }
+
+        if (isset($va_parametros_submit["concatenadores"]))
+            $va_parametros_filtros_consulta["concatenadores"] = $va_parametros_submit["concatenadores"];
 
         if (isset($vo_objeto->controlador_acesso))
         {

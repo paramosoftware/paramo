@@ -7,7 +7,11 @@
     else
     {
         $vs_nome_campo = $pa_parametros_campo["nome"];
-        $vs_id_campo = str_replace(",", "_", $vs_nome_campo);
+
+        if (isset($pa_parametros_campo["id"]))
+            $vs_id_campo = $pa_parametros_campo["id"];
+        else
+            $vs_id_campo = str_replace(",", "_", $vs_nome_campo);
     }
 
     $vn_valor_campo_codigo = "";
