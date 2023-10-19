@@ -52,11 +52,9 @@
             //////////////////////////////////////////////////////////////////////
 
             $vs_campo = $vs_key_filtro;
-            if (preg_match('/\w+(_F_\d+)$/', $vs_campo))
-            {
+            if ( preg_match('/\w+(_F_\d+)$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
                 $vs_campo = substr($vs_key_filtro, 0, strpos($vs_key_filtro, "_F_"));
-            }
-
+            
             if (isset($va_campos[$vs_campo]))
             {
                 $va_campo_filtro = $va_campos[$vs_campo];
@@ -111,10 +109,15 @@
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
                         $va_parametros_filtros_consulta[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
                 }
-                elseif ($va_parametros_submit[$vs_campo] == "_SEM_VALOR_")
+                elseif (preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
                 {
-                    $va_parametros_filtros_form[$vs_campo] = $vs_valor;
-                    $va_parametros_filtros_consulta[$vs_campo] = ["0", "_EXISTS_"];
+                    $va_parametros_filtros_form[$vs_key_filtro] = 1;
+                    $va_parametros_filtros_consulta[str_replace("_sem_valor", "", $vs_key_filtro)] = ["0", "_EXISTS_"];
+                }
+                elseif (preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro))
+                {
+                    $va_parametros_filtros_form[$vs_key_filtro] = 1;
+                    $va_parametros_filtros_consulta[str_replace("_com_valor", "", $vs_key_filtro)] = ["1", "_EXISTS_"];
                 }
                 else
                 {

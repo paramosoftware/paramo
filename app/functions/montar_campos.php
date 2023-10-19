@@ -21,6 +21,8 @@
         }
 
         // $vs_modo indica se estamos em edição ou em listagem (filtros)
+        ////////////////////////////////////////////////////////////////
+        
         if (!isset($vs_modo))
         {
             if (isset($_GET['modo']))

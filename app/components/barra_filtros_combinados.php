@@ -79,9 +79,18 @@ if (!$vb_exibir_filtro)
 
             foreach ($va_parametros_filtros_form as $vs_id_campo => $va_filtro)
             {
-                if (strpos($vs_id_campo, "_F_") !== false)
+                $va_objeto[$vs_id_campo] = $va_filtro;
+
+                $vs_novo_id_campo = $vs_id_campo;
+
+                if (preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo))
+                    $vs_novo_id_campo = str_replace("_com_valor", "", $vs_id_campo);
+                elseif (preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
+                    $vs_novo_id_campo = str_replace("_sem_valor", "", $vs_id_campo);
+
+                if ( preg_match('/\w+(_F_\d+)$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
                     $vs_id_campo = substr($vs_id_campo, 0, strpos($vs_id_campo, "_F_"));
-                    
+
                 if (!is_array($va_filtro))
                     $va_filtro = array($va_filtro);
 
@@ -93,11 +102,7 @@ if (!$vb_exibir_filtro)
                         $va_contador_filtros_busca[$vs_id_campo] = 1;
                     else
                         $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
-
-                    $vs_novo_id_campo = $vs_id_campo . "_F_" . $va_contador_filtros_busca[$vs_id_campo];
-
-                    $va_objeto[$vs_novo_id_campo] = $vs_filtro;
-                                            
+      
                     if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
                     {
                         $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
@@ -157,7 +162,7 @@ function adicionar_filtro_busca()
 
     $.get(vs_url_filtro_busca, function(data, status)
     {
-        document.getElementById("filtros_disponiveis").innerHTML += data;
+        $("#filtros_disponiveis").append(data);
     });
 }
 
@@ -170,15 +175,24 @@ function remover_filtro_busca(ps_campo_id, ps_filtro_id)
 
 function atualizar_filtro(select, ps_filtro_id)
 {
+    var vs_field_text = "";
+
     if (select.options[select.selectedIndex].value == "_SEM_VALOR_")
+        vs_field_text = "NÃO PREENCHIDO";
+    else if (select.options[select.selectedIndex].value == "_COM_VALOR_")
+        vs_field_text = "PREENCHIDO";
+
+    if (vs_field_text != "")
     {
-        $("#"+ps_filtro_id).append('<option value="_SEM_VALOR_">SEM VALOR</option>');
-        $("#"+ps_filtro_id).val("_SEM_VALOR_");
+        $("#"+ps_filtro_id).append('<option value="'+select.options[select.selectedIndex].value+'">'+vs_field_text+'</option>');
+        $("#"+ps_filtro_id).val(select.options[select.selectedIndex].value);
         $("#"+ps_filtro_id + " option:not(:selected)").attr("disabled", true);
     }
     else
     {
         $("#"+ps_filtro_id + " option[value='_SEM_VALOR_']").remove();
+        $("#"+ps_filtro_id + " option[value='_COM_VALOR_']").remove();
+
         $("#"+ps_filtro_id + " option:not(:selected)").attr("disabled", false);
     }
 }

@@ -1123,7 +1123,11 @@ class objeto_base
 
                     if (!in_array($vs_alias_tabela_join, $pa_joins_select)) 
                     {
-                        $pa_joins_select[$vs_alias_tabela_join] = " JOIN " . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
+                        $vs_tipo_join = " JOIN ";
+                        if ($ps_operador == "_EXISTS_")
+                            $vs_tipo_join = " LEFT JOIN ";
+
+                        $pa_joins_select[$vs_alias_tabela_join] = $vs_tipo_join . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
                         $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
                     }
 
@@ -1152,7 +1156,20 @@ class objeto_base
                         $va_atributo_filtro_relacionamento = $vo_objeto_relacionamento->atributos[$va_filtro[2]];
                        
                         if ( ($ps_operador != "LIKE") && ($ps_operador_logico != "OR") )
-                            $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
+                        {
+                            if ($ps_operador == "_EXISTS_") {
+                                $vb_valor_busca = reset($pa_valores_busca);
+        
+                                if (!$vb_valor_busca)
+                                    $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " IS NULL ";
+                                else
+                                    $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " IS NOT NULL ";
+
+                                unset($pa_valores_busca);
+                            }
+                            else
+                                $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
+                        }
 
                         $va_or_conditions = array();
                         $va_and_conditions = array();
@@ -1184,7 +1201,20 @@ class objeto_base
                         $vs_tipo_dado_campo = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$vn_index_tipo_campo];
 
                         if ($ps_operador_logico != "OR")
-                            $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
+                        {
+                            if ($ps_operador == "_EXISTS_") {
+                                $vb_valor_busca = reset($pa_valores_busca);
+        
+                                if (!$vb_valor_busca)
+                                    $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NULL ";
+                                else
+                                    $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NOT NULL ";
+
+                                unset($pa_valores_busca);
+                            }
+                            else
+                                $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
+                        }
 
                         $va_or_conditions = array();
                         

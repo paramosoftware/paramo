@@ -50,12 +50,6 @@
                 print " selected";
             ?>
             >NÃO</option>
-
-            <option value="_SEM_VALOR_"
-            <?php if ($vs_valor_concatenador == "_SEM_VALOR_")
-                print " selected";
-            ?>
-            >SEM VALOR</option>
         </select>
     </div>
 
