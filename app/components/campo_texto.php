@@ -36,11 +36,6 @@
     else
         $vs_formato = $pa_parametros_campo["formato"];
 
-    if (!isset($pa_parametros_campo["modo"]))
-        $vs_modo = '';
-    else
-        $vs_modo = $pa_parametros_campo["modo"];
-
     if (!isset($pa_parametros_campo["numero_linhas"]))
         $vn_numero_linhas = 1;
     else
@@ -166,7 +161,7 @@ else
         {
         ?>
             <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
-                <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                <?php if ($vs_modo == "lote")
                 {
                 ?>
                     <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>">
@@ -284,13 +279,36 @@ else
         ?>
             <input type="text" class="form-control input <?php print $vs_css_class; ?>" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
             <?php
+                if ( (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"]) || ($vs_modo == "lote") )
+                    print ' style="display:none"';
+
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-                    print ' disabled style="display:none"';
+                    print ' disabled ';
 
                 if (isset($pa_parametros_campo["readonly"]) && $pa_parametros_campo["readonly"])
                     print ' readonly';
             ?>
             >
+
+            <?php if ($vs_modo == "listagem")
+            {
+            ?>
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_nome_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'com_valor')"
+                <?php 
+                if ($vb_marcar_com_valor)
+                    print " checked";
+                ?>
+                > preenchido
+                
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_valor" id="<?php print $vs_nome_campo ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'sem_valor')"
+                <?php 
+                if ($vb_marcar_sem_valor)
+                    print " checked";
+                ?>
+                > não preenchido
+            <?php
+            }
+            ?>
         <?php
         }
         else
@@ -356,5 +374,16 @@ $(document).on('keyup', "#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"
     }
     ?>
 });
+
+function alterar_valor_filtro_<?php print $vs_nome_campo ?>(pb_checked, ps_valor)
+{
+    if (ps_valor == "sem_valor")
+        $("#<?php print $vs_nome_campo ?>_com_valor").prop("checked", false);
+    else if (ps_valor == "com_valor")
+        $("#<?php print $vs_nome_campo ?>_sem_valor").prop("checked", false);
+
+    $("#<?php print $vs_nome_campo ?>").val("");
+    $("#<?php print $vs_nome_campo ?>").prop("disabled", pb_checked);
+};
 
 </script>
