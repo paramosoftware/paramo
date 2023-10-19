@@ -152,9 +152,10 @@
 
         ///////////////////////////////////////////////////////////////////////
 
-        $va_telas["edicao"][$vs_id_objeto_tela] = $va_campos;
+        if ($vs_modo == "duplicacao")
+            $vs_modo = "edicao";
 
-        $vs_modo = "edicao";
+        $va_telas[$vs_modo][$vs_id_objeto_tela] = $va_campos;
     }
     elseif ($vs_modo == "listagem") 
     {
