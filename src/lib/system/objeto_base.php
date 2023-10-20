@@ -809,26 +809,45 @@ class objeto_base
                         if (in_array($ps_operador, ["LIKE", "LIKERIGHT", "LIKELEFT"]))
                         {
                             $ps_operador_logico = "OR";
-                            $va_valores_filtro_like = explode(" ", $vs_valor_filtro);
 
-                            foreach ($va_valores_filtro_like as &$vs_valor_filtro_like)
+                            // Vamos separar sequência de palavras entre aspas
+                            //////////////////////////////////////////////////
+
+                            if (preg_match_all('/"([^"]+)"/', $vs_valor_filtro, $va_matches))
                             {
-                                if ($ps_operador == "LIKE")
-                                    $vs_valor_filtro_like = "%" . $vs_valor_filtro_like . "%";
-
-                                elseif ($ps_operador == "LIKERIGHT")
+                                foreach ($va_matches[0] as $vs_match)
                                 {
-                                    $vs_valor_filtro_like =  $vs_valor_filtro_like . "%";
-                                    $ps_operador = "LIKE";
-                                }
-                                elseif ($ps_operador == "LIKELEFT")
-                                {
-                                    $vs_valor_filtro_like = "%" . $vs_valor_filtro_like;
-                                    $ps_operador = "LIKE";
+                                    $vs_valor_filtro = str_replace($vs_match, "", $vs_valor_filtro);
                                 }
                             }
 
-                            $pa_valores_busca[] = $va_valores_filtro_like;
+                            $va_valores_filtro_like = explode(" ", $vs_valor_filtro);
+                            $va_valores_filtro_like = array_merge($va_valores_filtro_like, $va_matches[1]);
+                            $va_novos_valores_filtro_like = array();
+
+                            foreach ($va_valores_filtro_like as &$vs_valor_filtro_like)
+                            {
+                                if (trim($vs_valor_filtro_like) != "")
+                                {
+                                    if ($ps_operador == "LIKE")
+                                        $vs_valor_filtro_like = "%" . $vs_valor_filtro_like . "%";
+
+                                    elseif ($ps_operador == "LIKERIGHT")
+                                    {
+                                        $vs_valor_filtro_like =  $vs_valor_filtro_like . "%";
+                                        $ps_operador = "LIKE";
+                                    }
+                                    elseif ($ps_operador == "LIKELEFT")
+                                    {
+                                        $vs_valor_filtro_like = "%" . $vs_valor_filtro_like;
+                                        $ps_operador = "LIKE";
+                                    }
+
+                                    $va_novos_valores_filtro_like[] = $vs_valor_filtro_like;
+                                }
+                            }
+
+                            $pa_valores_busca[] = $va_novos_valores_filtro_like;
                         }
                         else
                             $pa_valores_busca[] = $vs_valor_filtro;
