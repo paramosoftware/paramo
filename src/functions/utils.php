@@ -15,7 +15,7 @@ class utils
         return 'data:' . $ps_formato . '/' . $type . ';base64,' . base64_encode($data);
     }
 
-    public static function get_file_extension($file_path): array|string
+    public static function get_file_extension($file_path)
     {
         return pathinfo($file_path, PATHINFO_EXTENSION);
     }
