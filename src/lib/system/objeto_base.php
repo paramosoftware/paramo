@@ -1358,17 +1358,23 @@ class objeto_base
                 else
                     $vs_tabela_banco = $po_objeto->tabela_banco;
 
-                //$vs_campo_tabela = $po_objeto->chave_primaria["coluna_tabela"];
-                //$vs_tipo_dado_campo = $po_objeto->chave_primaria["tipo_dado"];
-
                 $vs_campo_tabela = "codigo";
                 $vs_tipo_dado_campo = "i";
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]) || $vb_is_attribute) 
             {
-                if ($po_objeto->atributos[$va_filtro[0]]["tipo_dado"] == "dt") 
+                if ($po_objeto->atributos[$va_filtro[0]]["tipo_dado"] == "dt")
                 {
-                    if ($pa_valores_busca[0] == "_sem_data_")
+                    if ($ps_operador == "_EXISTS_") 
+                    {
+                        $vb_valor_busca = reset($pa_valores_busca);
+
+                        if (!$vb_valor_busca)
+                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NULL ";
+                        else
+                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NOT NULL ";
+                    }
+                    elseif ($pa_valores_busca[0] == "_sem_data_")
                     {
                         $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NULL ";
                     }

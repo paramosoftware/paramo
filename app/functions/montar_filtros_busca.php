@@ -65,7 +65,7 @@
 
                 if ($va_parametros_submit[$vs_campo] == "_data_")
                 {
-                    $va_parametros_filtros_consulta[$vs_campo] = "_data_";
+                    $va_parametros_filtros_consulta[$vs_campo] = $va_parametros_filtros_form[$vs_campo] = "_data_";
 
                     if (isset($va_parametros_submit[$vs_campo . "_dia_inicial"]) && $va_parametros_submit[$vs_campo . "_dia_inicial"])
                         $va_parametros_filtros_form[$vs_campo . "_dia_inicial"] = $va_parametros_submit[$vs_campo . "_dia_inicial"];
