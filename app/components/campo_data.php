@@ -73,7 +73,7 @@
         <div class="row">
             <div class="col-9">
                 <label class="form-label" for="exampleFormControlInput1" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
-                    <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                    <?php if ($vs_modo == "lote")
                     {
                     ?>
                         <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>">
@@ -117,8 +117,11 @@
 
     <div class="row" id="linha_data_1_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
         <?php
+            if ( (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"]) || ($vs_modo == "lote") )
+                print ' style="display:none"';
+
             if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-                print ' disabled style="display:none"';
+                print ' disabled ';
         ?>
     >
         <div class="col-6">
@@ -130,7 +133,7 @@
                 ?>
                 >
                     <input type="number" class="form-control input" size="2" max="31" placeholder="dd" name="<?php print $vs_nome_campo ?>_dia_inicial<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_dia_inicial<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_dia_inicial; ?>"
-                    <?php if ($vb_sem_data)
+                    <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                         print ' disabled';
                     ?>
                     >
@@ -143,7 +146,7 @@
                 ?>
                 >
                     <input type="number" class="form-control input" size="2" max="12" placeholder="mm" name="<?php print $vs_nome_campo ?>_mes_inicial<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_mes_inicial<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_mes_inicial; ?>"
-                    <?php if ($vb_sem_data)
+                    <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                         print ' disabled';
                     ?>
                     >
@@ -155,7 +158,7 @@
                 print ' style="display:none"';
                 ?>
                 >
-                    <input type="number" class="form-control input" style="width:100px" size="4" min="1000" max="<?php print $vn_ano_maximo; ?>" placeholder="aaaa" name="<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_ano_inicial; ?>"
+                    <input type="number" class="form-control input" size="4" min="1000" max="<?php print $vn_ano_maximo; ?>" placeholder="aaaa" name="<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_ano_inicial; ?>"
                     <?php
                         if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                             print ' disabled';
@@ -172,7 +175,7 @@
                     ?>
                     >
                         <select class="form-select" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>_decada"
-                        <?php if ($vb_sem_data)
+                        <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                             print ' disabled';
                         ?>                        
                         >
@@ -206,7 +209,7 @@
                         ?>
 
                         <select class="form-select" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>_seculo"
-                        <?php if ($vb_sem_data)
+                        <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                             print ' disabled';
                         ?>
                         >
@@ -232,7 +235,7 @@
                 ?>
                 >
                     <input type="number" class="form-control input" size="2" max="31" placeholder="dd" name="<?php print $vs_nome_campo ?>_dia_final<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_dia_final<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_dia_final; ?>"
-                    <?php if ($vb_sem_data)
+                    <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                         print ' disabled';
                     ?>
                     >
@@ -245,7 +248,7 @@
                 ?>
                 >
                     <input type="number" class="form-control input" size="2" max="12" placeholder="mm" name="<?php print $vs_nome_campo ?>_mes_final<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_mes_final<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_mes_final; ?>"
-                    <?php if ($vb_sem_data)
+                    <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                         print ' disabled';
                     ?>
                     >
@@ -258,7 +261,7 @@
                 ?>
                 >
                     <input type="number" class="form-control input" size="4" min="1000" placeholder="aaaa" name="<?php print $vs_nome_campo ?>_ano_final<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_ano_final<?php print $vs_sufixo_nome_campo ?>" value="<?php print $vn_ano_final; ?>"
-                    <?php if ($vb_sem_data)
+                    <?php if ($vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
                         print ' disabled';
                     ?>
                     >
@@ -266,54 +269,83 @@
             </div>
         </div>
     </div>
-    
-    <div class="row linha_checkbox_espacamento" id="linha_data_2_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
-    <?php
-        if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-            print ' disabled style="display:none"';
+
+    <?php if ($vs_modo == "listagem")
+    {
     ?>
-    >
-        <?php
-        if (!isset($pa_parametros_campo["exibir_presumido"]))
-        {
+    <div>
+        <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_nome_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'com_valor')"
+        <?php 
+        if ($vb_marcar_com_valor)
+            print " checked";
         ?>
-
-            <div class="col-2">
-                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>" value="1"
-                <?php
-                    if ( $vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
-                        print ' disabled';
-                ?>
-
-                <?php
-                if ($vb_presumido)
-                    print " checked";
-
-                ?>>
-                <label class="form-check-label" for="flexCheckDefault">Presumida</label>
-            </div>
-        <?php
-        }
+        > preenchido
+        
+        <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_valor" id="<?php print $vs_nome_campo ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'sem_valor')"
+        <?php 
+        if ($vb_marcar_sem_valor)
+            print " checked";
         ?>
-
-        <?php if (!isset($pa_parametros_campo["exibir_sem_data"])) { ?>
-
-            <div class="col-2">
-                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>" value="1"
-                <?php
-                    if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-                        print ' disabled';
-                ?>
-
-                <?php
-                if ($vb_sem_data)
-                    print " checked";
-
-                ?>>
-                <label class="form-check-label" for="flexCheckDefault">sem data</label>
-            </div>
-        <?php } ?>
+        > não preenchido
+    <?php
+    }
+    ?>
     </div>
+    
+    <?php if ($vs_modo != "listagem")
+    {
+    ?>
+    
+        <div class="row linha_checkbox_espacamento" id="linha_data_2_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
+        <?php
+            if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                print ' disabled style="display:none"';
+        ?>
+        >
+            <?php
+            if (!isset($pa_parametros_campo["exibir_presumido"]))
+            {
+            ?>
+
+                <div class="col-2">
+                    <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>" value="1"
+                    <?php
+                        if ( $vb_sem_data || (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]))
+                            print ' disabled';
+                    ?>
+
+                    <?php
+                    if ($vb_presumido)
+                        print " checked";
+
+                    ?>>
+                    <label class="form-check-label" for="flexCheckDefault">Presumida</label>
+                </div>
+            <?php
+            }
+            ?>
+
+            <?php if (!isset($pa_parametros_campo["exibir_sem_data"])) { ?>
+
+                <div class="col-2">
+                    <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>" value="1"
+                    <?php
+                        if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                            print ' disabled';
+                    ?>
+
+                    <?php
+                    if ($vb_sem_data)
+                        print " checked";
+
+                    ?>>
+                    <label class="form-check-label" for="flexCheckDefault">sem data</label>
+                </div>
+            <?php } ?>
+        </div>
+    <?php
+    }
+    ?>
 
     <?php
     if (
@@ -493,5 +525,29 @@ $(document).on('change', "#<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?
     $("#<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>").val($(this).val()*100+1);
     $("#<?php print $vs_nome_campo ?>_ano_final<?php print $vs_sufixo_nome_campo ?>").val($(this).val()*100+100);
 });
+
+function alterar_valor_filtro_<?php print $vs_nome_campo ?>(pb_checked, ps_valor)
+{
+    if (ps_valor == "sem_valor")
+        $("#<?php print $vs_nome_campo ?>_com_valor").prop("checked", false);
+    else if (ps_valor == "com_valor")
+        $("#<?php print $vs_nome_campo ?>_sem_valor").prop("checked", false);
+
+    $("#<?php print $vs_nome_campo ?>_dia_inicial<?php print $vs_sufixo_nome_campo ?>").val("");
+    $("#<?php print $vs_nome_campo ?>_mes_inicial<?php print $vs_sufixo_nome_campo ?>").val("");
+    $("#<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>").val("");
+
+    $("#<?php print $vs_nome_campo ?>_dia_final<?php print $vs_sufixo_nome_campo ?>").val("");
+    $("#<?php print $vs_nome_campo ?>_mes_final<?php print $vs_sufixo_nome_campo ?>").val("");
+    $("#<?php print $vs_nome_campo ?>_ano_final<?php print $vs_sufixo_nome_campo ?>").val("");
+
+    $("#<?php print $vs_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_dia_inicial<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_mes_inicial<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_dia_final<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_mes_final<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo ?>_ano_final<?php print $vs_sufixo_nome_campo ?>").prop("disabled", pb_checked);
+};
 
 </script>
