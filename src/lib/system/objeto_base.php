@@ -48,6 +48,7 @@ class objeto_base
     // de vários tipos de objetos
     
     protected $objetos = array();
+    protected $numero_registros_por_objeto = array();
 
     function __construct($ps_recurso_sistema_id = '')
     {
@@ -226,6 +227,11 @@ class objeto_base
         }
 
         return false;
+    }
+
+    public function get_numero_registros_por_objeto()
+    {
+        return $this->numero_registros_por_objeto;
     }
 
     public function ler_recurso_sistema($ps_recurso_sistema_id = '')
@@ -723,6 +729,14 @@ class objeto_base
                         foreach ($va_item as $vs_key => $vn_codigo) {
                             $va_resultado[$vs_key . "_" . $vn_codigo] = $vn_codigo;
                         }
+                    }
+
+                    if (count($va_resultado_temp))
+                    {
+                        if (!isset($this->numero_registros_por_objeto[$vs_objeto]))
+                            $this->numero_registros_por_objeto[$vs_objeto] = count($va_resultado_temp);
+                        else
+                            $this->numero_registros_por_objeto[$vs_objeto] += count($va_resultado_temp);
                     }
                 }
 
