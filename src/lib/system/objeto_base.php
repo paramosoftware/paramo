@@ -672,6 +672,8 @@ class objeto_base
 
         foreach ($va_objetos as $vs_objeto) {
             $contador = 0;
+            $va_resultados_objeto = array();
+
             while ($contador < $vn_numero_loops_filtros) {
                 if (isset($va_filtros_busca_union))
                     $va_filtros_busca = $va_filtros_busca_union[$contador];
@@ -728,20 +730,16 @@ class objeto_base
                     foreach ($va_resultado_temp as $va_item) {
                         foreach ($va_item as $vs_key => $vn_codigo) {
                             $va_resultado[$vs_key . "_" . $vn_codigo] = $vn_codigo;
+                            $va_resultados_objeto[$vs_key . "_" . $vn_codigo] = $vn_codigo;
                         }
-                    }
-
-                    if (count($va_resultado_temp))
-                    {
-                        if (!isset($this->numero_registros_por_objeto[$vs_objeto]))
-                            $this->numero_registros_por_objeto[$vs_objeto] = count($va_resultado_temp);
-                        else
-                            $this->numero_registros_por_objeto[$vs_objeto] += count($va_resultado_temp);
                     }
                 }
 
                 $contador++;
             }
+
+            if (count($va_resultados_objeto))
+                $this->numero_registros_por_objeto[$vs_objeto] = count($va_resultados_objeto);
         }
 
         return count($va_resultado);
