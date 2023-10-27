@@ -283,11 +283,6 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                 </div>
                 <div class="modal-body">
                     <div class="tab-content" id="nav-tabContent">
-                        <?php if (!class_exists('Imagick')) : ?>
-                            <div class="alert alert-warning alert-dismissible small">
-                                Imagick não está instalado. Não será possível gerar miniaturas das capas dos PDFs, mas ainda poderão ser visualizados e baixados.
-                            </div>
-                        <?php endif; ?>
                         <div class="tab-pane fade show active" id="nav-arquivos" role="tabpanel" tabindex="0">
                             <input type="file"
                                    class="filepond"
