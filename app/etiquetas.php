@@ -43,6 +43,14 @@
     $vo_pagina_etiquetas = new pagina_etiquetas;
     $va_pagina_etiquetas = $vo_pagina_etiquetas->ler($vn_pagina_etiquetas_codigo, "ficha");
 
+
+    $vs_custom_layout_path = config::get(["pasta_layouts"]) . "etiquetas.php";
+    if (file_exists($vs_custom_layout_path))
+    {
+        require_once $vs_custom_layout_path;
+        exit();
+    }
+
     $vb_largura_disponivel_pagina = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"] - $va_pagina_etiquetas["pagina_etiquetas_margem_esquerda"];
     $vn_numero_etiquetas_por_linha = intval($vb_largura_disponivel_pagina/$va_pagina_etiquetas["pagina_etiquetas_largura_etiqueta"]);
 

@@ -52,6 +52,8 @@ return [
         "temp" => dirname(__FILE__) . "/../app/media/temp/",
     ],
 
+    "pasta_layouts" => dirname(__FILE__) . "/../src/lib/business/layout/",
+
     "media_types" => [
         "image/jpeg" => [
             "folder" => "images",
