@@ -48,7 +48,8 @@ return [
             "medium" => dirname(__FILE__) . "/../app/media/images/medium/",
             "thumb" => dirname(__FILE__) . "/../app/media/images/thumb/",
             "original" => dirname(__FILE__) . "/../app/media/images/original/",
-        ]
+        ],
+        "temp" => dirname(__FILE__) . "/../app/media/temp/",
     ],
 
     "media_types" => [
