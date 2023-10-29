@@ -261,6 +261,12 @@
                     {
                         $va_campo_visualizacao = $va_visualizacao_lista["campos"][$vs_key_campo_visualizacao];
 
+                        if (isset($va_campos_visualizacao[$vs_key_campo_visualizacao]["formato"]))
+                        {
+                            $va_campo_visualizacao = array_merge($va_campo_visualizacao, $va_campos_visualizacao[$vs_key_campo_visualizacao]);
+                        }
+
+
                         if (isset($va_campo_visualizacao["main_field"]))
                             $vb_main_field = true;
                     }

@@ -13,7 +13,7 @@
 return [
     # ================================================ DEPURAÇÃO ================================================ #
 
-    "versao" => "1.3.9",
+    "versao" => "1.3.10",
     "pasta_logs" => dirname(__FILE__) . "/../src/logs/",
 
     # ================================================ ASSETS E MÍDIA  ================================================ #
@@ -38,6 +38,9 @@ return [
         "images" => dirname(__FILE__) . "/../app/assets/img/",
     ],
 
+    "pasta_business" => dirname(__FILE__) . "/../src/lib/business/",
+    "pasta_vendors" => dirname(__FILE__) . "/../src/vendors/",
+
     "pasta_media" => [
         "documents" => dirname(__FILE__) . "/../app/media/documents/",
         "downloads" => dirname(__FILE__) . "/../app/media/downloads/",
@@ -48,7 +51,8 @@ return [
             "medium" => dirname(__FILE__) . "/../app/media/images/medium/",
             "thumb" => dirname(__FILE__) . "/../app/media/images/thumb/",
             "original" => dirname(__FILE__) . "/../app/media/images/original/",
-        ]
+        ],
+        "temp" => dirname(__FILE__) . "/../app/media/temp/",
     ],
 
     "media_types" => [
