@@ -33,13 +33,17 @@ if (!isset($va_pagina_etiquetas) || !isset($va_itens_listagem))
 $vn_page_width = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"];
 $vn_page_height = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_altura"];
 
-if (class_exists("label_custom"))
+$vn_modelo_etiqueta_codigo = $_POST["modelo_etiqueta"] ?? 1;
+$vs_class_name = $vn_modelo_etiqueta_codigo == 1 ? "label" : "label_box";
+$vs_custom_class_name = $vs_class_name."_custom";
+
+if (class_exists($vs_custom_class_name))
 {
-    $vo_label = new label_custom('P', 'mm', [$vn_page_width, $vn_page_height]);
+    $vo_label = new $vs_custom_class_name('P', 'mm', [$vn_page_width, $vn_page_height]);
 }
 else
 {
-    $vo_label = new label('P', 'mm', [$vn_page_width, $vn_page_height]);
+    $vo_label = new $vs_class_name('P', 'mm', [$vn_page_width, $vn_page_height]);
 }
 
 

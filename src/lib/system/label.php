@@ -7,11 +7,10 @@ class label extends FPDF
 {
 
     protected $vs_to_encoding = 'windows-1252';
-
-    private $vn_current_item = 0;
-    private $vn_current_label = 1;
-    private $vs_text_attributes = '';
-    private $vs_barcode_text = '';
+    protected $vn_current_item = 0;
+    protected $vn_current_label = 1;
+    protected $vs_text_attributes = '';
+    protected $vs_barcode_text = '';
 
     public $vs_from_encoding = 'UTF-8';
     public $vn_gap;
@@ -100,7 +99,7 @@ class label extends FPDF
         }
     }
 
-    private function add_content($x, $y)
+    protected function add_content($x, $y)
     {
         $vn_line_height = 4;
         $y_initial = $y;
@@ -127,7 +126,7 @@ class label extends FPDF
         $this->MultiCell($this->vn_label_width - $this->vn_label_internal_left_margin, $vn_line_height, $this->vs_text_attributes, 0, 'L');
     }
 
-    private function add_barcode($w, $h)
+    protected function add_barcode($w, $h)
     {
         $vo_bar_code_generator = new Picqer\Barcode\BarcodeGeneratorPNG();
         $bar_code = $vo_bar_code_generator->getBarcode($this->vs_barcode_text, $vo_bar_code_generator::TYPE_CODE_128);
@@ -145,7 +144,7 @@ class label extends FPDF
         }
     }
 
-    private function process_attributes()
+    protected function process_attributes()
     {
         $this->vs_text_attributes = '';
         foreach ($this->va_itens[$this->vn_current_item]["atributos"] as $va_attribute)
@@ -157,13 +156,13 @@ class label extends FPDF
         }
     }
 
-    private function set_text_attributes()
+    protected function set_text_attributes()
     {
         $this->process_attributes();
         $this->vs_text_attributes = iconv($this->vs_from_encoding, $this->vs_to_encoding, $this->vs_text_attributes);
     }
 
-    private function set_barcode_text()
+    protected function set_barcode_text()
     {
         if (isset($this->va_itens[$this->vn_current_item]["livro_codigo"]))
         {
