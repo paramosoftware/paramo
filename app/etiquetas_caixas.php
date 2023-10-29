@@ -36,7 +36,7 @@
     $vo_pagina_etiquetas = new pagina_etiquetas;
     $va_pagina_etiquetas = $vo_pagina_etiquetas->ler($vn_pagina_etiquetas_codigo, "ficha");
 
-    $vs_custom_layout_path = config::get(["pasta_layouts"]) . "etiquetas_caixas.php";
+    $vs_custom_layout_path = config::get(["pasta_business"]) . "layouts/etiquetas_caixas.php";
     if (file_exists($vs_custom_layout_path))
     {
         require_once $vs_custom_layout_path;

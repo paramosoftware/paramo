@@ -38,6 +38,9 @@ return [
         "images" => dirname(__FILE__) . "/../app/assets/img/",
     ],
 
+    "pasta_business" => dirname(__FILE__) . "/../src/lib/business/",
+    "pasta_vendors" => dirname(__FILE__) . "/../src/vendors/",
+
     "pasta_media" => [
         "documents" => dirname(__FILE__) . "/../app/media/documents/",
         "downloads" => dirname(__FILE__) . "/../app/media/downloads/",
@@ -51,8 +54,6 @@ return [
         ],
         "temp" => dirname(__FILE__) . "/../app/media/temp/",
     ],
-
-    "pasta_layouts" => dirname(__FILE__) . "/../src/lib/business/layout/",
 
     "media_types" => [
         "image/jpeg" => [
