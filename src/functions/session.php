@@ -14,6 +14,12 @@ class session
         }
     }
 
+    public static function is_same_site(): bool
+    {
+        $vs_session_name = session::generate_cookie_name(true);
+        return isset($_COOKIE[$vs_session_name]);
+    }
+
     public static function get_logged_user()
     {
         session::start_session();

@@ -3,49 +3,49 @@
     $vb_montar_menu = true;
     require_once dirname(__FILE__) . "/components/entry_point.php";
 
+    $vb_pode_substituir = $vb_pode_substituir ?? false;
 
-    if (isset($_GET['obj']))
-        $vs_id_objeto_tela = $_GET['obj'];
-    else
+    if (!$vb_pode_substituir)
     {
-        print "Não é possível carregar a listagem. (objeto)";
+        print "Sem permissão para substituir.";
         exit();
     }
 
-    $vn_objeto_codigo = "";
-    if (isset($_GET['cod']))
-        $vn_objeto_codigo = $_GET['cod'];
-    else
+    if (isset($_POST['substituir_codigo']))
     {
-        print "Não é possível ler objeto sem codigo.";
-        exit();
-    }
-
-    if (isset($_GET['substituir_codigo']))
-    {
-        $vn_codigo_destino = $_GET['substituir_codigo'];
+        $vs_id_objeto_tela = $_POST['obj'];
+        $vn_codigo_destino = $_POST['substituir_codigo'];
+        $vn_objeto_codigo = $_POST['cod'];
         
         if ($vn_codigo_destino)
         {
-            require_once dirname(__FILE__). "/functions/autenticar_usuario.php";
-
-            if (!$vb_pode_substituir)
-                exit();
 
             $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
 
             if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+            {
+                print "Sem permissão para substituir este registro.";
                 exit();
-
-            if (!$vo_objeto->validar_acesso_registro($vn_codigo_destino, $va_parametros_controle_acesso))
-                exit();
+            }
 
             $vo_objeto->substituir($vn_objeto_codigo, $vn_codigo_destino);
 
             $vs_url_retorno = "location:ficha.php?obj=". $vs_id_objeto_tela . "&cod=" . $vn_codigo_destino;
             header($vs_url_retorno);
+            exit();
         }
     }
+
+    if (!isset($_GET['obj']) || !isset($_GET['cod']))
+    {
+        print "Não é possível carregar formulário de substituição.";
+        exit();
+    }
+
+    $vs_id_objeto_tela = $_GET['obj'];
+    $vn_objeto_codigo = $_GET['cod'];
+
+
 ?>
 
 <!DOCTYPE html>
@@ -57,9 +57,7 @@
 
 <?php require_once dirname(__FILE__)."/components/sidebar.php"; ?>
 
-<?php 
-    if (!$vb_pode_substituir)
-        exit();
+<?php
 
     $vs_modo = "ficha";
     $vs_visualizacao = "lista";
@@ -78,13 +76,14 @@
             exit();
         }
 
-        //var_dump($va_objeto);
     }
 ?>
 
 <?php
     $vb_substituir_disponivel = true;
     $vs_campo_nome = "substituir";
+    $vs_atributo_codigo = "";
+    $vs_atributo_nome = "";
     $vs_procurar_por = "";
 
     switch($vs_id_objeto_tela)
@@ -173,24 +172,20 @@
             $vb_substituir_disponivel = false;
     }
 
-    if (!$vs_procurar_por)
+    if ($vb_substituir_disponivel && !$vs_procurar_por)
+    {
         $vs_procurar_por = $vs_atributo_nome;
+    }
 ?>
 
 
 <div class="wrapper d-flex flex-column min-vh-100 bg-light">
-    <?php
-        if (!$vb_substituir_disponivel)
-        {
-            print "O procedimento de substituição não está disponível para este item de cadastro.";
-            exit();
-        }
-    ?>
+
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
     <?php require_once dirname(__FILE__)."/components/ler_valor.php"; ?>
 
-    <form method="get" action="substituir.php" id="form_substituir">
+    <form method="post" action="substituir.php" id="form_substituir">
         <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">
         <input type="hidden" name="cod" id="cod" value="<?php print $vn_objeto_codigo; ?>">
 
@@ -202,6 +197,13 @@
                             <div class="card-header">Substituir</div>
 
                             <div class="card-body">
+                                <?php
+                                if (!$vb_substituir_disponivel)
+                                {
+                                    print "O procedimento de substituição não está disponível para este registro.";
+                                    exit();
+                                }
+                                ?>
 
                                 <div class="row">
                                     <div class="filter-documents -new col-md-9">
