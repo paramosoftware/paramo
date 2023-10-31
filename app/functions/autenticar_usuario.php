@@ -5,32 +5,23 @@
     }
 
     require dirname(__FILE__) . "/../components/debug.php";
-
-    utils::start_session();
-
     require_once dirname(__FILE__) . "/../components/ler_valor.php";
 
-    $va_usuario = array();
-    if (isset($_SESSION["usuario_token"]))
+    $vn_usuario_codigo = session::get_logged_user();
+
+    if (!$vn_usuario_codigo)
     {
-        $vs_usuario_token = $_SESSION["usuario_token"];
-
-        $vo_usuario = new Usuario;
-        $va_usuario = $vo_usuario->ler_lista(["usuario_token" => $vs_usuario_token], "senha", 0, 1,null,null,null,1,true);
-
-        if ($va_usuario[0]["usuario_ultimo_login"] < date("Y-m-d H:i:s", strtotime("-12 hours")))
-        {
-            $va_usuario = array();
-        }
+        session::logout();
     }
 
-    if (count($va_usuario) == 0)
-    {
-        utils::logout();
-    }
+    $vb_ler_campos_banco = $vb_ler_campos_banco ?? false;
+    $vo_usuario = $vb_ler_campos_banco ? new objeto_base("usuario") : new usuario;
+    $va_usuario = $vo_usuario->ler($vn_usuario_codigo, "ficha");
 
-    if (!isset($vb_ler_campos_banco))
-        $vb_ler_campos_banco = false;
+    if (empty($va_usuario))
+    {
+        session::logout();
+    }
 
     if (!isset($vb_modo_navegacao))
         $vb_modo_navegacao = false;
@@ -123,9 +114,6 @@
         else
             $vn_idioma_catalogacao_codigo = 1;
     }
-
-    $vs_usuario_login = $va_usuario[0]["usuario_codigo"];
-    $vn_usuario_logado_codigo = "";
     
     $vn_usuario_logado_instituicao_codigo = "";
     $vs_usuario_logado_instituicao_nome = "";
@@ -146,205 +134,192 @@
     $vb_pode_excluir = false;
     $vb_pode_editar_lote = false;
     $vb_pode_excluir_lote = false;
-	
-    if ($vs_usuario_login)
+
+
+    $_SESSION["usuario_logado_codigo"] = $va_usuario["usuario_codigo"];
+    $vn_usuario_logado_codigo = $va_usuario["usuario_codigo"];
+    $vs_usuario_logado_nome = $va_usuario["usuario_nome"];
+
+    if (isset($va_usuario["usuario_instituicao_codigo"]["instituicao_codigo"]))
     {
-        if ($vb_ler_campos_banco)
-            $vo_usuario = new objeto_base("usuario");
-        else
-            $vo_usuario = new usuario;
+        $vn_usuario_logado_instituicao_codigo = $va_usuario["usuario_instituicao_codigo"]["instituicao_codigo"];
+        $vs_usuario_logado_instituicao_nome = $va_usuario["usuario_instituicao_codigo"]["instituicao_nome"];
+        $vb_usuario_logado_instituicao_admin = $va_usuario["usuario_instituicao_codigo"]["instituicao_admin"];
+    }
 
-        $va_usuario = $vo_usuario->ler($vs_usuario_login, "ficha");
+    // O código do usuário admin é hardcoded até segunda ordem
+    //////////////////////////////////////////////////////////
 
-        if (count($va_usuario))
+    if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 2)
+        $vb_usuario_administrador = true;
+
+    //////////////////////////////////////////////////////////
+
+    $va_usuario_logado_setores_codigos = array();
+    $va_usuario_logado_setores_nomes = array();
+
+    $vo_setor_sistema = new setor_sistema('');
+    if ($vb_usuario_administrador)
+    {
+        $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");
+    }
+    elseif (isset($va_usuario["usuario_setor_sistema_codigo"]))
+    {
+        $va_usuario_setores_sistema = array();
+        foreach ($va_usuario["usuario_setor_sistema_codigo"] as $va_usuario_setor_sistema)
         {
-            $_SESSION["usuario_logado_codigo"] = $va_usuario["usuario_codigo"];
-            $vn_usuario_logado_codigo = $va_usuario["usuario_codigo"];
-            $vs_usuario_logado_nome = $va_usuario["usuario_nome"];
+            $va_usuario_setores_sistema[] = $va_usuario_setor_sistema["usuario_setor_sistema_codigo"]["setor_sistema_codigo"];
+        }
 
-            if (isset($va_usuario["usuario_instituicao_codigo"]["instituicao_codigo"]))
+        if (count($va_usuario_setores_sistema))
+            $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(["setor_sistema_codigo" => implode("|", $va_usuario_setores_sistema)], "navegacao");
+    }
+
+    foreach ($va_usuario_logado_setores_sistema as $va_setor)
+    {
+        $va_usuario_logado_setores_codigos[] = $va_setor['setor_sistema_codigo'];
+        $va_usuario_logado_setores_nomes[] = $va_setor['setor_sistema_nome'];
+    }
+
+    $vn_usuario_logado_setor_sistema_codigo = join("|", $va_usuario_logado_setores_codigos);
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+    $va_usuario_logado_acervos = array();
+    $va_usuario_logado_acervos_codigos = array();
+    $va_usuario_logado_acervos_nomes = array();
+
+    $vb_controlar_acesso_acervo = config::get(["controle_acesso", "_atributos_", "acervo_codigo"]) ?? false;
+
+    // Verifica se o usuário faz parte de um grupo para
+    // o qual não é preciso controlar acesso a acervos
+    ///////////////////////////////////////////////////
+
+    $vb_controlar_acesso_acervo_usuario = true;
+
+    if ($vb_controlar_acesso_acervo)
+    {
+        if (isset($va_usuario['usuario_grupo_usuario_codigo']))
+        {
+            foreach ($va_usuario['usuario_grupo_usuario_codigo'] as $va_grupo_usuario)
             {
-                $vn_usuario_logado_instituicao_codigo = $va_usuario["usuario_instituicao_codigo"]["instituicao_codigo"];
-                $vs_usuario_logado_instituicao_nome = $va_usuario["usuario_instituicao_codigo"]["instituicao_nome"];
-                $vb_usuario_logado_instituicao_admin = $va_usuario["usuario_instituicao_codigo"]["instituicao_admin"];
-            }
-
-            // O código do usuário admin é hardcoded até segunda ordem
-            //////////////////////////////////////////////////////////
-
-            if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 2)
-                $vb_usuario_administrador = true;
-
-            //////////////////////////////////////////////////////////
-
-            $va_usuario_logado_setores_codigos = array();
-            $va_usuario_logado_setores_nomes = array();
-
-            $vo_setor_sistema = new setor_sistema('');
-            if ($vb_usuario_administrador)
-            {
-                $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");
-            }
-            elseif (isset($va_usuario["usuario_setor_sistema_codigo"]))
-            {
-                $va_usuario_setores_sistema = array();
-                foreach($va_usuario["usuario_setor_sistema_codigo"] as $va_usuario_setor_sistema)
+                if (isset($va_grupo_usuario["usuario_grupo_usuario_codigo"]["grupo_usuario_codigo"]) && !$va_grupo_usuario["usuario_grupo_usuario_codigo"]["grupo_usuario_controlar_acesso_acervos"])
                 {
-                    $va_usuario_setores_sistema[] = $va_usuario_setor_sistema["usuario_setor_sistema_codigo"]["setor_sistema_codigo"];
-                }
-
-                if (count($va_usuario_setores_sistema))
-                    $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(["setor_sistema_codigo" => implode("|", $va_usuario_setores_sistema)], "navegacao");
-            }
-
-            foreach ($va_usuario_logado_setores_sistema as $va_setor)
-            {
-                $va_usuario_logado_setores_codigos[] = $va_setor['setor_sistema_codigo'];
-                $va_usuario_logado_setores_nomes[] = $va_setor['setor_sistema_nome'];
-            }
-
-            $vn_usuario_logado_setor_sistema_codigo = join("|", $va_usuario_logado_setores_codigos);
-
-            ////////////////////////////////////////////////////////////////////////////////
-
-            $va_usuario_logado_acervos = array();
-            $va_usuario_logado_acervos_codigos = array();
-            $va_usuario_logado_acervos_nomes = array();
-
-            $vb_controlar_acesso_acervo = config::get(["controle_acesso", "_atributos_", "acervo_codigo"]) ?? false;
-
-            // Verifica se o usuário faz parte de um grupo para
-            // o qual não é preciso controlar acesso a acervos
-            ///////////////////////////////////////////////////
-
-            $vb_controlar_acesso_acervo_usuario = true;
-
-            if ($vb_controlar_acesso_acervo)
-            {
-                if (isset($va_usuario['usuario_grupo_usuario_codigo']))
-                {
-                    foreach($va_usuario['usuario_grupo_usuario_codigo'] as $va_grupo_usuario)
-                    {
-                        if (isset($va_grupo_usuario["usuario_grupo_usuario_codigo"]["grupo_usuario_codigo"]) && !$va_grupo_usuario["usuario_grupo_usuario_codigo"]["grupo_usuario_controlar_acesso_acervos"])
-                        {
-                            $vb_controlar_acesso_acervo_usuario = false;
-                            break;
-                        }
-                    }
+                    $vb_controlar_acesso_acervo_usuario = false;
+                    break;
                 }
             }
+        }
+    }
 
-            if (($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin) || ($vb_controlar_acesso_acervo === FALSE))
-            {
-                $vo_instituicao = new instituicao('');
-                $va_instituicoes = $vo_instituicao->ler_lista();
+    if (($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin) || ($vb_controlar_acesso_acervo === FALSE))
+    {
+        $vo_instituicao = new instituicao('');
+        $va_instituicoes = $vo_instituicao->ler_lista();
+        $va_usuario_logado_instituicoes_codigos = array();
 
-                foreach ($va_instituicoes as $va_instituicao)
-                {
-                    $va_usuario_logado_instituicoes_codigos[] = $va_instituicao['instituicao_codigo'];
-                }
+        foreach ($va_instituicoes as $va_instituicao)
+        {
+            $va_usuario_logado_instituicoes_codigos[] = $va_instituicao['instituicao_codigo'];
+        }
 
-                $vn_usuario_logado_instituicao_codigo = join("|", $va_usuario_logado_instituicoes_codigos);
+        $vn_usuario_logado_instituicao_codigo = join("|", $va_usuario_logado_instituicoes_codigos);
 
-                $vo_acervo = new acervo('');
+        $vo_acervo = new acervo('');
 
-                $va_filtro_acervo = array();
+        $va_filtro_acervo = array();
 
-                if ($vn_setor_sistema_acessado_codigo)
-                    $va_filtro_acervo["acervo_setor_sistema_codigo"] = $vn_setor_sistema_acessado_codigo;
+        if ($vn_setor_sistema_acessado_codigo)
+            $va_filtro_acervo["acervo_setor_sistema_codigo"] = $vn_setor_sistema_acessado_codigo;
 
-                if (isset($_SESSION["instituicao_logado_como"]))
-                {
-                    $va_filtro_acervo["acervo_instituicao_codigo"] = $_SESSION["instituicao_logado_como"];
+        if (isset($_SESSION["instituicao_logado_como"]))
+        {
+            $va_filtro_acervo["acervo_instituicao_codigo"] = $_SESSION["instituicao_logado_como"];
 
-                    $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo);
+            $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo);
 
-                    $vn_usuario_logado_instituicao_codigo = $_SESSION["instituicao_logado_como"];
-                    
-                    $vo_instituicao = new instituicao();
-                    $va_instituicao = $vo_instituicao->ler_lista(["instituicao_codigo" => $vn_usuario_logado_instituicao_codigo], "ficha");
-                    
-                    $vs_usuario_logado_instituicao_nome = $va_instituicao[0]["instituicao_nome"];
-                    $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"];
-                }
-                else
-                {
-                    $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo);
-                }
-            }
-            elseif ($vb_usuario_administrador || !$vb_controlar_acesso_acervo_usuario)
-            {
-                $vo_acervo = new acervo('');
+            $vn_usuario_logado_instituicao_codigo = $_SESSION["instituicao_logado_como"];
 
-                $va_filtro_acervo["acervo_instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
+            $vo_instituicao = new instituicao();
+            $va_instituicao = $vo_instituicao->ler_lista(["instituicao_codigo" => $vn_usuario_logado_instituicao_codigo], "ficha");
 
-                $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
-            }
-            elseif (isset($va_usuario["usuario_acervo_codigo"]))
-            {
-                foreach ($va_usuario["usuario_acervo_codigo"] as $va_acervo)
-                {
-                    if (!$vn_setor_sistema_acessado_codigo || $va_acervo["usuario_acervo_codigo"]["acervo_setor_sistema_codigo"]["setor_sistema_codigo"] == $vn_setor_sistema_acessado_codigo)
-                        $va_usuario_logado_acervos[] = $va_acervo["usuario_acervo_codigo"];
-                }
-            }
-
-            foreach ($va_usuario_logado_acervos as $va_acervo)
-            {
-                $va_usuario_logado_acervos_codigos[] = $va_acervo['acervo_codigo'];
-                $va_usuario_logado_acervos_nomes[] = $va_acervo['acervo_codigo'];
-            }
-
-            $vn_usuario_logado_acervo_codigo = join("|", $va_usuario_logado_acervos_codigos);
-
-            if (config::get(["f_keywords"]))
-            {
-
-                $va_usuario_logado_instituicoes_keywords = array();
-                if (isset($va_usuario["usuario_instituicao_keyword_codigo"]))
-                {
-                    foreach ($va_usuario["usuario_instituicao_keyword_codigo"] as $va_keyword)
-                    {
-                        $va_usuario_logado_instituicoes_keywords[] = $va_keyword["usuario_instituicao_keyword_codigo"]['instituicao_codigo'];
-                    }
-                }
-
-                if (!$vb_usuario_administrador)
-                    $vn_usuario_logado_instituicao_keyword_codigo = join("|", $va_usuario_logado_instituicoes_keywords);
-                else
-                    $vn_usuario_logado_instituicao_keyword_codigo = $vn_usuario_logado_instituicao_codigo;
-
-                $va_usuario_logado_keywords = array();
-                if (isset($va_usuario["usuario_keyword_codigo"]))
-                {
-                    foreach ($va_usuario["usuario_keyword_codigo"] as $va_keyword)
-                    {
-                        $va_usuario_logado_keywords[] = $va_keyword["usuario_keyword_codigo"]['keyword_codigo'];
-                    }
-                }
-
-                $vn_usuario_logado_keyword_codigo = join("|", $va_usuario_logado_keywords);
-
-
-                $va_usuario_logado_especies_documentais = array();
-                if (isset($va_usuario["usuario_especie_documental_codigo"]))
-                {
-                    foreach ($va_usuario["usuario_especie_documental_codigo"] as $va_especie_documental)
-                    {
-                        $va_usuario_logado_especies_documentais[] = $va_especie_documental["usuario_especie_documental_codigo"]['especie_documental_codigo'];
-                    }
-                }
-
-                $vn_usuario_logado_especie_documental_codigo = join("|", $va_usuario_logado_especies_documentais);
-
-            }
-
+            $vs_usuario_logado_instituicao_nome = $va_instituicao[0]["instituicao_nome"];
+            $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"];
         }
         else
-            header("location:login.php");
+        {
+            $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo);
+        }
     }
-    else
-        header("location:login.php");
+    elseif ($vb_usuario_administrador || !$vb_controlar_acesso_acervo_usuario)
+    {
+        $vo_acervo = new acervo('');
+
+        $va_filtro_acervo["acervo_instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
+
+        $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
+    }
+    elseif (isset($va_usuario["usuario_acervo_codigo"]))
+    {
+        foreach ($va_usuario["usuario_acervo_codigo"] as $va_acervo)
+        {
+            if (!$vn_setor_sistema_acessado_codigo || $va_acervo["usuario_acervo_codigo"]["acervo_setor_sistema_codigo"]["setor_sistema_codigo"] == $vn_setor_sistema_acessado_codigo)
+                $va_usuario_logado_acervos[] = $va_acervo["usuario_acervo_codigo"];
+        }
+    }
+
+    foreach ($va_usuario_logado_acervos as $va_acervo)
+    {
+        $va_usuario_logado_acervos_codigos[] = $va_acervo['acervo_codigo'];
+        $va_usuario_logado_acervos_nomes[] = $va_acervo['acervo_codigo'];
+    }
+
+    $vn_usuario_logado_acervo_codigo = join("|", $va_usuario_logado_acervos_codigos);
+
+    if (config::get(["f_keywords"]))
+    {
+
+        $va_usuario_logado_instituicoes_keywords = array();
+        if (isset($va_usuario["usuario_instituicao_keyword_codigo"]))
+        {
+            foreach ($va_usuario["usuario_instituicao_keyword_codigo"] as $va_keyword)
+            {
+                $va_usuario_logado_instituicoes_keywords[] = $va_keyword["usuario_instituicao_keyword_codigo"]['instituicao_codigo'];
+            }
+        }
+
+        if (!$vb_usuario_administrador)
+            $vn_usuario_logado_instituicao_keyword_codigo = join("|", $va_usuario_logado_instituicoes_keywords);
+        else
+            $vn_usuario_logado_instituicao_keyword_codigo = $vn_usuario_logado_instituicao_codigo;
+
+        $va_usuario_logado_keywords = array();
+        if (isset($va_usuario["usuario_keyword_codigo"]))
+        {
+            foreach ($va_usuario["usuario_keyword_codigo"] as $va_keyword)
+            {
+                $va_usuario_logado_keywords[] = $va_keyword["usuario_keyword_codigo"]['keyword_codigo'];
+            }
+        }
+
+        $vn_usuario_logado_keyword_codigo = join("|", $va_usuario_logado_keywords);
+
+
+        $va_usuario_logado_especies_documentais = array();
+        if (isset($va_usuario["usuario_especie_documental_codigo"]))
+        {
+            foreach ($va_usuario["usuario_especie_documental_codigo"] as $va_especie_documental)
+            {
+                $va_usuario_logado_especies_documentais[] = $va_especie_documental["usuario_especie_documental_codigo"]['especie_documental_codigo'];
+            }
+        }
+
+        $vn_usuario_logado_especie_documental_codigo = join("|", $va_usuario_logado_especies_documentais);
+
+    }
+
+
+
     
     $va_recursos_sistema = array();
     $va_recursos_sistema_temp = array();
