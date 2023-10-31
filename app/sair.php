@@ -8,7 +8,7 @@
     }
     else
     {
-        utils::logout();
+        session::logout();
     }
 
     exit();

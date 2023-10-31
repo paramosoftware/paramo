@@ -7,10 +7,13 @@ if (!defined("AUTOLOAD"))
 
 if (!isset($vb_ignorar_autenticacao))
 {
-    utils::start_session();
-    if (!utils::validate_user_session())
+    session::start_session();
+    if (!isset($_SESSION["usuario_token"]))
     {
-        send_not_found_response();
+        if (!session::get_logged_user())
+        {
+            send_not_found_response();
+        }
     }
 }
 
