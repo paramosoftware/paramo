@@ -84,12 +84,7 @@
 
     $(document).on('click', "#btn_imprimir_etiquetas", function()
     {
-        if ($("#modelo_etiqueta").val() == 1)
-            vs_pagina_etiquetas = 'etiquetas.php';
-        else if ($("#modelo_etiqueta").val() == 2)
-            vs_pagina_etiquetas = 'etiquetas_caixas.php';
-
-        $("#form_lista").attr('action', vs_pagina_etiquetas);
+        $("#form_lista").attr('action', 'etiquetas.php');
         $("#form_lista").attr('method', 'post');
         $("#form_lista").attr('target', '_blank');
         $("#form_lista").submit();

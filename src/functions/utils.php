@@ -281,27 +281,5 @@ class utils
         return $html;
     }
 
-    public static function start_session(): void
-    {
-        if (session_status() == PHP_SESSION_NONE)
-        {
-            $vs_session_name = strtolower(preg_replace("/[^A-Za-z0-9]/", "", config::get(["nome_instituicao"])));
-            session_name($vs_session_name);
-            session_start();
-        }
-    }
-
-    public static function validate_user_session(): bool
-    {
-        return isset($_SESSION["usuario_token"]);
-    }
-
-    public static function logout(): void
-    {
-        session_unset();
-        session_destroy();
-        setcookie(session_name(), "", time() - 3600, "/");
-        header("Location: login.php");
-    }
 
 }

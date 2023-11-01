@@ -51,6 +51,10 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
             else
                 $va_atributos = $pa_item;
         }
+        elseif (isset($pa_opcoes_campo["nao_busca_relacionamento"]) && $pa_opcoes_campo["nao_busca_relacionamento"])
+        {
+            return "";
+        }
         else
         {
             // Tem que tratar o relacionamento que pode dar origem a vários campo

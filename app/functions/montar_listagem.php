@@ -136,6 +136,8 @@
             $va_visualizacao_lista["campos"]["Q"] = ["nome" => "Q"];
 
             $vn_numero_registros = $vo_objeto->ler_numero_registros($va_parametros_filtros_consulta, $va_log_info);
+
+            $va_numero_registros_por_objeto = $vo_objeto->get_numero_registros_por_objeto();
         }
     }
     elseif ($vs_modo == "ficha")
@@ -258,6 +260,12 @@
                     if (isset($va_visualizacao_lista["campos"][$vs_key_campo_visualizacao]))
                     {
                         $va_campo_visualizacao = $va_visualizacao_lista["campos"][$vs_key_campo_visualizacao];
+
+                        if (isset($va_campos_visualizacao[$vs_key_campo_visualizacao]["formato"]))
+                        {
+                            $va_campo_visualizacao = array_merge($va_campo_visualizacao, $va_campos_visualizacao[$vs_key_campo_visualizacao]);
+                        }
+
 
                         if (isset($va_campo_visualizacao["main_field"]))
                             $vb_main_field = true;
