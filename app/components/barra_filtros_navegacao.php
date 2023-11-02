@@ -18,7 +18,7 @@
     {
         $vb_exibir_filtro = false;
 
-        if ($va_parametros_filtros_form)
+        if ($va_parametros_filtros_form && !$vb_busca_combinada)
         {
             $vb_exibir_filtro = true;
         }
@@ -96,6 +96,10 @@ function toggle_filtros_log(pbutton)
 
 function toggle_filtro()
 {
+    $("#filtro_combinado").hide();
+    $("#btn_filtro_combinado").removeClass("dropdown-toggle-revert");
+    $("#btn_filtro_combinado").addClass("dropdown-toggle");
+
     var div = document.getElementById('filtro');
 
     vb_exists_hidden_element = false;
@@ -170,6 +174,8 @@ function toggle_filtro()
 
 $(document).on('click', "#btn_buscar", function()
 {
+    $("#filtros_combinados").empty();
+
     $("#form_lista").attr('action', '<?php print $vs_form_action; ?>');
     $("#form_lista").attr('method', 'get');
     $("#form_lista").submit();

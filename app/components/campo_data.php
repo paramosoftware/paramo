@@ -287,10 +287,10 @@
             print " checked";
         ?>
         > não preenchido
+    </div>
     <?php
     }
     ?>
-    </div>
     
     <?php if ($vs_modo != "listagem")
     {

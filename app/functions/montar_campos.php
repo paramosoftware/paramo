@@ -200,7 +200,7 @@
             }
         }
 
-        if (!$vb_atualizacao_campo)
+        if (!$vb_atualizacao_campo && isset($va_aba["campos"]) && count($va_aba["campos"]))
         {
         ?>
             </div>

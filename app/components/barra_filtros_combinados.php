@@ -6,36 +6,17 @@
         $va_parametros_filtros = array();
 
     $va_objeto = $va_parametros_filtros_form;
-    
-    // Vou permitir que a exibição do filtro também
-    // possa ser controlada por fora
-    //////////////////////////////////////////////
-
-    $vb_filtro_oculto_instituicao = $vb_filtro_oculto_instituicao ?? false;
-    $vb_filtro_oculto_acervo = $vb_filtro_oculto_acervo ?? false;
-    
-    if (!isset($vb_exibir_filtro))
-    {
-        $vb_exibir_filtro = false;
-
-        if ($va_parametros_filtros_form)
-        {
-            $vb_exibir_filtro = true;
-        }
-    }
-
-    $vb_exibir_filtro = true;
 ?>
 
-<div class="row filtro no-margin-side hidden" id="filtro"
+<div class="row filtro no-margin-side hidden" id="filtro_combinado"
 <?php
-if (!$vb_exibir_filtro)
+if (!$vb_busca_combinada)
     print ' style="display:none"; ';
 ?>
 >
     <div class="col-2"></div>
 
-    <div class="col-8" id="filtros">
+    <div class="col-8" id="filtros_combinados">
         <div class="row">
         <div class="col-11">
             <?php
@@ -94,25 +75,52 @@ if (!$vb_exibir_filtro)
                 if (!is_array($va_filtro))
                     $va_filtro = array($va_filtro);
 
-                foreach ($va_filtro as $vs_filtro)
+                if ($vs_id_campo != $vs_novo_id_campo)
                 {
-                    unset($va_campos);
-
-                    if (!in_array($vs_id_campo, array_keys($va_contador_filtros_busca)))
-                        $va_contador_filtros_busca[$vs_id_campo] = 1;
-                    else
-                        $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
-      
-                    if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
+                    foreach ($va_filtro as $vs_filtro)
                     {
-                        $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
+                        unset($va_campos);
 
-                        require dirname(__FILE__)."/../functions/montar_filtro_combinado.php";
+                        if (!in_array($vs_id_campo, array_keys($va_contador_filtros_busca)))
+                            $va_contador_filtros_busca[$vs_id_campo] = 1;
+                        else
+                            $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
+        
+                        if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
+                        {
+                            $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
 
-                        $vn_contador_filtros_adicionados++;
+                            // TODO: falta pensar melhor na extensão deste controle de acesso
+                            /////////////////////////////////////////////////////////////////
+
+                            if (in_array($vs_id_campo, $vo_objeto->controlador_acesso))
+                            {
+                                $vs_key_controlador = array_search($vs_id_campo, $vo_objeto->controlador_acesso);
+
+                                if (isset($va_parametros_controle_acesso[$vs_key_controlador]) && $va_parametros_controle_acesso[$vs_key_controlador] != "")
+                                {
+                                    if (!isset($va_parametros_filtros_consulta[$vs_novo_id_campo]))
+                                    {
+                                        $va_parametros_filtros_consulta[$vs_novo_id_campo] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
+                                    }
+                                    elseif ( 
+                                        isset($va_parametros_filtros_consulta[$vs_novo_id_campo][0])
+                                        &&
+                                        !in_array($va_parametros_filtros_consulta[$vs_novo_id_campo][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
+                                    )
+                                    {
+                                        $vb_pode_editar = false;
+                                    }
+                                }
+                            }
+
+                            require dirname(__FILE__)."/../functions/montar_filtro_combinado.php";
+
+                            $vn_contador_filtros_adicionados++;
+                        }
+
+                        $vn_contador++;
                     }
-
-                    $vn_contador++;
                 }
             }
         ?>
@@ -120,7 +128,7 @@ if (!$vb_exibir_filtro)
 
         <div class="row">
             <div class="col-6 text-right">
-                <button class="btn btn-primary px-4" type="button" id="btn_buscar">Buscar</button>
+                <button class="btn btn-primary px-4" type="button" id="btn_buscar_combinado">Buscar</button>
             </div>
 
             <div class="col-6 text-left">
@@ -197,124 +205,32 @@ function atualizar_filtro(select, ps_filtro_id)
     }
 }
 
-function toggle_filtro()
+function toggle_filtro_combinado()
 {
-    var div = document.getElementById('filtro');
+    $("#filtro_combinado").toggle();
+    $("#filtro").hide();
 
-    vb_exists_hidden_element = false;
-    vb_exists_visible_element = false;
-    vb_filtro_log_visible = false;
-
-    $("#filtros").find("div").each(function () 
+    if ($("#filtro_combinado").is(":visible"))
     {
-        if ($(this).is(":visible"))
-            vb_exists_visible_element = true;
-        else if ($(this).attr('hidden') != "hidden")
-        {
-            if ( ($(this).parent().prop("id") != "") && ($(this).parent().prop("id") != "div_filtros_catalogacao") && ($(this).prop("id") != "div_filtros_catalogacao") )
-            {
-                vb_exists_hidden_element = true;
-            }
-        }
-    });
-
-    div.style.display = div.style.display == 'none' ? 'flex ': 'none';
-
-    var elems = document.querySelectorAll(".filtros");
-
-    if(div.style.display === 'flex')
-    {
-        [].forEach.call(elems, function(el) 
-        {
-            el.classList.remove("dropdown-toggle");
-            el.classList.add("dropdown-toggle-revert");
-        });
+        $("#btn_filtro_combinado").removeClass("dropdown-toggle");
+        $("#btn_filtro_combinado").addClass("dropdown-toggle-revert");
     }
     else
     {
-        [].forEach.call(elems, function(el) 
-        {
-            el.classList.remove("dropdown-toggle-revert");
-            el.classList.add("dropdown-toggle");
-        });
+        $("#btn_filtro_combinado").removeClass("dropdown-toggle-revert");
+        $("#btn_filtro_combinado").addClass("dropdown-toggle");
     }
-
-    if (vb_exists_visible_element && vb_exists_hidden_element)
-        div.style.display = "none";
-
-    if (vb_exists_hidden_element)
-    {
-        if ($("#div_filtros_catalogacao").is(":visible"))
-            vb_filtro_log_visible = true;
-        
-        $("#filtros").find("div").show();
-        
-        if (!vb_filtro_log_visible)
-            $("#div_filtros_catalogacao").hide();
-    }
-
-    var select_elements = $("#filtros").find("select");
-    select_elements.each(function()
-    {
-        var select_element = $(this);
-        var select_options = select_element.find('option');
-
-        if (select_options.length <= 1)
-        {
-            select_element.parent().hide();
-        }
-
-    });
-
-    $("#filtro").find(".input").first().focus();
 
     return false;
 }
 
-$(document).on('click', "#btn_buscar", function()
+$(document).on('click', "#btn_buscar_combinado", function()
 {
+    $("#filtros").empty();
+    
     $("#form_lista").attr('action', '<?php print $vs_form_action; ?>');
     $("#form_lista").attr('method', 'get');
     $("#form_lista").submit();
-}
-);
-
-$(document).on('keyup', ".form-control", function(event)
-{
-    if ( (event.key == "Enter") && ($(this).attr('name') != "busca") )
-    {
-        $("#btn_buscar").trigger("click");
-    }
-});
-
-$(document).on('click', "#btn_limpar", function()
-{
-    var frm_elements = form_lista.elements;
-
-    for (i = 0; i < frm_elements.length; i++)
-    {
-        field_type = frm_elements[i].type.toLowerCase();
-
-        switch (field_type)
-        {
-            case "text":
-            case "number":
-                frm_elements[i].value = "";
-                break;
-            case "radio":
-            case "checkbox":
-                if (frm_elements[i].checked)
-                {
-                    frm_elements[i].checked = false;
-                }
-                break;
-            case "select-one":
-                frm_elements[i].selectedIndex = -1;
-                break;
-            default:
-                break;
-        }
-    }
 }
 );
 

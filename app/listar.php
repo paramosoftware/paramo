@@ -104,7 +104,7 @@
                                     }
                                 ?>
                                 <div class="row">
-                                    <div class="filter-documents col-md-9">
+                                    <div class="filter-documents col-md-8">
                                         <?php if ($vb_pode_inserir)
                                         {
                                         ?>
@@ -142,9 +142,13 @@
                                         </div>
                                     </div>
                             
-                                    <div class="col-md-3 text-right">
-                                        <button class="btn btn-primary dropdown-toggle filtros" type="button" onclick="toggle_filtro()">
-                                            Filtros
+                                    <div class="col-md-4 text-right">
+                                        <button class="btn btn-primary dropdown-toggle filtros" type="button" id="btn_filtro" onclick="toggle_filtro()">
+                                            Busca básica
+                                        </button>
+
+                                        <button class="btn btn-primary dropdown-toggle" type="button" id="btn_filtro_combinado" onclick="toggle_filtro_combinado()">
+                                            Busca avançada
                                         </button>
                                     </div>
                                 </div>
@@ -187,6 +191,8 @@
                                 </div>
                             
                                 <!-- FILTRO-->
+
+                                <?php require_once dirname(__FILE__)."/components/barra_filtros_navegacao.php"; ?>
 
                                 <?php require_once dirname(__FILE__)."/components/barra_filtros_combinados.php"; ?>
                                 

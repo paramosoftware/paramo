@@ -4,6 +4,8 @@
     else
         $vs_nome_campo = $pa_parametros_campo["nome"];
 
+    $vs_id_campo = str_replace(",", "_", $vs_nome_campo);
+
     if (!isset($pa_parametros_campo["label"]))
         $vs_label_campo = 'Label não atribuído';
     else
@@ -150,7 +152,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
 else
 {
 ?>
-    <div class="mb-3" id="div_<?php print $vs_nome_campo  . $vs_sufixo_nome_campo; ?>"
+    <div class="mb-3" id="div_<?php print $vs_id_campo  . $vs_sufixo_nome_campo; ?>"
     <?php
         if ( !$vb_pode_exibir || $vb_hidden )
             print ' style="display:none"';
@@ -164,7 +166,7 @@ else
                 <?php if ($vs_modo == "lote")
                 {
                 ?>
-                    <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>">
+                    <input type="checkbox" class="check-campo" id="chk_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>">
                 <?php
                 }
                 ?>
@@ -192,7 +194,7 @@ else
         if ($vs_formato == "senha")
         {
         ?>
-            <input type="password" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
+            <input type="password" class="form-control input" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
             <?php
                 if (!$vb_pode_exibir)
                     print ' disabled';
@@ -206,13 +208,13 @@ else
         ?>
             <script src="assets/libraries/ckeditor/ckeditor.js"></script>
 
-            <div id="rich_text_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"
+            <div id="rich_text_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>"
             <?php
             if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' style="display:none"';
             ?>
             >
-                <textarea class="form-control input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"
+                <textarea class="form-control input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>"
                 <?php
                     if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                         print ' disabled style="display:none"';
@@ -223,8 +225,8 @@ else
                 ><?php print htmlspecialchars($vs_valor_campo); ?></textarea>
 
                 <script>
-                    var editor_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?> = ClassicEditor
-                        .create( document.querySelector('#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>') )
+                    var editor_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?> = ClassicEditor
+                        .create( document.querySelector('#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>') )
                         .then(editor => {
                             editor.model.document.on('change:data', (evt, data) => {
                                 vb_alterou_cadastro = true;
@@ -233,7 +235,7 @@ else
                                 if (isset($pa_parametros_campo["logar_alteracao"]) && $pa_parametros_campo["logar_alteracao"])
                                 {
                                 ?>
-                                    $("#alterou_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").val("1");
+                                    $("#alterou_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").val("1");
                                 <?php
                                 }
                                 ?>
@@ -252,7 +254,7 @@ else
             if (!$vs_valor_campo)
                 $vs_valor_campo = "#FFFFFF";
         ?>
-            <input type="color" class="input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
+            <input type="color" class="input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -263,7 +265,7 @@ else
         elseif ($vs_formato == "date")
         {
         ?>
-            <input type="date" class="form-control input <?php print $vs_css_class; ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
+            <input type="date" class="form-control input <?php print $vs_css_class; ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -277,7 +279,7 @@ else
         elseif ($vn_numero_linhas == 1)
         {
         ?>
-            <input type="text" class="form-control input <?php print $vs_css_class; ?>" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
+            <input type="text" class="form-control input <?php print $vs_css_class; ?>" size="<?php print $vn_tamanho_maximo; ?>" maxlength="<?php print $vn_tamanho_maximo; ?>"  name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlspecialchars($vs_valor_campo); ?>"
             <?php
                 if ( (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"]) || ($vs_modo == "lote") )
                     print ' style="display:none"';
@@ -293,14 +295,14 @@ else
             <?php if ($vs_modo == "listagem")
             {
             ?>
-                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_nome_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'com_valor')"
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_id_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'com_valor')"
                 <?php 
                 if ($vb_marcar_com_valor)
                     print " checked";
                 ?>
                 > preenchido
                 
-                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_valor" id="<?php print $vs_nome_campo ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'sem_valor')"
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_valor" id="<?php print $vs_id_campo ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_nome_campo ?>(this.checked, 'sem_valor')"
                 <?php 
                 if ($vb_marcar_sem_valor)
                     print " checked";
@@ -314,7 +316,7 @@ else
         else
         {
         ?>
-            <textarea class="form-control texto input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
+            <textarea class="form-control texto input" rows="<?php print $vn_numero_linhas ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>"
             <?php
                 if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                     print ' disabled style="display:none"';
@@ -328,7 +330,7 @@ else
         if (isset($pa_parametros_campo["logar_alteracao"]) && $pa_parametros_campo["logar_alteracao"])
         {
         ?>
-            <input type="hidden" id="alterou_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" name="alterou_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" value="0">
+            <input type="hidden" id="alterou_<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" name="alterou_<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" value="0">
         <?php
         }
         ?>
@@ -339,29 +341,29 @@ else
 
 <script>
 
-$(document).on('click', "#chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>", function()
+$(document).on('click', "#chk_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>", function()
 {
-    $("#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>').prop('disabled'));
+    $("#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>').prop('disabled'));
 
     <?php
     if ($vs_formato == "rich")
     {
     ?>
-        $("#rich_text_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").toggle();
+        $("#rich_text_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").toggle();
     <?php
     }
     else
     {
     ?>
-        $("#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").toggle();
-        $("#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").focus();
+        $("#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").toggle();
+        $("#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").focus();
     <?php
     }
     ?>
 });
 
 
-$(document).on('keyup', "#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>", function(event)
+$(document).on('keyup', "#<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>", function(event)
 {
     vb_alterou_cadastro = true;
 
@@ -369,21 +371,21 @@ $(document).on('keyup', "#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>"
     if (isset($pa_parametros_campo["logar_alteracao"]) && $pa_parametros_campo["logar_alteracao"])
     {
     ?>
-        $("#alterou_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").val("1");
+        $("#alterou_<?php print $vs_id_campo . $vs_sufixo_nome_campo ?>").val("1");
     <?php
     }
     ?>
 });
 
-function alterar_valor_filtro_<?php print $vs_nome_campo ?>(pb_checked, ps_valor)
+function alterar_valor_filtro_<?php print $vs_id_campo ?>(pb_checked, ps_valor)
 {
     if (ps_valor == "sem_valor")
-        $("#<?php print $vs_nome_campo ?>_com_valor").prop("checked", false);
+        $("#<?php print $vs_id_campo ?>_com_valor").prop("checked", false);
     else if (ps_valor == "com_valor")
-        $("#<?php print $vs_nome_campo ?>_sem_valor").prop("checked", false);
+        $("#<?php print $vs_id_campo ?>_sem_valor").prop("checked", false);
 
-    $("#<?php print $vs_nome_campo ?>").val("");
-    $("#<?php print $vs_nome_campo ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_id_campo ?>").val("");
+    $("#<?php print $vs_id_campo ?>").prop("disabled", pb_checked);
 };
 
 </script>
