@@ -93,7 +93,7 @@ public function build(&$pa_valores_form=array(), $pa_parametros_campo=array(), $
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo, $vs_sufixo_nome_campo);
 
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
-        $vb_pode_exibir = $vb_pode_exibir && (trim($vs_valor_campo) != "") && $pa_parametros_campo["exibir_quando_preenchido"];
+        $vb_pode_exibir = $vb_pode_exibir && ((trim($vs_valor_campo) != "") || $vb_marcar_sem_valor || $vb_marcar_com_valor)&& $pa_parametros_campo["exibir_quando_preenchido"];
 
     require dirname(__FILE__) . "/../../../app/components/campo_texto.php";
 }

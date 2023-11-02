@@ -44,6 +44,7 @@
     if (isset($va_campos))
     {
         $vb_aplicar_controle_acesso = true;
+        $vb_busca_combinada = false;
         $va_controles_acesso_aplicados = array();
 
         foreach ($va_parametros_submit as $vs_key_filtro => $vs_valor_filtro)
@@ -53,8 +54,16 @@
 
             $vs_campo = $vs_key_filtro;
             if ( preg_match('/\w+(_F_\d+)$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
+            {
                 $vs_campo = substr($vs_key_filtro, 0, strpos($vs_key_filtro, "_F_"));
-            
+                $vb_busca_combinada = true;
+            }
+            elseif ((strpos($vs_key_filtro, "_com_valor") != FALSE) || (strpos($vs_key_filtro, "_sem_valor") != FALSE))
+            {
+                $vs_campo = str_replace("_com_valor", "", $vs_campo);
+                $vs_campo = str_replace("_sem_valor", "", $vs_campo);
+            }
+
             if (isset($va_campos[$vs_campo]))
             {
                 $va_campo_filtro = $va_campos[$vs_campo];
@@ -109,12 +118,12 @@
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
                         $va_parametros_filtros_consulta[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
                 }
-                elseif (preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
+                elseif (strpos($vs_key_filtro, "_sem_valor") !== FALSE)
                 {
                     $va_parametros_filtros_form[$vs_key_filtro] = 1;
                     $va_parametros_filtros_consulta[str_replace("_sem_valor", "", $vs_key_filtro)] = ["0", "_EXISTS_"];
                 }
-                elseif (preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro))
+                elseif (strpos($vs_key_filtro, "_com_valor") !== FALSE)
                 {
                     $va_parametros_filtros_form[$vs_key_filtro] = 1;
                     $va_parametros_filtros_consulta[str_replace("_com_valor", "", $vs_key_filtro)] = ["1", "_EXISTS_"];
@@ -175,6 +184,9 @@
 
         if (isset($vo_objeto->controlador_acesso))
         {
+            // Verificação preliminar da existência de permissões de acesso
+            ///////////////////////////////////////////////////////////////
+
             $vb_acesso_invalido_registro = false;
     
             foreach ($vo_objeto->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
@@ -199,6 +211,9 @@
                 $vb_pode_inserir = false;
                 $vb_pode_editar = false;
             }
+
+            // Verificação das permissões de acesso efetivamente atribuídas
+            ///////////////////////////////////////////////////////////////
 
             foreach ($vo_objeto->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
             {
@@ -251,15 +266,6 @@
                 unset($va_parametros_filtros_form[$vs_controle_acesso_aplicado]);
             }
         }
-
-        // Trouxe de listar.php, mas será que precisa para todos os contextos?
-        //////////////////////////////////////////////////////////////////////
-
-        //if (!isset($va_parametros_filtros_form["recurso_sistema_codigo"]))
-            //$va_parametros_filtros_form["recurso_sistema_codigo"] = $vn_recurso_sistema_codigo;
-
-        //if ( ($vs_id_objeto_tela != "usuario") && !isset($va_parametros_filtros_form["usuario_codigo"]) && isset($vn_usuario_logado_codigo))
-            //$va_parametros_filtros_form["usuario_codigo"] = $vn_usuario_logado_codigo;
     }
 
     $vb_existe_filtro_log = false;
