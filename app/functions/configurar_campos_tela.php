@@ -227,6 +227,7 @@
                 if (isset($vs_novo_id_campo))
                 {
                     $va_campos[$vs_id_campo]["nome"] = $vs_novo_id_campo;
+                    $va_campos[$vs_id_campo]["busca_combinada"] = true;
                     //$va_campos[$vs_id_campo]["id"] = $vs_novo_id_campo;
                 }
             }

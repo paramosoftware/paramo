@@ -42,19 +42,34 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
             foreach ($va_dependencias as $va_dependencia)
             {
-                if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]] != "")
+                // Vou verificar antes se eu posso aplicar a dependência
+                // Não posso aplicar a dependência se o campo estiver sendo construído para uma busca combinada
+                // e a dependência é originada de outro campo do mesmo conjunto de filtro
+
+                $vb_busca_combinada = isset($pa_parametros_campo["busca_combinada"]) ? true : false;
+
+                $vb_dependencia_campo_interface = false;
+                if (!isset($va_dependencia["tipo"]) || (isset($va_dependencia["tipo"]) && $va_dependencia["tipo"] == "interface"))
+                    $vb_dependencia_campo_interface = true;
+
+                if (!$vb_busca_combinada || ($vb_busca_combinada && !$vb_dependencia_campo_interface))
                 {
-                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
-                }
-                elseif (isset($pa_filtro_listagem[$va_dependencia["atributo"]]))
-                {
-                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["atributo"]];
-                }
-                else
-                {
-                    // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
-                    if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
-                        return false;
+                    if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]] != "")
+                    {
+                        $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
+                    }
+                    elseif (isset($pa_filtro_listagem[$va_dependencia["atributo"]]))
+                    {
+                        $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["atributo"]];
+                    }
+                    else
+                    {
+                        // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
+                        ///////////////////////////////////////////////////////////////////////////////////
+
+                        if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
+                            return false;
+                    }
                 }
             }
         }
