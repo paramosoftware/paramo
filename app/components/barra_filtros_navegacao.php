@@ -121,6 +121,9 @@ function toggle_filtro()
 
     div.style.display = div.style.display == 'none' ? 'flex ': 'none';
 
+    if (vb_exists_visible_element && vb_exists_hidden_element)
+        div.style.display = "flex";
+
     var elems = document.querySelectorAll(".filtros");
 
     if(div.style.display === 'flex')
@@ -139,9 +142,6 @@ function toggle_filtro()
             el.classList.add("dropdown-toggle");
         });
     }
-
-    if (vb_exists_visible_element && vb_exists_hidden_element)
-        div.style.display = "none";
 
     if (vb_exists_hidden_element)
     {
