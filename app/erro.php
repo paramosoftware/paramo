@@ -17,8 +17,7 @@ if (isset($_GET["codigo"]))
 }
 else
 {
-    header("Location: index.php");
-    exit();
+    session::redirect();
 }
 
 $vs_ultima_linha = "";
@@ -58,8 +57,7 @@ if ($vs_ultima_linha)
 
 if ($vs_erro_codigo == "")
 {
-    header("Location: index.php");
-    exit();
+    session::redirect();
 }
 
 ?>

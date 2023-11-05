@@ -25,16 +25,10 @@
 
     if ($vs_usuario_login != "" && $vs_usuario_senha != "")
     {
-
-        $vs_pagina_entrada = session::login($vs_usuario_login, $vs_usuario_senha);
-
-        if (!empty($vs_pagina_entrada))
+        if (!session::login($vs_usuario_login, $vs_usuario_senha))
         {
-            echo "<script>window.location.href = '$vs_pagina_entrada';</script>";
-            exit;
+            $vs_login_msg = "Login ou senha incorretos.";
         }
-
-        $vs_login_msg = "Login ou senha incorretos.";
     }
     else
     {

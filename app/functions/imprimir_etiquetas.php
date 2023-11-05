@@ -6,9 +6,9 @@ $vn_pagina_etiquetas_codigo = $_POST["pagina_etiquetas"] ?? null;
 
 if (!$vn_pagina_etiquetas_codigo)
 {
-    print "Nenhuma página de etiquetas foi configurada.";
-    header("refresh:4;url=index.php");
-    exit();
+    session::log_and_redirect_error("Nenhuma página de etiquetas foi configurada.",
+        "Nenhuma página de etiquetas foi configurada: " . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__
+    );
 }
 
 $vs_modo = $_GET["modo"] ?? null;
@@ -25,9 +25,11 @@ $va_pagina_etiquetas = $vo_pagina_etiquetas->ler($vn_pagina_etiquetas_codigo, "f
 
 if (!isset($va_pagina_etiquetas) || !isset($va_itens_listagem))
 {
-    echo "Ocorreu um erro ao gerar as etiquetas.";
-    header("refresh:4;url=index.php");
-    exit();
+    session::log_and_redirect_error(
+        "Ocorreu um erro ao gerar as etiquetas.",
+        "Não foi possível encontrar a página de etiquetas ou os itens da listagem: " . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__,
+        true
+    );
 }
 
 $vn_page_width = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"];

@@ -29,9 +29,11 @@ $va_labels_tipos_operacoes = [
 
 if (!isset($vs_id_objeto_tela))
 {
-    print "Parâmetros inválidos.";
-    header("refresh:4;url=index.php");
-    exit();
+    session::log_and_redirect_error(
+        "Erro ao imprimir relatório",
+        "vs_id_objeto_tela não esta setado" . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__,
+        true
+    );
 }
 
 
@@ -132,7 +134,6 @@ readfile($vs_file_path);
 utils::clear_temp_folder();
 exit();
 
-
 function get_parametros_relatorio_quantitativo($pn_campo_sistema_codigo)
 {
     $vo_campo_sistema = new campo_sistema;
@@ -162,9 +163,11 @@ function get_parametros_relatorio_quantitativo($pn_campo_sistema_codigo)
 
     if (!$vs_objeto_relacionado_campo_identificador)
     {
-        print "Parâmetros inválidos.";
-        header("refresh:4;url=index.php");
-        exit();
+        session::log_and_redirect_error(
+            "Erro ao imprimir relatório",
+            "Não foi possível encontrar o campo identificador do objeto relacionado" . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " . var_export($va_campos_sistema_objeto_relacionado, true),
+            true
+        );
     }
 
     return [$vs_campo_sistema_id, $vs_objeto_relacionado_campo_identificador, $va_campo_sistema["campo_sistema_alias"]];
