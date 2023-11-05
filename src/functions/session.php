@@ -87,8 +87,8 @@ class session
 
         if ($pb_append_http_variables)
         {
-            $stacktrace .= " - " . var_export($_GET, true);
-            $stacktrace .= " - " . var_export($_POST, true);
+            $stacktrace .= " - \$_GET: " . var_export($_GET, true);
+            $stacktrace .= " - \$_POST: " . var_export($_POST, true);
         }
 
         $vs_codigo = utils::log($ps_summary, $stacktrace);
@@ -183,7 +183,7 @@ class session
         setcookie($vs_session_name, $ps_token, $options);
     }
 
-    public static function login($ps_usuario_login, $ps_usuario_senha): string
+    public static function login($ps_usuario_login, $ps_usuario_senha): bool
     {
 
         $vs_redirect_pagina = "";
@@ -226,12 +226,11 @@ class session
                 $_SESSION["usuario_token"] = $vs_token;
 
                 session::set_token_cookie($vs_token);
-
-                return $vs_redirect_pagina;
+                session::redirect($vs_redirect_pagina);
             }
         }
 
-        return "";
+        return false;
     }
 
     public static function logout(): void
@@ -240,7 +239,7 @@ class session
         session_destroy();
         setcookie(session_name(), "", time() - 3600, "/");
         setcookie(session::generate_cookie_name(true), "", time() - 3600, "/");
-        header("Location: login.php");
+        session::redirect("login.php");
         exit();
     }
 

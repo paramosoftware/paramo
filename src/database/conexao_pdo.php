@@ -28,9 +28,7 @@ class conexao_pdo
         } catch (PDOException $e) {
             $this->error = true;
             $vs_message = $e->getMessage() . " - " . $e->getTraceAsString();
-            $vs_codigo = utils::log("Não foi possível conectar ao banco de dados", $vs_message);
-            echo '<script>window.location.href = "erro.php?codigo=' . $vs_codigo . '";</script>';
-            exit();
+            session::log_and_redirect_error("Não foi possível conectar ao banco de dados", $vs_message, true);
         }
 
         return $conexao;
@@ -72,10 +70,8 @@ class conexao_pdo
         } catch (PDOException $e) {
             $this->error = true;
             $vo_banco->finalizar_transacao();
-            $vs_message = $e->getMessage() . " - " . $ps_sql . " - " . $e->getTraceAsString();
-            $vs_codigo = utils::log("Erro ao executar query no banco de dados", $vs_message);
-            echo '<script>window.location.href = "erro.php?codigo=' . $vs_codigo . '";</script>';
-            exit();
+            $vs_message = $e->getMessage() . " - " . $ps_sql . " - " . implode(",", $pa_parametros) . " - " . $e->getTraceAsString();
+            session::log_and_redirect_error("Erro ao executar query no banco de dados", $vs_message, true);
         }
 
         if (!$vb_transacao_iniciada) {
@@ -99,10 +95,8 @@ class conexao_pdo
             $this->error = true;
             $vo_banco = Banco::get_instance();
             $vo_banco->finalizar_transacao();
-            $vs_message = $e->getMessage() . " - " . $ps_sql . " - " . $e->getTraceAsString();
-            $vs_codigo = utils::log("Erro ao executar query no banco de dados", $vs_message);
-            echo '<script>window.location.href = "erro.php?codigo=' . $vs_codigo . '";</script>';
-            exit();
+            $vs_message = $e->getMessage() . " - " . $ps_sql . " - " . implode(",", $pa_parametros) . " - " . $e->getTraceAsString();
+            session::log_and_redirect_error("Erro ao executar query no banco de dados", $vs_message, true);
         }
     }
 

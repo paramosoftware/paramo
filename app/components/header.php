@@ -155,11 +155,15 @@
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <a class="dropdown-item" href="sair.php">
-                        <svg class="icon me-2">
-                        <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-account-logout"></use>
-                        </svg>Sair
-                    </a>
+                    <form method="post" action="functions/sair.php">
+                        <input type="hidden" name="sair" value="true">
+                        <button class="dropdown-item" type="submit">
+                            <svg class="icon me-2">
+                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-account-logout"></use>
+                            </svg>Sair
+                        </button>
+                    </form>
+
                 </div>
             </li>
         </ul>
@@ -196,7 +200,7 @@
 <script>
     $(document).ready(function () {
         $("#desconectar-google-drive").click(function () {
-            $.post("sair.php", {desconectar_google_drive: true }, function (data) {
+            $.post("functions/sair.php", {desconectar_google_drive: true }, function (data) {
                 window.location.reload();
             });
         });

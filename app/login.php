@@ -8,6 +8,11 @@
 
     session::start_session();
 
+    if (session::get_logged_user())
+    {
+        session::redirect();
+    }
+
 ?>
 
 
