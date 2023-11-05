@@ -23,7 +23,8 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
 
-    <form method="post" action="relatorio_pesquisas.php" id="form_filtro_relatorio_pesquisas">
+    <form method="post" action="functions/imprimir_relatorio.php" id="form_filtro_relatorio_pesquisas">
+        <input type="hidden" name="relatorio" value="pesquisa_usuario">
         <div class="body flex-grow-1 px-3">
             <div class="container-lg">
                 <div class="row">
@@ -84,6 +85,18 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     
                                         $vo_combo = new html_combo_input("setor_sistema", "setor_sistema_codigo");
                                         $vo_combo->build($va_valores, $va_parametros_campo);
+
+
+                                        $va_parametros_campo = [
+                                            "html_checkbox_input",
+                                            "nome" => "incluir_porcentagem",
+                                            "label" => "Incluir porcentagem?",
+                                            "valor_padrao" => "1"
+                                        ];
+
+                                        $vo_checkbox = new html_checkbox_input($vs_id_objeto_tela, "incluir_porcentagem");
+                                        $vo_checkbox->build($va_valores, $va_parametros_campo);
+
                                     ?>
                                     
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . "/components/entry_point.php";
+require_once dirname(__FILE__) . "/../components/entry_point.php";
 
 $vn_pagina_etiquetas_codigo = $_POST["pagina_etiquetas"] ?? null;
 
@@ -18,7 +18,7 @@ if ($vs_modo == "ficha")
     $vn_objeto_codigo = $_GET["cod"] ?? null;
 }
 
-require_once dirname(__FILE__) . "/functions/montar_listagem.php";
+require_once dirname(__FILE__) . "/montar_listagem.php";
 
 $vo_pagina_etiquetas = new pagina_etiquetas;
 $va_pagina_etiquetas = $vo_pagina_etiquetas->ler($vn_pagina_etiquetas_codigo, "ficha");

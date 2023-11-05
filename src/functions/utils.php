@@ -281,5 +281,23 @@ class utils
         return $html;
     }
 
+    public static function clear_temp_folder($ps_time = "-1 minutes")
+    {
+        $va_files = scandir(config::get(["pasta_media", "temp"]));
+
+        foreach ($va_files as $vs_file)
+        {
+            if (in_array($vs_file, [".", "..", ".gitignore"]))
+            {
+                continue;
+            }
+
+            if (filemtime(config::get(["pasta_media", "temp"]) . $vs_file) < strtotime($ps_time))
+            {
+                unlink(config::get(["pasta_media", "temp"]) . $vs_file);
+            }
+        }
+    }
+
 
 }
