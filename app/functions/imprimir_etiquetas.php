@@ -33,17 +33,20 @@ if (!isset($va_pagina_etiquetas) || !isset($va_itens_listagem))
 $vn_page_width = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"];
 $vn_page_height = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_altura"];
 
+$vs_file_name = "etiquetas-" . date("Y-m-d-H-i-s") . ".pdf";
+$vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
+
 $vn_modelo_etiqueta_codigo = $_POST["modelo_etiqueta"] ?? 1;
 $vs_class_name = $vn_modelo_etiqueta_codigo == 1 ? "label" : "label_box";
 $vs_custom_class_name = $vs_class_name."_custom";
 
 if (class_exists($vs_custom_class_name))
 {
-    $vo_label = new $vs_custom_class_name('P', 'mm', [$vn_page_width, $vn_page_height]);
+    $vo_label = new $vs_custom_class_name($vs_file_path, 'P', 'mm', [$vn_page_width, $vn_page_height]);
 }
 else
 {
-    $vo_label = new $vs_class_name('P', 'mm', [$vn_page_width, $vn_page_height]);
+    $vo_label = new $vs_class_name($vs_file_path, 'P', 'mm', [$vn_page_width, $vn_page_height]);
 }
 
 
@@ -61,5 +64,12 @@ $vo_label->va_itens = $va_itens_listagem;
 
 $vo_label->process();
 $vo_label->Output();
+
+header('Content-Type: application/pdf');
+header('Content-Disposition: attachment; filename="' . $vs_file_name . '"');
+header('Content-Length: ' . filesize($vs_file_path));
+readfile($vs_file_path);
+
+utils::clear_temp_folder();
 
 ?>

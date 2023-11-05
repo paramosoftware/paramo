@@ -281,7 +281,7 @@ class utils
         return $html;
     }
 
-    public static function clear_temp_folder($ps_time = "-1 minutes")
+    public static function clear_temp_folder($ps_time = "1 minute")
     {
         $va_files = scandir(config::get(["pasta_media", "temp"]));
 
