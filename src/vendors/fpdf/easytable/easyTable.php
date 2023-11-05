@@ -574,7 +574,7 @@ class easyTable{
                      }
                	}
                   else{
-                     if($rr< $this->row_data[$index][1]['img']['h']){
+                     if($this->row_data[$index][1]['img'] && $rr< $this->row_data[$index][1]['img']['h']){
                         $mx=$this->row_data[$index][1]['img']['h'];
                      }
                   }
