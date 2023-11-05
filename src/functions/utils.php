@@ -137,15 +137,20 @@ class utils
         return '<img src="assets/img/placeholder-link.png">';
     }
 
-    public static function log(string $summary, string $stacktrace) : string
+    public static function log(string $summary, $stacktrace) : string
     {
         $logs_folder = config::get(["pasta_logs"]);
         $file = $logs_folder . date("Y-m-d") . ".log";
         $code = md5(uniqid(rand(), true));
         $code = substr($code, 0, 12);
 
-        $stacktrace = str_replace("\r", "", $stacktrace);
-        $stacktrace = str_replace("\n", "", $stacktrace);
+        if (is_array($stacktrace))
+        {
+            $stacktrace = implode(" ", $stacktrace);
+        }
+
+        $stacktrace = str_replace("\r", " ", $stacktrace);
+        $stacktrace = str_replace("\n", " ", $stacktrace);
 
         $log = date("Y-m-d H:i:s") . "*-*" . $code . "*-*" . $summary . "*-*" . $stacktrace . "\n";
         file_put_contents($file, $log, FILE_APPEND);

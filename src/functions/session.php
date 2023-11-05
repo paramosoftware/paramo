@@ -78,6 +78,81 @@ class session
             . ($pb_token ? "_token" : "");
     }
 
+    public static function log_and_redirect_error($ps_summary, $stacktrace=null, $pb_append_http_variables=false): void
+    {
+        if (empty($stacktrace))
+        {
+            $stacktrace = var_export(debug_backtrace(), true);
+        }
+
+        if ($pb_append_http_variables)
+        {
+            $stacktrace .= " - " . var_export($_GET, true);
+            $stacktrace .= " - " . var_export($_POST, true);
+        }
+
+        $vs_codigo = utils::log($ps_summary, $stacktrace);
+        session::redirect("erro.php?codigo=" . $vs_codigo);
+    }
+
+    public static function redirect($ps_script = "index.php"): void
+    {
+        $vs_scheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
+        $vs_host = $_SERVER["HTTP_HOST"] ?? "";
+        $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
+
+        $vs_redirect_url = $vs_scheme . "://" . $vs_host;
+
+        $va_path = explode("/", $vs_request_uri);
+
+        $i = 0;
+        foreach ($va_path as $vs_path)
+        {
+            if ($vs_path == "functions")
+            {
+                if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                {
+                    $vs_redirect_url .= $ps_script;
+                    break;
+                }
+            }
+
+            if (strpos($vs_path, ".php") !== false)
+            {
+                $vs_redirect_url .= $ps_script;
+                break;
+            }
+            else
+            {
+                $vs_redirect_url .= $vs_path . "/";
+            }
+
+            if ($vs_path == "app")
+            {
+                $vs_redirect_url .= $ps_script;
+                break;
+            }
+
+            $i++;
+        }
+
+        if ($vs_host == "")
+        {
+            $vs_redirect_url = $ps_script;
+        }
+
+        if (!headers_sent())
+        {
+            header("Location: " . $vs_redirect_url);
+        }
+        else
+        {
+            echo '<script>window.location.href = "' . $vs_redirect_url . '";</script>';
+        }
+
+        exit();
+    }
+
     public static function refresh_session_cookie(): void
     {
         $vs_session_name = session::generate_cookie_name();
