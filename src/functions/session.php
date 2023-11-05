@@ -95,50 +95,53 @@ class session
         session::redirect("erro.php?codigo=" . $vs_codigo);
     }
 
-    public static function redirect($ps_script = "index.php"): void
+    public static function redirect($ps_script="index.php", $vb_absolute=false): void
     {
+
         $vs_scheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
         $vs_host = $_SERVER["HTTP_HOST"] ?? "";
         $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
 
-        $vs_redirect_url = $vs_scheme . "://" . $vs_host;
-
-        $va_path = explode("/", $vs_request_uri);
-
-        $i = 0;
-        foreach ($va_path as $vs_path)
+        if ($vb_absolute || $vs_host == "")
         {
-            if ($vs_path == "functions")
+            $vs_redirect_url = $ps_script;
+        }
+        else
+        {
+            $vs_redirect_url = $vs_scheme . "://" . $vs_host;
+
+            $va_path = explode("/", $vs_request_uri);
+
+            $i = 0;
+            foreach ($va_path as $vs_path)
             {
-                if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                if ($vs_path == "functions")
+                {
+                    if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                    {
+                        $vs_redirect_url .= $ps_script;
+                        break;
+                    }
+                }
+
+                if (strpos($vs_path, ".php") !== false)
                 {
                     $vs_redirect_url .= $ps_script;
                     break;
                 }
-            }
+                else
+                {
+                    $vs_redirect_url .= $vs_path . "/";
+                }
 
-            if (strpos($vs_path, ".php") !== false)
-            {
-                $vs_redirect_url .= $ps_script;
-                break;
-            }
-            else
-            {
-                $vs_redirect_url .= $vs_path . "/";
-            }
+                if ($vs_path == "app")
+                {
+                    $vs_redirect_url .= $ps_script;
+                    break;
+                }
 
-            if ($vs_path == "app")
-            {
-                $vs_redirect_url .= $ps_script;
-                break;
+                $i++;
             }
-
-            $i++;
-        }
-
-        if ($vs_host == "")
-        {
-            $vs_redirect_url = $ps_script;
         }
 
         if (!headers_sent())
@@ -226,20 +229,29 @@ class session
                 $_SESSION["usuario_token"] = $vs_token;
 
                 session::set_token_cookie($vs_token);
-                session::redirect($vs_redirect_pagina);
+
+                if (isset($_POST["redirect"]) && $_POST["redirect"] != "")
+                {
+                    session::redirect($_POST["redirect"], true);
+                }
+                else
+                {
+                    session::redirect($vs_redirect_pagina);
+                }
             }
         }
 
         return false;
     }
 
-    public static function logout(): void
+    public static function logout($vb_redirect=true): void
     {
         session_unset();
         session_destroy();
         setcookie(session_name(), "", time() - 3600, "/");
         setcookie(session::generate_cookie_name(true), "", time() - 3600, "/");
-        session::redirect("login.php");
+        $vs_login = "login.php" . ($vb_redirect ? "?redirect=" . urlencode($_SERVER["REQUEST_URI"] ?? "") : "");
+        session::redirect($vs_login);
         exit();
     }
 

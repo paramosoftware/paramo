@@ -17,7 +17,7 @@
     }
     elseif (isset($_POST["sair"]))
     {
-        session::logout();
+        session::logout(false);
     }
 
     session::redirect();

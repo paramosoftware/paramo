@@ -63,6 +63,7 @@
 <body>
 
 <form method="post" action="login.php">
+    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET["redirect"] ?? "") ; ?>">
 
     <?php
         $va_valores_form = array();
