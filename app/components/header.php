@@ -145,7 +145,7 @@
 
 
                     <?php if (config::get(["f_integracao_google_drive"]) ?? false) : ?>
-                        <?php $authUrl = google_drive::get_auth_url($_SESSION["usuario_logado_codigo"], 'drive'); ?>
+                        <?php $authUrl = google_drive::get_auth_url($_SESSION["usuario_logado_codigo"] ?? 0, 'drive'); ?>
                         <?php if (empty($authUrl)) : ?>
                             <a class="dropdown-item" id="desconectar-google-drive">
                                 <svg class="icon me-2">
@@ -196,14 +196,8 @@
 <script>
     $(document).ready(function () {
         $("#desconectar-google-drive").click(function () {
-            $.ajax({
-                url: "sair.php?desconectar_google_drive",
-                success: function (data) {
-                    location.reload();
-                },
-                error: function () {
-                    alert("Erro ao desconectar do Google Drive!");
-                }
+            $.post("sair.php", {desconectar_google_drive: true }, function (data) {
+                window.location.reload();
             });
         });
     });

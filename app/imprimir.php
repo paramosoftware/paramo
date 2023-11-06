@@ -4,11 +4,11 @@
     if (!isset($vb_public))
         $vb_public = false;
 
+    require_once dirname(__FILE__) . '/../src/vendors/dompdf/autoload.inc.php';
+
     if (!$vb_public)
     {
         require_once dirname(__FILE__) . "/components/entry_point.php";
-
-        require_once dirname(__FILE__) . '/../src/vendors/dompdf/autoload.inc.php';
 
         if (isset($_POST["modo"]))
             $vs_modo = $_POST["modo"];

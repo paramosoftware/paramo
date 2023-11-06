@@ -6,27 +6,8 @@
 
     require dirname(__FILE__) . "/components/debug.php";
 
-    if (session_status() == PHP_SESSION_NONE)
-    {
-        $vs_session_name = strtolower(preg_replace("/[^A-Za-z0-9]/", "", config::get(["nome_instituicao"])));
-        session_name($vs_session_name);
+    session::start_session();
 
-        if (isset($_COOKIE[$vs_session_name]))
-        {
-            unset($_COOKIE[$vs_session_name]);
-            setcookie($vs_session_name, "", time() - 3600, "/");
-        }
-
-        $options = [
-            'lifetime' => 60 * 60 * 24,
-            'secure' => ($_SERVER["HTTPS"] ?? false),
-            'httponly' => true,
-            'samesite' => 'Strict',
-        ];
-
-        session_set_cookie_params($options);
-        session_start();
-    }
 ?>
 
 
@@ -37,57 +18,22 @@
 
     require_once dirname(__FILE__) . "/components/header_html.php";;
 
-    $vs_usuario_login = "";
-    $vs_usuario_senha = "";
+    $vs_usuario_login = $_POST['usuario_login'] ?? "";
+    $vs_usuario_senha = $_POST['usuario_senha'] ?? "";
 
     $vs_login_msg = "";
 
-    if (isset($_POST['usuario_login']))
-        $vs_usuario_login = $_POST['usuario_login'];
-
-    if (isset($_POST['usuario_senha']))
-        $vs_usuario_senha = $_POST['usuario_senha'];
-
     if ($vs_usuario_login != "" && $vs_usuario_senha != "")
     {
-        $vs_pagina_entrada = "index.php";
-        $va_parametros_consulta["usuario_login"] = $vs_usuario_login;
 
-        $vo_usuario = new Usuario;
-        $va_usuario = $vo_usuario->ler_lista($va_parametros_consulta, "senha", 0, 1,null,null,null,1,true);
+        $vs_pagina_entrada = session::login($vs_usuario_login, $vs_usuario_senha);
 
-        if (isset($va_usuario) && $va_usuario)
+        if (!empty($vs_pagina_entrada))
         {
-            $vb_validou_senha = false;
-
-            $hash_senha = $va_usuario[0]["usuario_senha"];
-
-            if (password_verify($vs_usuario_senha, $hash_senha))
-            {
-                $vb_validou_senha = true;
-            }
-            elseif (isset($va_usuario[0]["usuario_senha_provisoria"]) && ($va_usuario[0]["usuario_data_expiracao_senha_provisoria"] > date("Y-m-d H:i:s")) )
-            {
-                $vs_pagina_entrada = "editar_senha.php";
-                $hash_senha = $va_usuario[0]["usuario_senha_provisoria"];
-
-                if (password_verify($vs_usuario_senha, $hash_senha))
-                    $vb_validou_senha = true;
-            }
-
-            if ($vb_validou_senha)
-            {
-                $vs_token = md5(uniqid(rand(), true));
-                $va_parametros["usuario_token"] = $vs_token;
-                $va_parametros["usuario_ultimo_login"] = date("Y-m-d H:i:s");
-                $va_parametros["usuario_codigo"] = $va_usuario[0]["usuario_codigo"];
-
-                $vo_usuario->salvar($va_parametros, false);
-
-                $_SESSION["usuario_token"] = $vs_token;
-                echo "<script>window.location.href = '$vs_pagina_entrada';</script>";
-            }
+            echo "<script>window.location.href = '$vs_pagina_entrada';</script>";
+            exit;
         }
+
         $vs_login_msg = "Login ou senha incorretos.";
     }
     else

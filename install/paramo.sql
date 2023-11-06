@@ -1417,7 +1417,7 @@ CREATE TABLE `formato_pagina` (
 
 LOCK TABLES `formato_pagina` WRITE;
 /*!40000 ALTER TABLE `formato_pagina` DISABLE KEYS */;
-INSERT INTO `formato_pagina` VALUES (1,'A4',29,21);
+INSERT INTO `formato_pagina` VALUES (1,'A4',297,210),(2,'Carta',279,216);
 /*!40000 ALTER TABLE `formato_pagina` ENABLE KEYS */;
 UNLOCK TABLES;
 
