@@ -34,8 +34,8 @@ jobs:
 
       - name: Commit version update
         run: |
-          git config user.name "$(git log -n 1 --pretty=format:%an)"
-          git config user.email "$(git log -n 1 --pretty=format:%ae)"
+          git config user.name "paramo-bot[bot]"
+          git config user.email "150099564+paramo-bot[bot]@users.noreply.github.com"
           git add config/constants.php
           git commit -m "Atualizar versão para ${{ steps.create_tag.outputs.new_tag }}"
 
