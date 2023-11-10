@@ -52,7 +52,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 ?>
     <div class="accordion-item">
         <?php 
-            $vs_css_accordion_show = "";
+            $vs_css_accordion_show = config::get(["f_abrir_campo_representantes_digitais"]) ? "show" : "";
             $vs_css_button_show = "collapsed";
             $vs_aria_expanded = "false";
             if (isset($pa_parametros_campo["atualizacao"]))
