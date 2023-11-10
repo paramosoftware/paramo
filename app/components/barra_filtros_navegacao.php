@@ -106,10 +106,11 @@ function toggle_filtro()
     vb_exists_visible_element = false;
     vb_filtro_log_visible = false;
 
-    $("#filtros").find("div").each(function () 
-    {
+    $("#filtros").children("div").each(function () 
+    {console.log($(this).prop("id"));
         if ($(this).is(":visible"))
             vb_exists_visible_element = true;
+
         else if ($(this).attr('hidden') != "hidden")
         {
             if ( ($(this).parent().prop("id") != "") && ($(this).parent().prop("id") != "div_filtros_catalogacao") && ($(this).prop("id") != "div_filtros_catalogacao") )
