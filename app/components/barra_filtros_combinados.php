@@ -23,11 +23,11 @@ if (!$vb_busca_combinada)
                 $vs_modo = "listagem";
                 require dirname(__FILE__) . "/../functions/configurar_campos_tela.php";
 
-                foreach ($va_campos as $vs_campo_key => $va_campo)
+                foreach ($va_campos as $vs_campo_key => $va_campo_filtro)
                 {
-                    $va_filtros_navegacao[$vs_campo_key] = $va_campo["label"];
+                    $va_filtros_navegacao[$vs_campo_key] = $va_campo_filtro["label"];
                 }
-
+                
                 $va_parametros_campo = [
                     "html_combo_input", 
                     "nome" => "campo_sistema_nome",
