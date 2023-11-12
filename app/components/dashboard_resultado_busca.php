@@ -137,7 +137,7 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                         <td>
                                             <div>
                                                 <?php
-                                                    print htmlspecialchars($vs_titulo);
+                                                    print $vs_titulo;
                                                 ?>
                                             </div>
                                         </td>

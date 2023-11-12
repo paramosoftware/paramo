@@ -1,6 +1,6 @@
 <?php
 # ==================================== CONFIGURAÇÕES DE DADOS DE ACESSO ==================================== #
-# Faça uma cópia deste arquivo na pasta config/custom e remomeie para secrets.php.
+# Faça uma cópia deste arquivo na pasta config/custom e remomeie para envs.php.
 # Altere os valores abaixo conforme as suas configurações.
 
 return [

@@ -16,8 +16,6 @@ public function get_itens()
 
 public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 {
-    //var_dump($pa_filtro_listagem);
-
     if (isset($pa_parametros_campo["valores"]))
     {
         foreach($pa_parametros_campo["valores"] as $vs_key_item => $vs_item)
@@ -93,6 +91,14 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         {
             $vs_id_objeto = $pa_parametros_campo["objeto"];
             $vo_objeto = new $vs_id_objeto($vs_id_objeto);
+        }
+        
+        if (isset($pa_parametros_campo["prevenir_circularidade"]) && $pa_parametros_campo["prevenir_circularidade"] != "")
+        {
+            $va_codigos_proibidos = $vo_objeto->ler_codigos_ramo_inferior($pa_parametros_campo["prevenir_circularidade"], $vo_objeto->get_campo_hierarquico());
+            $va_codigos_proibidos[] = $pa_parametros_campo["prevenir_circularidade"];
+
+            $va_filtro[$vo_objeto->get_chave_primaria()[0]] = [implode("|", $va_codigos_proibidos), "NOT IN"];
         }
 
         if (isset($pa_parametros_campo["visualizacao"]))

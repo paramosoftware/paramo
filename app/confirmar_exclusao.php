@@ -106,7 +106,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     if (count($va_itens_listagem) == 1)
                                     {
                                         if (isset($va_item_listagem["main_field"]))
-                                            print "<b>" . htmlspecialchars($va_item_listagem["main_field"]) . "</b>";
+                                            print "<b>" . $va_item_listagem["main_field"] . "</b>";
                                         else
                                             print "Este registro";
 

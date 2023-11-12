@@ -52,7 +52,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 ?>
     <div class="accordion-item">
         <?php 
-            $vs_css_accordion_show = "";
+            $vs_css_accordion_show = config::get(["f_abrir_campo_representantes_digitais"]) ? "show" : "";
             $vs_css_button_show = "collapsed";
             $vs_aria_expanded = "false";
             if (isset($pa_parametros_campo["atualizacao"]))
@@ -147,10 +147,10 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                             }
                                             elseif ($vs_rd_formato == "pdf")
                                             {
-                                                $vs_download_path = utils::get_file_url($vs_rd_path, "large");
+                                                $vs_download_path = utils::get_file_url($vs_rd_path, "original");
 
                                                 print '<span href="' . $vs_download_path . '" target="_blank">';
-                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top pdf-viewer", null, $vs_rp_legenda);
+                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top iframe-viewer", null, $vs_rp_legenda);
                                                 print '</span>';
 
                                             }
@@ -164,7 +164,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                             <?php if ($vb_pode_remover && !$vs_preview_only)
                                             {
                                             ?>
-                                                <div class="card-body no-pad-lr cor-interna-edit">
+                                                <div class="card-body no-pad-lr bg-light">
                                                     <?php
                                                         $va_parametros_campo = [
                                                             "html_combo_input",
@@ -283,11 +283,6 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                 </div>
                 <div class="modal-body">
                     <div class="tab-content" id="nav-tabContent">
-                        <?php if (!class_exists('Imagick')) : ?>
-                            <div class="alert alert-warning alert-dismissible small">
-                                Imagick não está instalado. Não será possível gerar miniaturas das capas dos PDFs, mas ainda poderão ser visualizados e baixados.
-                            </div>
-                        <?php endif; ?>
                         <div class="tab-pane fade show active" id="nav-arquivos" role="tabpanel" tabindex="0">
                             <input type="file"
                                    class="filepond"
@@ -364,7 +359,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 <?php
 if ($pa_parametros_campo["tipo"] == 1 || $pa_parametros_campo["tipo"] == 2) {
 ?>
-$(document).on('click', ".image-viewer, .pdf-viewer", function () {
+$(document).on('click', ".image-viewer, .iframe-viewer", function () {
 
     if (this.timeout) {
         clearTimeout(this.timeout);
@@ -391,18 +386,16 @@ $(document).on('click', ".image-viewer, .pdf-viewer", function () {
             $("#div-image-container").show();
             $("#btn_fechar_imagem").show();
         });
-    } else if ($(this).hasClass('pdf-viewer')) {
+    } else if ($(this).hasClass('iframe-viewer')) {
         let path = $(this).parent().attr('href');
 
-        let embed = document.createElement('embed');
-        embed.src = path;
-        embed.width = '100%';
-        embed.height = '200%';
+        let iframe = document.createElement('iframe');
+        iframe.src = path;
+        iframe.width = '100%';
+        iframe.height = $(window).height() * 0.75;
 
         let div = document.createElement('div');
-        div.appendChild(embed);
-        div.style.height = '300px';
-        div.style.width = '100%';
+        div.appendChild(iframe);
 
         $("#div_<?php print $vs_nome_campo ?>").hide();
         $("#div-image-container").html(div);

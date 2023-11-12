@@ -14,9 +14,6 @@ public function build($pa_valores_form=array(), $pa_parametros_campo=array())
     if (isset($pa_valores_form[$pa_parametros_campo["nome"]]))
         $va_valor_campo = $pa_valores_form[$pa_parametros_campo["nome"]];
 
-    if (isset($pa_valores_form[$vs_tela . "_link_externo"]) && trim($pa_valores_form[$vs_tela . "_link_externo"]))
-        $va_valor_campo[] = array("link_externo" => $pa_valores_form[$vs_tela . "_link_externo"]);
-
     $vn_objeto_codigo = "";
     if ($pa_valores_form[$vs_tela . "_codigo"])
         $vn_objeto_codigo = $pa_valores_form[$vs_tela . "_codigo"];

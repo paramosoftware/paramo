@@ -85,19 +85,22 @@ public function inicializar_campos_edicao()
         "html_text_input", 
         "nome" => "formato_pagina_nome", 
         "label" => "Nome", 
-        "foco" => true
+        "foco" => true,
+        "obrigatorio" => true
     ];
 
     $va_campos_edicao["formato_pagina_altura"] = [
         "html_text_input", 
         "nome" => "formato_pagina_altura", 
-        "label" => "Altura"
+        "label" => "Altura (mm)",
+        "obrigatorio" => true
     ];
 
     $va_campos_edicao["formato_pagina_largura"] = [
         "html_text_input", 
         "nome" => "formato_pagina_largura", 
-        "label" => "Largura", 
+        "label" => "Largura (mm)",
+        "obrigatorio" => true
     ];
 
     return $va_campos_edicao;

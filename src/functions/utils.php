@@ -4,52 +4,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class utils
 {
-    public static function get_thumb_pdf($ps_image_path): string
-    {
-        if (!file_exists($ps_image_path))
-        {
-            return "";
-        }
-
-        if (class_exists('Imagick'))
-        {
-            try
-            {
-                $img_data = new Imagick();
-
-                $img_data->readImage($ps_image_path . "[0]");
-                $img_data->setImageFormat("jpeg");
-
-                return $img_data;
-            }
-            catch(Exception $e)
-            {
-                print $e->getMessage();
-            }
-        }
-        
-        return "";
-    }
-
-    public static function get_image($ps_image_path): string
-    {
-        if (!file_exists($ps_image_path))
-        {
-            return "";
-        }
-
-        try
-        {      
-            return file_get_contents($ps_image_path);
-        }
-        catch(Exception $e)
-        {
-            print $e->getMessage();
-        }
-        
-        return "";
-    }
-
     public static function get_image_base64($image_path, $ps_formato='image'): string
     {
         if (!file_exists($image_path))
@@ -59,17 +13,6 @@ class utils
         $type = self::get_file_extension($image_path);
         $data = file_get_contents($image_path);
         return 'data:' . $ps_formato . '/' . $type . ';base64,' . base64_encode($data);
-    }
-
-    public static function get_file_base64($file_path): string
-    {
-        if (!file_exists($file_path))
-        {
-            return "";
-        }
-        $type = self::get_file_extension($file_path);
-        $data = file_get_contents($file_path);
-        return 'data:application/' . $type . ';base64,' . base64_encode($data);
     }
 
     public static function get_file_extension($file_path)
@@ -123,39 +66,75 @@ class utils
         }
     }
 
-    public static function get_embedded_media($url, $width = 190, $height = 100): string
+    public static function get_embedded_media($url, $width = 190, $height = 120): string
     {
+
+        $context = stream_context_create(
+            [
+                "http" => [
+                    "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+                ]
+            ]
+        );
+
         $url = parse_url($url);
         $url["host"] = str_replace("www.", "", $url["host"]);
 
-        if ($url["host"] == "youtube.com" || $url["host"] == "youtu.be")
+        if (in_array($url["host"], ["youtube.com", "youtu.be", "vimeo.com"]))
         {
-            if ($url["host"] == "youtube.com")
+
+            $video_id = $url["host"] == "youtube.com" ? explode("v=", $url["query"])[1] : explode("/", $url["path"])[1];
+            $src = $url["host"] == "vimeo.com" ? "https://player.vimeo.com/video/" . $video_id : "https://www.youtube.com/embed/" . $video_id;
+
+            return '<iframe width="' . $width . '" height="' . $height . '" src="' . $src . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        }
+        else if (in_array($url["host"], ["soundcloud.com", "on.soundcloud.com"]))
+        {
+            $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;
+            $soundcloud_api_response = file_get_contents($soundcloud_api_url, false, $context);
+            $soundcloud_api_response = json_decode($soundcloud_api_response, true);
+
+            if (isset($soundcloud_api_response["html"]))
             {
-                $video_id = explode("v=", $url["query"]);
+                return $soundcloud_api_response["html"];
+            }
+        }
+        else if (in_array($url["host"], ["drive.google.com", "docs.google.com"]))
+        {
+            preg_match('/\/d\/(.+?)\//', $url["path"], $matches);
+            $file_id = $matches[1];
+
+            $src = "https://drive.google.com/file/d/" . $file_id . "/preview";
+            $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
+
+            $response = file_get_contents($src, false, $context);
+            $response_ok = strpos($http_response_header[0], "200") !== false;
+            preg_match('/"docs-dm":"(.+?)"/', $response, $matches);
+            $type = $matches[1] ? explode("/", $matches[1])[0] : null;
+
+
+            if ($response_ok && !in_array($type, ["audio", "video"]))
+            {
+                $html = '<span href="' . $src . '" target="_blank">';
+                $html .= '<img src="' . $thumbnail . '" class="iframe-viewer" onerror="this.onerror=null;this.src=\'assets/img/placeholder-drive.png\'" width="100%">';
+                $html .= '</span>';
+
+            }
+            elseif ($response_ok)
+            {
+                $html = '<div style="overflow-x: auto; width: 100%;">';
+                $html .= '<iframe src="' . $src . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                $html .= '</div>';
             }
             else
             {
-                $video_id = explode("/", $url["path"]);
+                $html = '<img src="assets/img/placeholder-drive.png">';
             }
-            $video_id = $video_id[1];
 
-            return '<iframe width="' . $width . '" height="' . $height . '" src="https://www.youtube.com/embed/' . $video_id . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-        }
-        else if ($url["host"] == "vimeo.com")
-        {
-            $video_id = explode("/", $url["path"]);
-            return '<iframe src="https://player.vimeo.com/video/' . $video_id[1] . '" width="' . $width . '" height="' . $height . '" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen></iframe>';
-        }
-        else if ($url["host"] == "soundcloud.com" || $url["host"] == "on.soundcloud.com")
-        {
-            $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;
-            $soundcloud_api_response = file_get_contents($soundcloud_api_url);
-            $soundcloud_api_response = json_decode($soundcloud_api_response, true);
-            return $soundcloud_api_response["html"] ?? "";
+            return $html;
         }
 
-        return "";
+        return '<img src="assets/img/placeholder-link.png">';
     }
 
     public static function log(string $summary, string $stacktrace) : string
@@ -226,18 +205,15 @@ class utils
     {
         $vs_extensao = pathinfo($ps_image_path, PATHINFO_EXTENSION);
         $vs_folder = self::get_media_folder($vs_extensao);
+        $vs_folder = substr($vs_folder, 0, -1);
 
         if ($vs_extensao == "pdf")
         {
             $vs_placeholder = "assets/img/placeholder-pdf.png";
         }
-        elseif ($vs_folder == "videos")
+        elseif (file_exists("assets/img/placeholder-" . $vs_folder . ".png"))
         {
-            $vs_placeholder = "assets/img/placeholder-video.png";
-        }
-        elseif ($vs_folder == "audios")
-        {
-            $vs_placeholder = "assets/img/placeholder-audio.png";
+            $vs_placeholder = "assets/img/placeholder-" . $vs_folder . ".png";
         }
         else
         {
@@ -247,22 +223,23 @@ class utils
         return $vs_placeholder;
     }
 
-
     public static function get_media_folder($ps_ext): string
     {
         $vs_folder = "";
 
-        if (in_array($ps_ext, ["jpg", "jpeg", "png", "gif", "pdf", "bmp", "svg", "tiff", "tif", "raw"])) {
-            $vs_folder = "images";
-        } elseif (in_array($ps_ext, ["mp4", "webm", "avi", "mov", "wmv", "flv", "mkv"])) {
-            $vs_folder = "videos";
-        } elseif (in_array($ps_ext, ["mp3", "m4a", "wav", "wma"])) {
-            $vs_folder = "audios";
+        $media_types = config::get(["media_types"]);
+
+        foreach ($media_types as $vs_mime_type => $va_media_type)
+        {
+            if ($va_media_type["format"] == $ps_ext)
+            {
+                $vs_folder = $va_media_type["folder"];
+                break;
+            }
         }
 
         return $vs_folder;
     }
-
 
     public static function get_media_html_element($ps_object_path, $ps_id = null): string
     {
@@ -304,27 +281,5 @@ class utils
         return $html;
     }
 
-    public static function start_session(): void
-    {
-        if (session_status() == PHP_SESSION_NONE)
-        {
-            $vs_session_name = strtolower(preg_replace("/[^A-Za-z0-9]/", "", config::get(["nome_instituicao"])));
-            session_name($vs_session_name);
-            session_start();
-        }
-    }
-
-    public static function validate_user_session(): bool
-    {
-        return isset($_SESSION["usuario_token"]);
-    }
-
-    public static function logout(): void
-    {
-        session_unset();
-        session_destroy();
-        setcookie(session_name(), "", time() - 3600, "/");
-        header("Location: login.php");
-    }
 
 }

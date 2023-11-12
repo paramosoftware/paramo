@@ -32,14 +32,11 @@
         "sem_valor" => false
     ];
 
-    $va_campos_upload["formato_imagem_codigo"] = [
-        "html_combo_input",
-        "nome" => "formato_imagem_codigo",
-        "label" => "Formato da imagem",
-        "objeto" => "formato_imagem",
-        "atributos" => ["formato_imagem_codigo", "formato_imagem_nome"],
-        "atributo" => "formato_imagem_codigo",
-        "sem_valor" => false
+    $va_campos_upload["salvar_arquivo_original"] = [
+        "html_checkbox_input",
+        "nome" => "salvar_arquivo_original",
+        "label" => "Salvar arquivo original?",
+        "valor_padrao" => 1
     ];
 
     $va_campos_upload["nome_arquivo_identificador"] = [

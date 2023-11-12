@@ -302,13 +302,7 @@ class agrupamento extends objeto_base
             "atributo" => "agrupamento_codigo",
             "sem_valor" => true,
             "dependencia" => ["campo" => "agrupamento_acervo_codigo", "atributo" => "agrupamento_acervo_codigo"],
-            "filtro" => [
-                [
-                    "valor" => $pn_objeto_codigo,
-                    "atributo" => "agrupamento_codigo",
-                    "operador" => "!="
-                ]
-            ]
+            "prevenir_circularidade" => $pn_objeto_codigo
         ];
 
 

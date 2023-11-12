@@ -108,31 +108,33 @@ class pagina_etiquetas extends objeto_base
         $va_campos_edicao["pagina_etiquetas_margem_superior"] = [
             "html_text_input",
             "nome" => "pagina_etiquetas_margem_superior",
-            "label" => "Margem superior",
+            "label" => "Margem superior (mm)",
         ];
 
         $va_campos_edicao["pagina_etiquetas_margem_esquerda"] = [
             "html_text_input",
             "nome" => "pagina_etiquetas_margem_esquerda",
-            "label" => "Margem esquerda"
+            "label" => "Margem esquerda (mm)"
         ];
 
         $va_campos_edicao["pagina_etiquetas_altura_etiqueta"] = [
             "html_text_input",
             "nome" => "pagina_etiquetas_altura_etiqueta",
-            "label" => "Altura da etiqueta"
+            "label" => "Altura da etiqueta (mm)",
+            "obrigatorio" => true
         ];
 
         $va_campos_edicao["pagina_etiquetas_largura_etiqueta"] = [
             "html_text_input",
             "nome" => "pagina_etiquetas_largura_etiqueta",
-            "label" => "Largura da etiqueta",
+            "label" => "Largura da etiqueta (mm)",
+            "obrigatorio" => true
         ];
 
         $va_campos_edicao["pagina_etiquetas_intervalo_etiquetas"] = [
             "html_text_input",
             "nome" => "pagina_etiquetas_intervalo_etiquetas",
-            "label" => "Intervalo horizontal entre as etiquetas",
+            "label" => "Intervalo horizontal entre as etiquetas (mm)",
         ];
 
         return $va_campos_edicao;

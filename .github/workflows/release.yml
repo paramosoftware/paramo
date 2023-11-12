@@ -14,24 +14,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
 
       - name: Install zip
         run: sudo apt-get install zip
-
-      - name: Prepare files
-        run: |
-          zip -r install/paramo.zip app config src autoload.php LICENSE
-          zip -r paramo.zip install/
 
       - name: Bump version and push tag
         id: create_tag
         uses: anothrNick/github-tag-action@1.67.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           WITH_V: false
           DEFAULT_BUMP: patch
+
+      - name: Update version in config/constants.php
+        run: |
+          sed -i "s/\"versao\" => \".*\"/\"versao\" => \"${{ steps.create_tag.outputs.new_tag }}\"/" config/constants.php
+
+      - name: Commit version update
+        run: |
+          git config user.name "paramo-bot"
+          git config user.email "150099564+paramo-bot[bot]@users.noreply.github.com"
+          git add config/constants.php
+          git commit -m "Atualizar versão para ${{ steps.create_tag.outputs.new_tag }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ steps.generate_token.outputs.token }}
+          branch: main
+
+      - name: Create release zip
+        run: |
+          zip -r install/paramo.zip app config src autoload.php LICENSE
+          zip -r paramo.zip install/
 
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.15
@@ -40,4 +66,4 @@ jobs:
           files: ./paramo.zip
           tag_name: ${{ steps.create_tag.outputs.new_tag }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}

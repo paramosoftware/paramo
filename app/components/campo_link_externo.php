@@ -25,13 +25,18 @@ if (!isset($pa_parametros_campo["tipo"])) {
     </div>
     <div id="link_externo_error" class="alert alert-warning small d-none">
         Link inválido. <br>
-        Certifique-se que o link comece com https:// e tenha um dos seguintes formatos (com ou sem www): <br><br>
+        Utilize o link de compartilhamento gerado pelos sites suportados. <br>
+        Certifique-se que o link tenha um dos seguintes formatos (com ou sem www): <br><br>
+        <b>Google Drive:</b>https://{drive|docs}.google.com/{file|documents}/d/XXXXXXXXXXXXXXXXXX/{preview|edit|view} <br><br>
         <b>SoundCloud:</b> https://soundcloud.com/XXXXXXXXX ou https://on.soundcloud.com/XXXXXXXXX <br><br>
         <b>Vimeo:</b> https://vimeo.com/XXXXXXXXX <br><br>
         <b>YouTube:</b> https://youtube.com/watch?v=XXXXXXXXXXX ou https://youtu.be/XXXXXXXXXXX
     </div>
 
-    <p class="small"><b>Sites suportados:</b> SoundCloud, Vimeo e YouTube (iniciar com https://)</p>
+    <p class="small">
+        <b>Sites suportados:</b> Google Drive, SoundCloud, Vimeo e YouTube. <br>
+        Os arquivos devem ser públicos para serem visualizados no sistema.
+    </p>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline-primary px-4 bg-cor-branca" onclick="saveLinks()">
             Salvar links
@@ -45,7 +50,12 @@ if (!isset($pa_parametros_campo["tipo"])) {
 <script>
 
     function addLink() {
-        const link = document.getElementById("link_externo").value;
+        let link = document.getElementById("link_externo").value;
+
+        if (!link.startsWith("https://")) {
+            link = "https://" + link;
+        }
+
         if (validateLink(link)) {
             createLink(link);
             document.getElementById("link_externo").value = "";
@@ -63,7 +73,9 @@ if (!isset($pa_parametros_campo["tipo"])) {
             'youtu.be',
             'vimeo.com',
             'soundcloud.com',
-            'on.soundcloud.com'
+            'on.soundcloud.com',
+            'drive.google.com',
+            'docs.google.com',
         ]
 
         try {

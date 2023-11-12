@@ -14434,6 +14434,12 @@ html:not([dir=rtl]) .wrapper {
   background-color: #ebedef;
 }
 
+
+.cor-interna-edit .cor-interna-edit{
+    background-color: #f9f9fa;
+    border: solid 1px #dfdfe1;
+}
+
 .cor-cinza{
   background-color: #f7f7f8;
 }

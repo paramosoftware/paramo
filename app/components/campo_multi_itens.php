@@ -140,6 +140,35 @@
 
 <script>
 
+<?php if (isset($pa_parametros_campo["draggable"]))
+{
+?>
+
+$(function()
+{
+    $("#div_campos_<?php print $vs_nome_campo_lookup ?>").sortable(
+        {
+            update: function(event, ui)
+            {
+                var va_lista_codigos_atualizada = "";
+
+                $('.linha_<?php print $vs_nome_campo_lookup ?>').each(function(index)
+                {
+                    if (va_lista_codigos_atualizada == "")
+                        va_lista_codigos_atualizada = $(this).attr("id").replace("linha_<?= $vs_nome_campo_lookup ?>_", "");
+                    else
+                        va_lista_codigos_atualizada = va_lista_codigos_atualizada + "|" + $(this).attr("id").replace("linha_<?php print $vs_nome_campo_lookup ?>_", "");
+                });
+
+                $('#<?php print $vs_nome_campo_codigos ?>').val(va_lista_codigos_atualizada);
+            }
+        });
+});
+
+<?php
+}
+?>
+
 <?php if (isset($pa_parametros_campo["modal"]) && ($pa_parametros_campo["modal"]))
 {
 ?>

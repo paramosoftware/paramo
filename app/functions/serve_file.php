@@ -5,10 +5,16 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
 
-utils::start_session();
-if (!utils::validate_user_session())
+if (!isset($vb_ignorar_autenticacao))
 {
-    send_not_found_response();
+    session::start_session();
+    if (!isset($_SESSION["usuario_token"]))
+    {
+        if (!session::get_logged_user())
+        {
+            send_not_found_response();
+        }
+    }
 }
 
 $vs_file = $_GET['file'] ?? send_not_found_response();
@@ -52,7 +58,7 @@ function get_image_path($ps_file, $ps_size = null): string
     krsort($va_pasta_images);
     $vs_file_path = "";
 
-    if (strpos($ps_file, ".pdf") !== false && $ps_size != "large")
+    if (strpos($ps_file, ".pdf") !== false && $ps_size != "original")
     {
         $ps_file = str_replace(".pdf", ".jpg", $ps_file);
     }
