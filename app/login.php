@@ -8,6 +8,11 @@
 
     session::start_session();
 
+    if (session::get_logged_user())
+    {
+        session::redirect();
+    }
+
 ?>
 
 
@@ -25,16 +30,10 @@
 
     if ($vs_usuario_login != "" && $vs_usuario_senha != "")
     {
-
-        $vs_pagina_entrada = session::login($vs_usuario_login, $vs_usuario_senha);
-
-        if (!empty($vs_pagina_entrada))
+        if (!session::login($vs_usuario_login, $vs_usuario_senha))
         {
-            echo "<script>window.location.href = '$vs_pagina_entrada';</script>";
-            exit;
+            $vs_login_msg = "Login ou senha incorretos.";
         }
-
-        $vs_login_msg = "Login ou senha incorretos.";
     }
     else
     {
@@ -64,6 +63,7 @@
 <body>
 
 <form method="post" action="login.php">
+    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET["redirect"] ?? "") ; ?>">
 
     <?php
         $va_valores_form = array();

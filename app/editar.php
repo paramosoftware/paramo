@@ -233,7 +233,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
         <?php require_once dirname(__FILE__) ."/components/header.php"; ?>
 
-        <form method="post" enctype="multipart/form-data" action="salvar.php" id="form_cadastro">
+        <form method="post" enctype="multipart/form-data" action="functions/salvar.php" id="form_cadastro">
             <input type="hidden" name="modo" id="modo" value="<?php print $vs_modo; ?>">
             <input type="hidden" name="recurso_sistema_codigo" id="recurso_sistema_codigo" value="<?php print $vn_recurso_sistema_codigo; ?>">
             <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">
@@ -688,7 +688,7 @@ $(document).on('click', "#btn_excluir", function()
 {
     if (confirm('Tem certeza de que deseja excluir este registro?')) 
     {
-        window.location.href = "excluir.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
+        window.location.href = "functions/excluir.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
     }
 });
 

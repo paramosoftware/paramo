@@ -1,17 +1,26 @@
 <?php
-    require_once dirname(__FILE__) . "/components/entry_point.php";
+    require_once dirname(__FILE__) . "/../components/entry_point.php";
 
     if (!isset($_POST["escopo"]) || ($_POST["escopo"] != "_senha"))
     {
         if (!$vb_pode_editar && !$vb_pode_inserir)
-            exit();
+        {
+            utils::log(
+                "Tentativa de alteração sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            );
+            session::redirect();
+        }
     }
     elseif (isset($_POST["escopo"]) || ($_POST["escopo"] == "_senha"))
     {
         if (isset($_POST["usuario_codigo"]) && ($_POST["usuario_codigo"] != $vn_usuario_logado_codigo))
         {
-            header("location:index.php");
-            exit();
+            utils::log(
+                "Tentativa de alteração de senha de outro usuário: ",
+                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            );
+            session::redirect();
         }
 
         foreach(array_keys($_POST) as $vs_variavel_postada)
@@ -59,11 +68,21 @@
         {
             if (!$vb_usuario_administrador || !$vb_usuario_logado_instituicao_admin)
             {
-                if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
-                    exit();
+                $vb_acesso_registro = $vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso);
 
-                if (!$vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso))
-                    exit();
+                if ($vb_acesso_registro)
+                {
+                    $vb_edicao_registro = $vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso);
+                }
+
+                if (!$vb_acesso_registro || !$vb_edicao_registro)
+                {
+                    utils::log(
+                        "Tentativa de alteração sem permissão: ",
+                        __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                    );
+                    session::redirect();
+                }
             }
 
             $_POST[$vs_chave_primaria_objeto] = $vn_objeto_codigo;
@@ -80,24 +99,42 @@
 
         $vo_objeto->finalizar_transacao();
 
-        $vs_url_retorno = "location:listar.php?obj=". $vs_id_objeto_tela . "&back=1";
-        header($vs_url_retorno);
+        $vs_url_retorno = "listar.php?obj=". $vs_id_objeto_tela . "&back=1";
+        session::redirect($vs_url_retorno);
     }
     else
     {
         if (trim($_POST[$vs_chave_primaria_objeto] == "") && !$vb_pode_inserir)
+        {
+            utils::log(
+                "Tentativa de inserção sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            );
             exit();
+        }
 
         if (!$vb_usuario_administrador || !$vb_usuario_logado_instituicao_admin)
         {
+            $vb_acesso_registro = true;
+
             if (trim($_POST[$vs_chave_primaria_objeto]) != "")
             {
-                if (!$vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso))
-                    exit();
+                $vb_acesso_registro = $vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso);
             }
 
-            if (!$vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso))
-                    exit();
+            if ($vb_acesso_registro)
+            {
+                $vb_edicao_registro = $vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso);
+            }
+
+            if (!$vb_acesso_registro || !$vb_edicao_registro)
+            {
+                utils::log(
+                    "Tentativa de alteração sem permissão: ",
+                    __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                );
+                exit();
+            }
         }
 
         $vn_codigo = $vo_objeto->salvar($_POST, true, $vn_idioma_catalogacao_codigo);
@@ -137,13 +174,12 @@
 
         if ($_POST["escopo"] == "_senha")
         {
-            $vs_url_retorno = "location:index.php";
-	        header($vs_url_retorno);
+            session::redirect();
         }
     }
     else
     {
-        $vs_url_retorno = "location:editar.php?obj=". $vs_id_objeto_tela . "&idioma=" . $vn_idioma_catalogacao_codigo;
+        $vs_url_retorno = "editar.php?obj=". $vs_id_objeto_tela . "&idioma=" . $vn_idioma_catalogacao_codigo;
 
         if (isset($vn_codigo))
         {
@@ -158,6 +194,7 @@
         if (isset($_POST["texto_bibliografia_codigo"]))
             $vs_url_retorno .= "&bibliografia=" . $_POST["texto_bibliografia_codigo"];
 
-        header($vs_url_retorno);
+
+        session::redirect($vs_url_retorno);
     }
 ?>

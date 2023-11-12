@@ -84,7 +84,7 @@
 
     $(document).on('click', "#btn_imprimir_etiquetas", function()
     {
-        $("#form_lista").attr('action', 'etiquetas.php');
+        $("#form_lista").attr('action', 'functions/imprimir_etiquetas.php');
         $("#form_lista").attr('method', 'post');
         $("#form_lista").attr('target', '_blank');
         $("#form_lista").submit();

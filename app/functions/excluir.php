@@ -1,9 +1,16 @@
 <?php
 
-    require_once dirname(__FILE__) . "/components/entry_point.php";
+    require_once dirname(__FILE__) . "/../components/entry_point.php";
 
     if (!$vb_pode_excluir)
-        exit();
+    {
+        utils::log(
+            "Tentativa de exclusão sem permissão: ",
+            __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " .
+            var_export($_SESSION, true) . " - " . var_export($_POST, true)
+        );
+        session::redirect();
+    }
 
     $vs_id_objeto = $_POST["obj"];
 
@@ -14,7 +21,14 @@
     $vo_objeto = new $vs_id_objeto('');
 
     if (!$vo_objeto->validar_acesso_registro($vn_codigo_objeto, $va_parametros_controle_acesso))
-        exit();
+    {
+        utils::log(
+            "Tentativa de exclusão sem permissão: ",
+            __FILE__ . " - " . __LINE__ . " - " .
+            var_export($_SESSION, true) . " - " . var_export($_POST, true)
+        );
+        session::redirect();
+    }
 
     $vs_chave_primaria_objeto = $vo_objeto->get_chave_primaria()[0];
 
@@ -38,6 +52,7 @@
         $vo_objeto->finalizar_transacao();
     }
     
-    $vs_url_retorno = "location:listar.php?obj=". $vs_id_objeto . "&back=1";
-    header($vs_url_retorno);
+    $vs_url_retorno = "listar.php?obj=". $vs_id_objeto . "&back=1";
+
+    session::redirect($vs_url_retorno);
 ?>

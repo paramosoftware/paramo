@@ -38,6 +38,7 @@ return [
         "images" => dirname(__FILE__) . "/../app/assets/img/",
     ],
 
+    "pasta_app" => dirname(__FILE__) . "/../app/",
     "pasta_business" => dirname(__FILE__) . "/../src/lib/business/",
     "pasta_vendors" => dirname(__FILE__) . "/../src/vendors/",
 

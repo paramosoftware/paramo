@@ -78,6 +78,102 @@ class session
             . ($pb_token ? "_token" : "");
     }
 
+    public static function log_and_redirect_error($ps_summary, $stacktrace=null, $pb_append_http_variables=false): void
+    {
+        if (empty($stacktrace))
+        {
+            $stacktrace = var_export(debug_backtrace(), true);
+        }
+
+        if ($pb_append_http_variables)
+        {
+            $stacktrace .= " - \$_GET: " . var_export($_GET, true);
+            $stacktrace .= " - \$_POST: " . var_export($_POST, true);
+        }
+
+        $vs_codigo = utils::log($ps_summary, $stacktrace);
+        session::redirect("erro.php?codigo=" . $vs_codigo);
+    }
+
+    public static function redirect($ps_script="index.php", $vb_absolute=false): void
+    {
+
+        $vs_scheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
+        $vs_host = $_SERVER["HTTP_HOST"] ?? "";
+        $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
+
+        $vs_redirect_url = "";
+
+        if ($vb_absolute)
+        {
+            $va_url = parse_url($ps_script);
+            $va_path = explode("/", $va_url["path"]);
+            $vs_script = end($va_path);
+
+            if (file_exists(config::get(["pasta_app"]) . $vs_script))
+            {
+                $vs_redirect_url = $va_url["path"] . (isset($va_url["query"]) ? "?" . $va_url["query"] : "");
+            }
+        }
+        elseif (isset($_SESSION["redirect_url"]))
+        {
+            $vs_redirect_url = $_SESSION["redirect_url"] . $ps_script;
+        }
+        else
+        {
+            $vs_redirect_url = $vs_scheme . "://" . $vs_host;
+
+            $va_path = explode("/", $vs_request_uri);
+
+            $i = 0;
+            foreach ($va_path as $vs_path)
+            {
+                if ($vs_path == "functions")
+                {
+                    if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                    {
+                        $vs_redirect_url .= $ps_script;
+                        break;
+                    }
+                }
+
+                if (strpos($vs_path, ".php") !== false)
+                {
+                    $vs_redirect_url .= $ps_script;
+                    break;
+                }
+                else
+                {
+                    $vs_redirect_url .= $vs_path . "/";
+                }
+
+                if ($vs_path == "app")
+                {
+                    $vs_redirect_url .= $ps_script;
+                    break;
+                }
+
+                $i++;
+            }
+        }
+
+        if (!$vb_absolute && !isset($_SESSION["redirect_url"]))
+        {
+            $_SESSION["redirect_url"] = str_replace($ps_script, "", $vs_redirect_url);
+        }
+
+        if (!headers_sent())
+        {
+            header("Location: " . $vs_redirect_url);
+        }
+        else
+        {
+            echo '<script>window.location.href = "' . $vs_redirect_url . '";</script>';
+        }
+
+        exit();
+    }
+
     public static function refresh_session_cookie(): void
     {
         $vs_session_name = session::generate_cookie_name();
@@ -108,7 +204,7 @@ class session
         setcookie($vs_session_name, $ps_token, $options);
     }
 
-    public static function login($ps_usuario_login, $ps_usuario_senha): string
+    public static function login($ps_usuario_login, $ps_usuario_senha): bool
     {
 
         $vs_redirect_pagina = "";
@@ -152,20 +248,28 @@ class session
 
                 session::set_token_cookie($vs_token);
 
-                return $vs_redirect_pagina;
+                if (isset($_POST["redirect"]) && $_POST["redirect"] != "")
+                {
+                    session::redirect($_POST["redirect"], true);
+                }
+                else
+                {
+                    session::redirect($vs_redirect_pagina);
+                }
             }
         }
 
-        return "";
+        return false;
     }
 
-    public static function logout(): void
+    public static function logout($vb_redirect=true): void
     {
         session_unset();
         session_destroy();
         setcookie(session_name(), "", time() - 3600, "/");
         setcookie(session::generate_cookie_name(true), "", time() - 3600, "/");
-        header("Location: login.php");
+        $vs_login = "login.php" . ($vb_redirect ? "?redirect=" . urlencode($_SERVER["REQUEST_URI"] ?? "") : "");
+        session::redirect($vs_login);
         exit();
     }
 

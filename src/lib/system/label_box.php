@@ -8,9 +8,9 @@ class label_box extends label
     protected $vn_barcode_width = 30;
     protected $vn_barcode_height = 10;
 
-    public function __construct($orientation = 'P', $unit = 'mm', $size = 'Letter')
+    public function __construct($ps_file_path, $orientation = 'P', $unit = 'mm', $size = 'Letter')
     {
-        parent::__construct($orientation, $unit, $size);
+        parent::__construct($ps_file_path, $orientation, $unit, $size);
     }
 
     function add_content($x, $y)
@@ -64,7 +64,7 @@ class label_box extends label
 
     function add_logo()
     {
-        $vs_logo_path = config::get(["logo"]);
+        $vs_logo_path = config::get(["pasta_assets", "images"]) . explode('/', config::get(["logo"]))[2];
         $this->Image($vs_logo_path, null, null, $this->vn_logo_width, $this->vn_logo_height);
     }
 

@@ -38,7 +38,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
 
-    <form method="post" action="salvar.php" id="form_alterar_senha">
+    <form method="post" action="functions/salvar.php" id="form_alterar_senha">
         <input type="hidden" name="obj" id="obj" value="usuario">
         <input type="hidden" name="usuario_codigo" id="usuario_codigo" value="<?php print $vn_usuario_logado_codigo; ?>">
         <input type="hidden" name="usuario_alterar_senha" id="usuario_alterar_senha" value="1">    

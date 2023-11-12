@@ -579,7 +579,7 @@ $('#btn_modal_<?php print $vs_nome_campo_lookup; ?>').on('click',function()
     }
     ?>
 
-    $('#modal_body_<?php print $vs_nome_campo_lookup ?>').load('selecao_modal.php?obj=<?php print $vs_objeto_campo; ?>&campo_modal=<?php print $vs_nome_campo_lookup; ?>'+vs_filtro,function() {
+    $('#modal_body_<?php print $vs_nome_campo_lookup ?>').load('functions/selecao_modal.php?obj=<?php print $vs_objeto_campo; ?>&campo_modal=<?php print $vs_nome_campo_lookup; ?>'+vs_filtro,function() {
         $('#myModal_<?php print $vs_nome_campo_lookup; ?>').modal('show');
     });
 });
@@ -1121,7 +1121,7 @@ $(document).on('click', "#lnk_cadastrar_<?php print $vs_nome_campo_lookup ?>", f
     }
     ?>
 
-    $.post("salvar.php", vo_post_data, function(data, status) 
+    $.post("functions/salvar.php", vo_post_data, function(data, status)
     {
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").html(data);
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").show();
