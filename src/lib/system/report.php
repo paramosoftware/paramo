@@ -188,16 +188,21 @@ class report extends exFPDF
     function set_table_header()
     {
         $va_header = array();
-        $vs_base_style = "align:L; valign:M; font-style:B";
+        $vs_base_style = "valign:M; font-style:B; ";
+        $vs_cell_style = $vs_base_style;
 
+        $vn_i = 0;
         foreach ($this->va_table_header as $vs_header)
         {
-            $va_header[] = $this->get_cell($vs_header, $vs_base_style);
+            $vs_cell_style = $vn_i == 0 ? $vs_base_style . "align:L; " : $vs_base_style . "align:R; ";
+
+            $va_header[] = $this->get_cell($vs_header, $vs_cell_style);
+            $vn_i++;
         }
 
         if ($this->vb_percentage)
         {
-            $va_header[] = $this->get_cell("Porcentual (%)", $vs_base_style);
+            $va_header[] = $this->get_cell("%", $vs_cell_style);
         }
 
         $this->va_table[] = $va_header;
@@ -209,7 +214,7 @@ class report extends exFPDF
         $va_group = array();
 
         $vn_row = 0;
-        $vs_base_style = "align:L; valign:M; ";
+        $vs_base_style = "valign:M; ";
 
         foreach ($this->va_itens as $va_item)
         {
@@ -233,8 +238,11 @@ class report extends exFPDF
             }
 
 
-            foreach ($this->va_itens_keys as $vs_key)
+            foreach ($this->va_itens_keys as $vn_key => $vs_key)
             {
+
+                $vs_cell_style .= $vn_key == 0 ? "align:L; " : "align:R; ";
+
                 if ($vs_key == $this->vs_group_on)
                 {
                     continue;
@@ -269,7 +277,7 @@ class report extends exFPDF
 
         $va_sum = array();
 
-        $vs_base_style = "align:L; valign:M; font-style:B; ";
+        $vs_base_style = "align:R; valign:M; font-style:B; ";
 
         $va_sum[] = $this->get_cell("Total", $vs_base_style . "bgcolor:#ccc;");
         $va_sum[] = $this->get_cell($this->vn_total, $vs_base_style);

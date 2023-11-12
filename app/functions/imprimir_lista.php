@@ -16,7 +16,18 @@ $vs_acervo = $vs_recurso_sistema_nome ?? $vs_recurso_sistema_nome_plural ?? "nã
 $vs_file_name = "listagem-" . date("Y-m-d-H-i-s") . ".pdf";
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
-$report = new report_list($vs_file_path);
+$report = null;
+
+try {
+    $report = new report_list($vs_file_path);
+} catch (Exception $e) {
+    session::log_and_redirect_error(
+        "Ocorreu um erro ao imprimir o relatório.",
+        $e->getMessage(),
+        true
+    );
+}
+
 $report->vs_title = "Lista";
 $report->va_itens = $va_itens_listagem ?? [];
 $report->vb_include_image = $_POST["incluir_representante_digital"] ?? true;

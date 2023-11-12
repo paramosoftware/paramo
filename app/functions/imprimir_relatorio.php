@@ -40,7 +40,16 @@ if (!isset($vs_id_objeto_tela))
 $vs_file_name = "relatorio-" . date("Y-m-d-H-i-s") . ".pdf";
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
-$report = new report($vs_file_path);
+$report = null;
+try {
+    $report = new report($vs_file_path);
+} catch (Exception $e) {
+    session::log_and_redirect_error(
+        "Ocorreu um erro ao imprimir o relatório.",
+        $e->getMessage(),
+        true
+    );
+}
 
 if ($vs_relatorio == "quantitativo")
 {
@@ -60,7 +69,7 @@ if ($vs_relatorio == "quantitativo")
     $report->va_table_header = [$vs_campo_alias, "Quantidade"];
     $report->va_itens_keys = [$vs_objeto_relacionado_campo_identificador, "Q"];
     $report->vb_percentage = boolval($vb_incluir_porcentagem);
-    $report->vs_num_cols = boolval($vb_incluir_porcentagem) ? '%{60,20,20}' : '%{80,20}';
+    $report->vs_num_cols = boolval($vb_incluir_porcentagem) ? '%{70,20,10}' : '%{80,20}';
 }
 elseif ($vs_relatorio == "estatisticas_catalogacao")
 {
@@ -82,7 +91,7 @@ elseif ($vs_relatorio == "estatisticas_catalogacao")
     $report->va_table_header = [$va_labels_agrupadores[$ps_agrupador], "Quantidade"];
     $report->va_itens_keys = ["agrupador", "Q"];
     $report->vb_percentage = boolval($vb_incluir_porcentagem_catalogacao);
-    $report->vs_num_cols = boolval($vb_incluir_porcentagem_catalogacao) ? '%{60, 20, 20}' : '%{80, 20}';
+    $report->vs_num_cols = boolval($vb_incluir_porcentagem_catalogacao) ? '%{70,20,10}' : '%{80, 20}';
 
 }
 elseif ($vs_relatorio == "pesquisa_usuario")
@@ -97,6 +106,8 @@ elseif ($vs_relatorio == "pesquisa_usuario")
     $report->va_table_header = ["Valor pesquisado", "Frequência"];
     $report->va_itens_keys = ["valor", "Q"];
     $report->vb_alternate_row_color = false;
+    $report->vb_percentage = boolval($vb_incluir_porcentagem);
+    $report->vs_num_cols = boolval($vb_incluir_porcentagem) ? '%{70,20,10}' : '%{80, 20}';
 
     if ($vn_setor_sistema_codigo)
     {
