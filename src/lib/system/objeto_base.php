@@ -2263,14 +2263,19 @@ class objeto_base
     public function montar_ordenacao($po_objeto, $pa_order_by = array(), &$pa_campos_select = array(), &$pa_joins_select = array(), $ps_order = null, $pa_tabelas_adicionadas = array())
     {
         $va_order_by = array();
+
         if (!count($pa_order_by))
             return $va_order_by;
 
         $vs_campo_order_by = "";
 
         $vs_tabela_objeto = $po_objeto->tabela_banco;
-        //$vs_coluna_chave_primaria = $po_objeto->chave_primaria["coluna_tabela"];
         $vs_coluna_chave_primaria = "codigo";
+
+        if (isset($pa_order_by[get_class($po_objeto)]))
+        {
+            $pa_order_by = array($pa_order_by[get_class($po_objeto)]);
+        }
 
         foreach($pa_order_by as $vs_order_by)
         {
@@ -2311,9 +2316,9 @@ class objeto_base
                     $va_atributo_order_by = $vo_objeto_pai->atributos[$va_campo_order_by[1]];
 
                     if (is_array($va_atributo_order_by["coluna_tabela"]))
-                        $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_pai . "." . reset($va_atributo_order_by["coluna_tabela"]) . " as " . $va_campo_order_by[1];
+                        $pa_campos_select["ord"] = $vs_tabela_pai . "." . reset($va_atributo_order_by["coluna_tabela"]) . " as ord";
                     else
-                        $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_pai . "." . $va_atributo_order_by["coluna_tabela"] . " as " . $va_campo_order_by[1];
+                        $pa_campos_select["ord"] = $vs_tabela_pai . "." . $va_atributo_order_by["coluna_tabela"] . " as ord";
 
                     $vs_campo_order_by = $va_campo_order_by[1];
                 } elseif (isset($vo_objeto_pai->relacionamentos[$va_campo_order_by[1]])) {
@@ -2331,7 +2336,7 @@ class objeto_base
                     if ($vb_adicionar_tabela_intermediaria)
                         $pa_joins_select[$vs_tabela_intermediaria] = " JOIN " . $vs_tabela_intermediaria . " ON " . $vs_tabela_pai . "." . $vs_coluna_chave_primaria . " = " . $vs_tabela_intermediaria . "." . $vs_campo_tabela_join;
 
-                    $pa_campos_select[$va_campo_order_by[2]] = $vs_tabela_intermediaria . "." . $vo_objeto_pai->relacionamentos[$va_campo_order_by[1]]["campos_relacionamento"][$va_campo_order_by[2]] . " as " . $va_campo_order_by[2];
+                    $pa_campos_select["ord"] = $vs_tabela_intermediaria . "." . $vo_objeto_pai->relacionamentos[$va_campo_order_by[1]]["campos_relacionamento"][$va_campo_order_by[2]] . " as ord";
 
                     $vs_campo_order_by = $va_campo_order_by[2];
                 }
@@ -2355,19 +2360,29 @@ class objeto_base
                 else
                     $vs_coluna_order_by = $va_campo_order_by[1];
 
-                $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_intermediaria . "." . $vs_coluna_order_by . " as " . $va_campo_order_by[1];
+                $pa_campos_select["ord"] = $vs_tabela_intermediaria . "." . $vs_coluna_order_by . " as ord";
 
                 $vs_campo_order_by = $va_campo_order_by[1];
-            } else
-                $vs_campo_order_by = $vs_order_by;
+            } 
+            elseif (isset($po_objeto->atributos[$vs_order_by]))
+            {                
+                $va_atributo_order_by = $po_objeto->atributos[$vs_order_by];
 
-            if ($vs_campo_order_by && $vs_campo_order_by != "_rand_") {
+                $pa_campos_select["ord"] = $vs_tabela_objeto . "." . $va_atributo_order_by["coluna_tabela"] . " as ord";
+
+                $vs_campo_order_by = $vs_order_by;
+            }
+
+            if ($vs_campo_order_by && ($vs_campo_order_by != "_rand_"))
+            {
                 if (!isset($ps_order))
                     $ps_order = "";
 
-                $va_order_by[$vs_campo_order_by] = $vs_campo_order_by . " IS NULL " . $ps_order . ", " . $vs_campo_order_by . " " . $ps_order;
+                $va_order_by[$vs_campo_order_by] = " ord IS NULL " . $ps_order . ", ord " . $ps_order;
             } else
+            {
                 $va_order_by = "_rand_";
+            }
         }
 
         return $va_order_by;
