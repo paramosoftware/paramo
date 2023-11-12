@@ -102,9 +102,22 @@ class session
         $vs_host = $_SERVER["HTTP_HOST"] ?? "";
         $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
 
-        if ($vb_absolute || $vs_host == "")
+        $vs_redirect_url = "";
+
+        if ($vb_absolute)
         {
-            $vs_redirect_url = $ps_script;
+            $va_url = parse_url($ps_script);
+            $va_path = explode("/", $va_url["path"]);
+            $vs_script = end($va_path);
+
+            if (file_exists(config::get(["pasta_app"]) . $vs_script))
+            {
+                $vs_redirect_url = $va_url["path"] . (isset($va_url["query"]) ? "?" . $va_url["query"] : "");
+            }
+        }
+        elseif (isset($_SESSION["redirect_url"]))
+        {
+            $vs_redirect_url = $_SESSION["redirect_url"] . $ps_script;
         }
         else
         {
@@ -142,6 +155,11 @@ class session
 
                 $i++;
             }
+        }
+
+        if (!$vb_absolute && !isset($_SESSION["redirect_url"]))
+        {
+            $_SESSION["redirect_url"] = str_replace($ps_script, "", $vs_redirect_url);
         }
 
         if (!headers_sent())

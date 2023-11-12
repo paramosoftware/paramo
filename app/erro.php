@@ -5,20 +5,18 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../autoload.php";
 }
 
+session::start_session();
+if (!isset($_SESSION["usuario_token"]) || !$_GET["codigo"])
+{
+    session::redirect();
+}
+
 $vs_erro_mensagem = "";
 $vs_erro_codigo = "";
 $vs_erro_stacktrace = "";
 
 $pasta_logs = config::get(["pasta_logs"]);
-
-if (isset($_GET["codigo"]))
-{
-    $vs_erro_codigo = $_GET["codigo"];
-}
-else
-{
-    session::redirect();
-}
+$vs_erro_codigo = $_GET["codigo"];
 
 $vs_ultima_linha = "";
 if (function_exists("popen"))
@@ -44,20 +42,17 @@ if ($vs_ultima_linha)
 {
     $va_dados = explode("*-*", $vs_ultima_linha);
 
-    if (isset($va_dados[1]) && $va_dados[1] == $vs_erro_codigo)
-    {
-        $vs_erro_mensagem = $va_dados[2];
-        $vs_erro_stacktrace = $va_dados[3];
-    }
-    else
-    {
-        $vs_erro_codigo = "";
-    }
-}
+    $vd_erro_timestamp = strtotime($va_dados[0] ?? "");
+    $vs_erro_mensagem = $va_dados[2] ?? "";
+    $vs_erro_stacktrace = $va_dados[3] ?? "";
 
-if ($vs_erro_codigo == "")
-{
-    session::redirect();
+    $vd_current_time = strtotime(date("Y-m-d H:i:s"));
+
+    if (abs($vd_current_time - $vd_erro_timestamp) > 120)
+    {
+        session::redirect();
+    }
+
 }
 
 ?>
