@@ -78,19 +78,19 @@ class report_list extends report
 
         if (isset($pa_item["id_field"]) && $pa_item["id_field"] != "")
         {
-            $va_attributes[] = ["label" => "", "value" => $this->encode($pa_item["id_field"])];
+            $va_attributes[] = ["label" => "", "value" => $this->encode($this->remove_html_tags($pa_item["id_field"]))];
             $this->vn_image_rowspan++;
         }
 
         if (isset($pa_item["main_field"]) && $pa_item["main_field"] != "")
         {
-            $va_attributes[] = ["label" => "", "value" => $this->encode($pa_item["main_field"])];
+            $va_attributes[] = ["label" => "", "value" => $this->encode($this->remove_html_tags($pa_item["main_field"]))];
             $this->vn_image_rowspan++;
         }
 
         if (isset($pa_item["descriptive_field"]) && $pa_item["descriptive_field"] != "")
         {
-            $va_attributes[] = ["label" => "", "value" => $this->encode($pa_item["descriptive_field"])];
+            $va_attributes[] = ["label" => "", "value" => $this->encode($this->remove_html_tags($pa_item["descriptive_field"]))];
             $this->vn_image_rowspan++;
         }
 
@@ -108,7 +108,7 @@ class report_list extends report
         {
             if ($va_atributos_item_listagem["valor"] != "" && $va_atributos_item_listagem["exibir"])
             {
-                $va_attributes[] = ["label" => $this->encode($va_atributos_item_listagem["label"]), "value" => $this->encode($va_atributos_item_listagem["valor"])];
+                $va_attributes[] = ["label" => $this->encode($va_atributos_item_listagem["label"]), "value" => $this->encode($this->remove_html_tags($va_atributos_item_listagem["valor"]))];
                 $this->vn_rows_table++;
             }
         }
@@ -119,4 +119,9 @@ class report_list extends report
     }
 
 
+    function remove_html_tags($ps_text)
+    {
+        $ps_text = strip_tags($ps_text);
+        return str_replace("&nbsp;", " ", $ps_text);
+    }
 }
