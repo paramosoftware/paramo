@@ -9,6 +9,7 @@
 <html lang="pt-br">
 
 <?php require_once dirname(__FILE__) . "/components/header_html.php"; ?>
+<?php require_once dirname(__FILE__) . "/components/modal_progresso.php"; ?>
 
 <body>
 

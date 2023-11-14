@@ -14,16 +14,13 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
 <?php require_once dirname(__FILE__)."/components/sidebar.php"; ?>
 
-<?php
-
-    
-?>
+<?php require_once dirname(__FILE__) . "/components/modal_progresso.php"; ?>
 
 <div class="wrapper d-flex flex-column min-vh-100 bg-light">
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
 
-    <form method="post" action="functions/imprimir_relatorio.php" id="form_filtro_relatorio_pesquisas">
+    <form id="form_filtro_relatorio_pesquisas">
         <input type="hidden" name="relatorio" value="pesquisa_usuario">
         <div class="body flex-grow-1 px-3">
             <div class="container-lg">
@@ -39,7 +36,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     </div>
                                     
                                     <div class="col-md-3 text-right">
-                                        <button class="btn btn-primary btn-imprimir" type="submit" id="btn_imprimir">
+                                        <button class="btn btn-primary btn-imprimir" type="button" id="btn_imprimir">
                                             Imprimir
                                         </button>
                                     </div>
@@ -119,9 +116,19 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
 
 <script>
-
-
-
+    $(document).on('click', "#btn_imprimir", function () {
+        const form = $("#form_filtro_relatorio_pesquisas");
+        $.ajax({
+            url: 'functions/imprimir_relatorio.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
+    });
 </script>
 
 </body>

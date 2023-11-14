@@ -2,13 +2,17 @@
 
 require_once dirname(__FILE__) . "/../components/entry_point.php";
 
-$vn_pagina_etiquetas_codigo = $_POST["pagina_etiquetas"] ?? null;
+$vs_file_name = "etiquetas-" . date("Y-m-d-H-i-s") . ".pdf";
+echo $vs_file_name;
 
+require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
+
+$vn_pagina_etiquetas_codigo = $_POST["pagina_etiquetas"] ?? null;
 if (!$vn_pagina_etiquetas_codigo)
 {
-    session::log_and_redirect_error("Nenhuma página de etiquetas foi configurada.",
-        "Nenhuma página de etiquetas foi configurada: " . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__
-    );
+    utils::callback_progress($vs_file_name, "Nenhuma página de etiquetas foi configurada");
+    utils::log("Nenhuma página de etiquetas foi configurada", var_export($_POST, true));
+    exit();
 }
 
 $vs_modo = $_GET["modo"] ?? null;
@@ -18,24 +22,23 @@ if ($vs_modo == "ficha")
     $vn_objeto_codigo = $_GET["cod"] ?? null;
 }
 
-require_once dirname(__FILE__) . "/montar_listagem.php";
-
 $vo_pagina_etiquetas = new pagina_etiquetas;
 $va_pagina_etiquetas = $vo_pagina_etiquetas->ler($vn_pagina_etiquetas_codigo, "ficha");
 
-if (!isset($va_pagina_etiquetas) || !isset($va_itens_listagem))
+if (!isset($va_pagina_etiquetas))
 {
-    session::log_and_redirect_error(
+    utils::callback_progress($vs_file_name, "Não foi possível encontrar a página de etiquetas");
+    utils::log(
         "Ocorreu um erro ao gerar as etiquetas.",
-        "Não foi possível encontrar a página de etiquetas ou os itens da listagem: " . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__,
-        true
+        "Não foi possível encontrar a página de etiquetas: " . var_export($_POST, true)
     );
+    exit();
 }
 
 $vn_page_width = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"];
 $vn_page_height = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_altura"];
 
-$vs_file_name = "etiquetas-" . date("Y-m-d-H-i-s") . ".pdf";
+utils::callback_progress($vs_file_name, 0);
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
 $vn_modelo_etiqueta_codigo = $_POST["modelo_etiqueta"] ?? 1;
@@ -62,16 +65,31 @@ $vo_label->vn_label_internal_top_margin = 1;
 $vo_label->vb_has_barcode = isset($_POST["codigo_barras"]) && boolval($_POST["codigo_barras"]);
 $vo_label->vn_start_row = $_POST["linha_inicial"] ?? 1;
 $vo_label->vn_start_col = $_POST["coluna_inicial"] ?? 1;
-$vo_label->va_itens = $va_itens_listagem;
 
-$vo_label->process();
+$vn_numero_maximo_paginas = $vn_numero_maximo_paginas ?? 0;
+
+$va_itens_listagem_temp = [];
+
+for ($vn_pagina_atual = 1; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pagina_atual++)
+{
+    require dirname(__FILE__) . "/montar_listagem.php";
+
+    $va_itens_listagem_temp = array_merge($va_itens_listagem_temp, $va_itens_listagem ?? []);
+    utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
+
+    if ($vn_pagina_atual == $vn_numero_maximo_paginas)
+    {
+        $vo_label->va_itens = $va_itens_listagem_temp;
+        $vo_label->process();
+
+        $va_itens_listagem_temp = [];
+    }
+}
+
 $vo_label->Output();
 
-header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . $vs_file_name . '"');
-header('Content-Length: ' . filesize($vs_file_path));
-readfile($vs_file_path);
-
-utils::clear_temp_folder();
+utils::callback_progress($vs_file_name, 100);
+utils::clear_temp_folder("-5 minutes");
+exit();
 
 ?>

@@ -75,14 +75,17 @@
 
 <script>
     $(document).on('click', "#btn_imprimir_relatorio", function () {
-        $("#form_lista").append('<input type="hidden" name="relatorio" value="quantitativo">');
-        $("#form_lista").attr('action', 'functions/imprimir_relatorio.php');
-        $("#form_lista").attr('method', 'post');
-        $("#form_lista").attr('target', '_blank');
-        $("#form_lista").submit();
-
-        $("#form_lista").attr('action', 'listar.php');
-        $("#form_lista").attr('method', 'get');
-        $("#form_lista").attr('target', '');
+        const form = $("#form_lista");
+        form.append('<input type="hidden" name="relatorio" value="quantitativo">');
+        $.ajax({
+            url: 'functions/imprimir_relatorio.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
     });
 </script>

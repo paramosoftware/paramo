@@ -2,6 +2,11 @@
 
 require_once dirname(__FILE__) . "/../components/entry_point.php";
 
+$vs_file_name = "relatorio-" . date("Y-m-d-H-i-s") . ".pdf";
+echo $vs_file_name;
+
+require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
+
 $vs_relatorio = $_POST["relatorio"] ?? "";
 $vs_data_inicial = $_POST["data_inicial"] ?? "";
 $vs_data_final = $_POST["data_final"] ?? "";
@@ -29,26 +34,22 @@ $va_labels_tipos_operacoes = [
 
 if (!isset($vs_id_objeto_tela))
 {
-    session::log_and_redirect_error(
-        "Erro ao imprimir relatório",
-        "vs_id_objeto_tela não esta setado" . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__,
-        true
+    utils::callback_progress($vs_file_name, "Não foi possível encontrar o objeto da tela");
+    utils::log(
+        "Ocorreu um erro ao gerar o relatório.",
+        "Não foi possível encontrar o objeto da tela: " . var_export($_POST, true)
     );
+    exit();
 }
 
-
-$vs_file_name = "relatorio-" . date("Y-m-d-H-i-s") . ".pdf";
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
 $report = null;
 try {
     $report = new report($vs_file_path);
 } catch (Exception $e) {
-    session::log_and_redirect_error(
-        "Ocorreu um erro ao imprimir o relatório.",
-        $e->getMessage(),
-        true
-    );
+    utils::callback_progress($vs_file_name, "Não foi possível criar o relatório");
+    utils::log("Ocorreu um erro inicializar o relatório.", $e->getMessage());
 }
 
 if ($vs_relatorio == "quantitativo")
@@ -137,12 +138,8 @@ $report->va_itens = $va_itens_listagem ?? [];
 $report->process();
 $report->Output();
 
-header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . $vs_file_name . '"');
-header('Content-Length: ' . filesize($vs_file_path));
-readfile($vs_file_path);
-
-utils::clear_temp_folder();
+utils::callback_progress($vs_file_name, 100);
+utils::clear_temp_folder("-5 minutes");
 exit();
 
 function get_parametros_relatorio_quantitativo($pn_campo_sistema_codigo)

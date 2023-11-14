@@ -37,7 +37,7 @@
         ?>
 
         <div style="overflow:auto; margin-bottom:20px">
-            <div style="float:left; padding-top:10px; margin-left:5px">
+            <div style="float:left; padding-top:10px; margin-left:5px" id="listagem-numero-registros">
             <?php
                 print $vn_numero_registros . " registros encontrados<br>";
             ?>

@@ -49,17 +49,32 @@
 
 <script>
     $(document).on('click', "#btn_imprimir_lista", function () {
+
+
+        let numeroRegistros = $("#listagem-numero-registros") ? $("#listagem-numero-registros")[0].innerText : 0;
+        numeroRegistros = numeroRegistros.split(" ")[0];
+        if (numeroRegistros > 2000) {
+            if ($("#incluir_representante_digital_chk").is(":checked")) {
+                if (!confirm("A impressão possui mais de 2000 registros com a opção para incluir representantes digitais marcada. " +
+                    "O arquivo gerado pode ficar muito grande e difícil de ser manuseado. " +
+                    "Considere não incluir os representantes digitais para diminuir o tamanho do arquivo. Deseja continuar?")) {
+                    return;
+                }
+            }
+        }
+
         const form = $("#form_lista");
-        form.attr('action', 'functions/imprimir_lista.php')
-        form.attr('method', 'post');
-        form.attr('target', '_blank');
-        form.submit();
-
-        form.attr('action', 'listar.php');
-        form.attr('method', 'get');
-        form.attr('target', '');
+        $.ajax({
+            url: 'functions/imprimir_lista.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
     });
-
 
     $(document).on('change', "#incluir_representante_digital_chk", function () {
         const checked = $(this).is(":checked");
