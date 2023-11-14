@@ -76,24 +76,47 @@
                 {
                     $va_parametros_filtros_consulta[$vs_campo] = $va_parametros_filtros_form[$vs_campo] = "_data_";
 
+                    $vb_tem_data_preenchida = false;
+                    
                     if (isset($va_parametros_submit[$vs_campo . "_dia_inicial"]) && $va_parametros_submit[$vs_campo . "_dia_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_dia_inicial"] = $va_parametros_submit[$vs_campo . "_dia_inicial"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_mes_inicial"]) && $va_parametros_submit[$vs_campo . "_mes_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_mes_inicial"] = $va_parametros_submit[$vs_campo . "_mes_inicial"];
+                    }                        
 
                     if (isset($va_parametros_submit[$vs_campo . "_ano_inicial"]) && $va_parametros_submit[$vs_campo . "_ano_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_ano_inicial"] = $va_parametros_submit[$vs_campo . "_ano_inicial"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_dia_final"]) && $va_parametros_submit[$vs_campo . "_dia_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_dia_final"] = $va_parametros_submit[$vs_campo . "_dia_final"];
+                    }
 
                     if (isset($va_parametros_submit[$vs_campo . "_mes_final"]) && $va_parametros_submit[$vs_campo . "_mes_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_mes_final"] = $va_parametros_submit[$vs_campo . "_mes_final"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
+                    }
 
+                    if (!$vb_tem_data_preenchida)
+                        unset($va_parametros_filtros_form[$vs_campo]);
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_sem_data"]))
                     {
                         $va_parametros_filtros_form[$vs_campo . "_sem_data"] = $va_parametros_submit[$vs_campo . "_sem_data"];

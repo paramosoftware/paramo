@@ -120,7 +120,7 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
-        $vb_pode_exibir = $vb_pode_exibir && $vb_campo_preenchido && $pa_parametros_campo["exibir_quando_preenchido"];
+        $vb_pode_exibir = $vb_pode_exibir && ($vb_campo_preenchido || $vb_marcar_sem_valor || $vb_marcar_com_valor) && $pa_parametros_campo["exibir_quando_preenchido"];
 
     if (isset($pa_parametros_campo["formato"]))
         $vn_formato_data = $pa_parametros_campo["formato"];
