@@ -254,12 +254,14 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                         <div class="card mb-4">
                             
                             <div class="card-header row no-margin-side">
-                                <div class="col-md-9">
+                                <div class="col-md-9 px-0">
                                 <?php 
                                     if (!$vn_objeto_codigo)
                                         print $vs_nome_botao_novo . " ";
                                     
-                                    print "<u>" . htmlspecialchars($vs_recurso_sistema_nome_singular) . "</u>";
+                                    print "<a class='link-sem-estilo' href='listar.php?obj=". $vs_id_objeto_tela . "'>";
+                                    print "<u>". htmlspecialchars($vs_recurso_sistema_nome_singular) . "</u>";
+                                    print "</a>";
 
                                     if ($vn_objeto_codigo && !$vb_duplicacao)
                                     {
