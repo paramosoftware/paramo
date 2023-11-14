@@ -260,6 +260,16 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                         print $vs_nome_botao_novo . " ";
                                     
                                     print "<u>" . htmlspecialchars($vs_recurso_sistema_nome_singular) . "</u>";
+
+                                    if ($vn_objeto_codigo && !$vb_duplicacao)
+                                    {
+                                        $vs_campo_identificador = "item_acervo_identificador";
+
+                                        if (isset($va_objeto[$vs_campo_identificador]))
+                                        {
+                                            print " (". htmlspecialchars($va_objeto[$vs_campo_identificador]) .")";
+                                        }
+                                    }
                                 ?>
                                 </div>
 
