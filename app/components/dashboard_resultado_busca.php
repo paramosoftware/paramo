@@ -88,15 +88,11 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                 {
                                     $vn_objeto_codigo = $va_item_listagem[$vo_objeto->get_chave_primaria()[0]];
 
-                                    if (count($va_colunas_resultado_busca))
+                                    $va_atributos = [];
+
+                                    foreach ($va_colunas_resultado_busca as $vs_coluna_resultado_busca)
                                     {
-                                        $vs_identificador = ler_valor1($va_colunas_resultado_busca[0], $va_item_listagem);
-                                        $vs_titulo = ler_valor1($va_colunas_resultado_busca[1], $va_item_listagem);
-                                    }
-                                    else
-                                    {
-                                        $vs_identificador = "id";
-                                        $vs_identificador = "sem campo configurado";
+                                        $va_atributos[$vs_coluna_resultado_busca] = ler_valor1($vs_coluna_resultado_busca, $va_item_listagem);
                                     }
 
                                     $vs_url_editar = " #";
@@ -128,8 +124,6 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                                         </div>
                                                     <?php
                                                     }
-                                                    
-                                                    print htmlspecialchars($vs_identificador);
                                                 ?>
                                                 </div>
                                             </a>
@@ -137,12 +131,26 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                         <td>
                                             <div>
                                                 <?php
-                                                    print $vs_titulo;
+                                                    foreach ($va_atributos as $vs_atributo => $vs_valor)
+                                                    {
+                                                        if ($vs_atributo == "item_acervo_identificador")
+                                                        {
+                                                            print "<a href='" . $vs_url_editar . "'>" . $vs_valor . "</a><br>";
+                                                        }
+                                                        else
+                                                        {
+                                                            print "<p>" . $vs_valor . "</span><br>";
+                                                        }
+                                                    }
+
+                                                    if (count($va_atributos) == 0)
+                                                    {
+                                                        print "<a href='" . $vs_url_editar . "'>Sem identificador</a><br>";
+                                                    }
                                                 ?>
                                             </div>
                                         </td>
                                     </tr>
-                                    </a>
                                     <?php
                                 }
                                 ?>
