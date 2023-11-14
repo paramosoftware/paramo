@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . "/../components/entry_point.php";
 set_time_limit(0);
 
 $vs_file_name = "listagem-" . date("Y-m-d-H-i-s") . ".pdf";
-echo $vs_file_name;
+utils::callback_progress($vs_file_name, 0);
 require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
 
 $vs_modo = $_POST["modo"] ?? null;

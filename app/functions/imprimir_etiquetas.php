@@ -3,8 +3,7 @@
 require_once dirname(__FILE__) . "/../components/entry_point.php";
 
 $vs_file_name = "etiquetas-" . date("Y-m-d-H-i-s") . ".pdf";
-echo $vs_file_name;
-
+utils::callback_progress($vs_file_name, 0);
 require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
 
 $vn_pagina_etiquetas_codigo = $_POST["pagina_etiquetas"] ?? null;
@@ -38,7 +37,6 @@ if (!isset($va_pagina_etiquetas))
 $vn_page_width = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_largura"];
 $vn_page_height = $va_pagina_etiquetas["pagina_etiquetas_formato_codigo"]["formato_pagina_altura"];
 
-utils::callback_progress($vs_file_name, 0);
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
 $vn_modelo_etiqueta_codigo = $_POST["modelo_etiqueta"] ?? 1;

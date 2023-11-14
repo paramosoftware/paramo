@@ -30,6 +30,12 @@ $vs_file_path = $vs_temp_folder . $vs_file . ".progress";
 
 if (!file_exists($vs_file_path))
 {
+    $_SESSION[$vs_file] = $_SESSION[$vs_file] ? $_SESSION[$vs_file] + 1 : 1;
+    if ($_SESSION[$vs_file] > 50)
+    {
+        echo "Não foi possível encontrar o arquivo.";
+        unset($_SESSION[$vs_file]);
+    }
     exit();
 }
 

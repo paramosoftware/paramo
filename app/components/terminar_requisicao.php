@@ -1,9 +1,18 @@
 <?php
+ob_start();
 
-session_write_close();
-header('Connection: close');
-header('Content-Length: '.ob_get_length());
+echo $vs_file_name ?? "";
+
+header("Content-Encoding: none");
+header("Content-Length:" . ob_get_length());
+header("Connection: close");
+
 ob_end_flush();
+@ob_flush();
 flush();
-fastcgi_finish_request();
+if (function_exists("fastcgi_finish_request"))
+{
+    fastcgi_finish_request();
+}
+session_write_close();
 
