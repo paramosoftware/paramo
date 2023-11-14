@@ -21,11 +21,11 @@
     <link rel="stylesheet" href="assets/libraries/simplebar/css/simplebar.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism.css">
     <link href="assets/libraries/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
-    <link href="assets/css/style.css?v=<?= config::get(["versao"]);; ?>" rel="stylesheet">
+    <link href="assets/css/style.css?v=<?= config::get(["versao"]); ?>" rel="stylesheet">
 
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="assets/js/custom.js"></script>
+    <script src="assets/js/custom.js?v=<?= config::get(["versao"]); ?>"></script>
 </head>
