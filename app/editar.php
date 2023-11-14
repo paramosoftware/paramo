@@ -664,7 +664,18 @@ $(document).on('change', "#formato_ficha_<?php print $vs_id_objeto_tela; ?>", fu
 {
     document.cookie = "formato_ficha_<?php print $vs_id_objeto_tela; ?>=" + $(this).val();
 
-    vs_url_alterar_formato = "editar.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>&dup=<?php print $vb_duplicacao; ?>";
+    vs_url_alterar_formato = "editar.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
+
+
+    <?php if ($vb_duplicacao)
+    {
+    ?>
+
+    vs_url_alterar_formato = vs_url_alterar_formato + "&dup=1";
+
+    <?php
+    }
+    ?>
 
     <?php if ($vn_bibliografia_codigo)
     {
