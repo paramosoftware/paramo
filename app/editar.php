@@ -265,7 +265,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     {
                                         $vs_campo_identificador = "item_acervo_identificador";
 
-                                        if (isset($va_objeto[$vs_campo_identificador]))
+                                        if (!empty($va_objeto[$vs_campo_identificador]))
                                         {
                                             print " (". htmlspecialchars($va_objeto[$vs_campo_identificador]) .")";
                                         }
