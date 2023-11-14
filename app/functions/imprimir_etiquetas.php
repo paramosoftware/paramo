@@ -66,29 +66,26 @@ $vo_label->vb_has_barcode = isset($_POST["codigo_barras"]) && boolval($_POST["co
 $vo_label->vn_start_row = $_POST["linha_inicial"] ?? 1;
 $vo_label->vn_start_col = $_POST["coluna_inicial"] ?? 1;
 
+$vn_pagina_atual = 1;
+require dirname(__FILE__) . "/montar_listagem.php";
+
 $vn_numero_maximo_paginas = $vn_numero_maximo_paginas ?? 0;
 
-$va_itens_listagem_temp = [];
+$va_itens_listagem_temp = $va_itens_listagem ?? [];
 
-for ($vn_pagina_atual = 1; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pagina_atual++)
+for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pagina_atual++)
 {
     require dirname(__FILE__) . "/montar_listagem.php";
-
     $va_itens_listagem_temp = array_merge($va_itens_listagem_temp, $va_itens_listagem ?? []);
     utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
-
-    if ($vn_pagina_atual == $vn_numero_maximo_paginas)
-    {
-        $vo_label->va_itens = $va_itens_listagem_temp;
-        $vo_label->process();
-
-        $va_itens_listagem_temp = [];
-    }
 }
 
+$vo_label->va_itens = $va_itens_listagem_temp;
+$vo_label->process();
 $vo_label->Output();
 
 utils::callback_progress($vs_file_name, 100);
+utils::clear_temp_folder("1 minute", '.png');
 utils::clear_temp_folder("-5 minutes");
 exit();
 
