@@ -82,15 +82,17 @@
         }
     });
 
-    $(document).on('click', "#btn_imprimir_etiquetas", function()
-    {
-        $("#form_lista").attr('action', 'etiquetas.php');
-        $("#form_lista").attr('method', 'post');
-        $("#form_lista").attr('target', '_blank');
-        $("#form_lista").submit();
-
-        $("#form_lista").attr('action', 'listar.php');
-        $("#form_lista").attr('method', 'get');
-        $("#form_lista").attr('target', '');
+    $(document).on('click', "#btn_imprimir_etiquetas", function() {
+        const form = $("#form_lista");
+        $.ajax({
+            url: 'functions/imprimir_etiquetas.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
     });
 </script>

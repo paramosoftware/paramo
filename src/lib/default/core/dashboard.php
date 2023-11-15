@@ -96,16 +96,19 @@ class dashboard
 
     public function get_colunas_resultado_busca($ps_recurso_sistema_id)
     {
-            $va_colunas_resultado_busca = array();
+        $va_colunas_resultado_busca = array();
 
-            $va_colunas_resultado_busca["entrevista"] = 
-            [
-                "item_acervo_identificador",
-                "item_acervo_entidade_entrevistado_codigo_0_entidade_nome"
-            ];
+        $va_default = [
+            "Identificador" => "item_acervo_identificador",
+            "Titulo" => "item_acervo_dados_textuais_0_item_acervo_titulo"
+        ];
 
-        return $va_colunas_resultado_busca[$ps_recurso_sistema_id] ??
-            array("item_acervo_identificador", "item_acervo_dados_textuais_0_item_acervo_titulo");
+        $va_colunas_resultado_busca["entrevista"] = [
+            "Identificador" => "item_acervo_identificador",
+            "Nome" => "item_acervo_entidade_entrevistado_codigo_0_entidade_nome"
+        ];
+
+        return $va_colunas_resultado_busca[$ps_recurso_sistema_id] ?? $va_default;
     }
 }
 

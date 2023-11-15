@@ -39,7 +39,7 @@ register_shutdown_function(function() {
         $vs_codigo = utils::log($vs_summary, $stacktrace);
 
         if ($error["type"] == E_ERROR) {
-            echo '<script>window.location.href = "erro.php?codigo=' . $vs_codigo . '";</script>';
+            session::redirect("erro.php?codigo=" . $vs_codigo);
         }
     }
 });

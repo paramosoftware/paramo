@@ -4,8 +4,12 @@
 
     if (!($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin))
     {
-        header("Location: index.php");
-        exit();
+        utils::log(
+            "Tentativa de alterar logo sem permissão: ",
+            __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " .
+            var_export($_SESSION, true) . " - " . var_export($_POST, true)
+        );
+        session::redirect();
     }
 
     function upload_logo(): array
@@ -68,8 +72,9 @@
         $va_retorno = upload_logo();
         $vb_sucesso = $va_retorno[0];
 
-        if ($vb_sucesso) {
-            header("Location: alterar_logo.php?sucesso");
+        if ($vb_sucesso)
+        {
+           session::redirect("alterar_logo.php?sucesso=true");
         }
 
         $vs_mensagem = $va_retorno[1];

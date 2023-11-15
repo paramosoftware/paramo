@@ -1,9 +1,9 @@
 <?php
 
-require_once config::get(["pasta_vendors"])."autoload.php";
-require_once config::get(["pasta_vendors"])."fpdf/fpdf.php";
+require_once config::get(["pasta_vendors"]) . "autoload.php";
+require_once config::get(["pasta_vendors"]) . "fpdf/fpdf2file.php";
 
-class label extends FPDF
+class label extends FPDF2File
 {
 
     protected $vs_to_encoding = 'windows-1252';
@@ -12,6 +12,7 @@ class label extends FPDF
     protected $vs_text_attributes = '';
     protected $vs_barcode_text = '';
 
+    public $vs_title = 'Etiquetas';
     public $vs_from_encoding = 'UTF-8';
     public $vn_gap;
     public $vb_has_barcode = false;
@@ -28,14 +29,16 @@ class label extends FPDF
     public $vn_start_row;
     public $vn_start_col;
 
-    function __construct($orientation = 'P', $unit = 'mm', $size = 'Letter')
+    function __construct($ps_file_path, $orientation = 'P', $unit = 'mm', $size = 'Letter')
     {
+        $this->Open($ps_file_path);
         parent::__construct($orientation, $unit, $size);
     }
 
     function process()
     {
 
+        $this->set_meta_tags();
         $this->set_font();
         $this->set_page();
 
@@ -137,11 +140,11 @@ class label extends FPDF
             file_put_contents($vs_barcode_path, $bar_code);
             $this->Image($vs_barcode_path, $this->GetX(), $this->GetY(), $w, $h, 'PNG');
         }
+    }
 
-        if (file_exists($vs_barcode_path))
-        {
-            unlink($vs_barcode_path);
-        }
+    function encode($vs_string)
+    {
+        return iconv($this->vs_from_encoding, $this->vs_to_encoding . '//TRANSLIT//IGNORE', $vs_string);
     }
 
     protected function process_attributes()
@@ -159,20 +162,29 @@ class label extends FPDF
     protected function set_text_attributes()
     {
         $this->process_attributes();
-        $this->vs_text_attributes = iconv($this->vs_from_encoding, $this->vs_to_encoding, $this->vs_text_attributes);
+        $this->vs_text_attributes = $this->encode($this->vs_text_attributes);
     }
 
     protected function set_barcode_text()
     {
-        if (isset($this->va_itens[$this->vn_current_item]["livro_codigo"]))
+        if (isset($this->va_itens[$this->vn_current_item][$this->va_itens[$this->vn_current_item]["_objeto"] . "_codigo"]))
         {
-            $this->vs_barcode_text = str_pad($this->va_itens[$this->vn_current_item]["livro_codigo"], 12, "0", STR_PAD_LEFT);
+            $this->vs_barcode_text = str_pad($this->va_itens[$this->vn_current_item][$this->va_itens[$this->vn_current_item]["_objeto"] . "_codigo"], 12, "0", STR_PAD_LEFT);
         }
     }
 
     public function set_font()
     {
         $this->SetFont('Arial', '', 10);
+    }
+
+    function set_meta_tags()
+    {
+        $this->SetTitle($this->encode($this->vs_title));
+        $this->SetAuthor($this->encode(config::get(["nome_instituicao"])));
+        $this->SetCreator($this->encode("Páramo"));
+        $this->SetSubject($this->encode($this->vs_title));
+        $this->SetKeywords($this->encode($this->vs_title));
     }
 
     private function set_page()

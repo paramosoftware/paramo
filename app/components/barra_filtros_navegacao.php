@@ -18,7 +18,7 @@
     {
         $vb_exibir_filtro = false;
 
-        if ($va_parametros_filtros_form)
+        if ($va_parametros_filtros_form && !$vb_busca_combinada)
         {
             $vb_exibir_filtro = true;
         }
@@ -96,16 +96,21 @@ function toggle_filtros_log(pbutton)
 
 function toggle_filtro()
 {
+    $("#filtro_combinado").hide();
+    $("#btn_filtro_combinado").removeClass("dropdown-toggle-revert");
+    $("#btn_filtro_combinado").addClass("dropdown-toggle");
+
     var div = document.getElementById('filtro');
 
     vb_exists_hidden_element = false;
     vb_exists_visible_element = false;
     vb_filtro_log_visible = false;
 
-    $("#filtros").find("div").each(function () 
-    {
+    $("#filtros").children("div").each(function () 
+    {console.log($(this).prop("id"));
         if ($(this).is(":visible"))
             vb_exists_visible_element = true;
+
         else if ($(this).attr('hidden') != "hidden")
         {
             if ( ($(this).parent().prop("id") != "") && ($(this).parent().prop("id") != "div_filtros_catalogacao") && ($(this).prop("id") != "div_filtros_catalogacao") )
@@ -116,6 +121,9 @@ function toggle_filtro()
     });
 
     div.style.display = div.style.display == 'none' ? 'flex ': 'none';
+
+    if (vb_exists_visible_element && vb_exists_hidden_element)
+        div.style.display = "flex";
 
     var elems = document.querySelectorAll(".filtros");
 
@@ -135,9 +143,6 @@ function toggle_filtro()
             el.classList.add("dropdown-toggle");
         });
     }
-
-    if (vb_exists_visible_element && vb_exists_hidden_element)
-        div.style.display = "none";
 
     if (vb_exists_hidden_element)
     {
@@ -170,6 +175,8 @@ function toggle_filtro()
 
 $(document).on('click', "#btn_buscar", function()
 {
+    $("#filtros_combinados").empty();
+
     $("#form_lista").attr('action', '<?php print $vs_form_action; ?>');
     $("#form_lista").attr('method', 'get');
     $("#form_lista").submit();

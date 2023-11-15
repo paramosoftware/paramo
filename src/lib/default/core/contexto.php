@@ -288,6 +288,7 @@ class contexto extends objeto_base
             "operador_filtro" => "=",
             "dependencia" => [
                 [
+                    "tipo" => "interface",
                     "campo" => "acervo_codigo",
                     "atributo" => "acervo_codigo",
                     "obrigatoria" => true

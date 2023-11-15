@@ -707,7 +707,10 @@ class objeto_base
                 foreach ($va_atributos_objeto as $va_atributo_objeto) 
                 {
                     if (isset($va_atributo_objeto["valor_padrao"]) && !in_array(reset($va_atributo_objeto), $va_filtros_busca))
+                    {
                         $va_filtros_busca[reset($va_atributo_objeto)] = $va_atributo_objeto["valor_padrao"];
+                        $va_filtros_busca["concatenadores"][] = "AND";
+                    }
                 }
 
                 $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
@@ -721,6 +724,7 @@ class objeto_base
                     "campos" => $va_campos_select,
                     "joins" => $va_joins_select,
                     "wheres" => $va_wheres_select,
+                    "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
                 ];
 
                 if (count($va_selects))
@@ -757,7 +761,7 @@ class objeto_base
         return $va_resultado;
     }
 
-    private function montar_valores_busca($pa_parametro, &$pa_valores_busca = array(), &$ps_operador = "=", &$ps_interrogacoes = "(?)")
+    private function montar_valores_busca($pa_parametro, &$pa_valores_busca = array(), &$ps_operador = "=", &$ps_interrogacoes = "(?)", &$ps_operador_logico = "AND")
     {
         if (!is_array($pa_parametro))
             $pa_parametro = array($pa_parametro);
@@ -776,6 +780,7 @@ class objeto_base
             $ps_operador = $pa_parametro[1];
 
         // Se o operador é o null safe equal, estamos comparando com null e deixa pra lá todo o resto
+
         if ($ps_operador == "<=>") {
             $pa_valores_busca = [null];
             $vb_tem_valor = true;
@@ -792,41 +797,82 @@ class objeto_base
             // Verifica se estão vindo vários valores num mesmo filtro
             // e prepara a montagem de vários ? e parâmetros correspondentes
 
-            if (isset($va_valor_filtro)) {
-                if (!is_array($va_valor_filtro)) {
+            if (isset($va_valor_filtro)) 
+            {
+                if (is_array($va_valor_filtro))
+                {
+                    // Se os valores do campo vêm como um array, então existe
+                    // mais de um campo do mesmo tipo na interface
+
+                    $va_valores_filtro = $va_valor_filtro;
+                    $ps_operador_logico = "OR";
+                }
+                else
                     $va_valores_filtro = explode("|", $va_valor_filtro);
 
-                    $va_interrogracoes = array();
+                $va_interrogracoes = array();
 
-                    foreach ($va_valores_filtro as $va_valor_filtro) {
-                        if ($va_valor_filtro != "") {
-                            $vb_tem_valor = true;
+                foreach ($va_valores_filtro as $vs_valor_filtro) 
+                {
+                    if (trim($vs_valor_filtro) != "") 
+                    {
+                        $vb_tem_valor = true;
+                        $va_interrogracoes[] = "?";
 
-                            $va_interrogracoes[] = "?";
+                        if (in_array($ps_operador, ["LIKE", "LIKERIGHT", "LIKELEFT"]))
+                        {
+                            $ps_operador_logico = "OR";
 
-                            if ($ps_operador == "LIKE")
-                                $pa_valores_busca[] = "%" . $va_valor_filtro . "%";
-                            elseif ($ps_operador == "LIKERIGHT")
+                            // Vamos separar sequência de palavras entre aspas
+                            //////////////////////////////////////////////////
+
+                            if (preg_match_all('/"([^"]+)"/', $vs_valor_filtro, $va_matches))
                             {
-                                $pa_valores_busca[] =  $va_valor_filtro . "%";
-                                $ps_operador = "LIKE";
+                                foreach ($va_matches[0] as $vs_match)
+                                {
+                                    $vs_valor_filtro = str_replace($vs_match, "", $vs_valor_filtro);
+                                }
                             }
-                            elseif ($ps_operador == "LIKELEFT")
+
+                            $va_valores_filtro_like = explode(" ", $vs_valor_filtro);
+                            $va_valores_filtro_like = array_merge($va_valores_filtro_like, $va_matches[1]);
+                            $va_novos_valores_filtro_like = array();
+
+                            foreach ($va_valores_filtro_like as &$vs_valor_filtro_like)
                             {
-                                $pa_valores_busca[] = "%" . $va_valor_filtro;
-                                $ps_operador = "LIKE";
+                                if (trim($vs_valor_filtro_like) != "")
+                                {
+                                    if ($ps_operador == "LIKE")
+                                        $vs_valor_filtro_like = "%" . $vs_valor_filtro_like . "%";
+
+                                    elseif ($ps_operador == "LIKERIGHT")
+                                    {
+                                        $vs_valor_filtro_like =  $vs_valor_filtro_like . "%";
+                                        $ps_operador = "LIKE";
+                                    }
+                                    elseif ($ps_operador == "LIKELEFT")
+                                    {
+                                        $vs_valor_filtro_like = "%" . $vs_valor_filtro_like;
+                                        $ps_operador = "LIKE";
+                                    }
+
+                                    $va_novos_valores_filtro_like[] = $vs_valor_filtro_like;
+                                }
                             }
-                            else
-                                $pa_valores_busca[] = $va_valor_filtro;
+
+                            $pa_valores_busca[] = $va_novos_valores_filtro_like;
                         }
+                        else
+                            $pa_valores_busca[] = $vs_valor_filtro;
                     }
+                }
 
-                    if (count($va_interrogracoes) > 1) {
-                        $ps_interrogacoes = "(" . join(",", $va_interrogracoes) . ")";
+                if ( (count($va_interrogracoes) > 1) && ($ps_operador != "LIKE") )
+                {
+                    $ps_interrogacoes = "(" . join(",", $va_interrogracoes) . ")";
 
-                        if ($ps_operador != "NOT IN")
-                            $ps_operador = "IN";
-                    }
+                    if ($ps_operador != "NOT IN")
+                        $ps_operador = "IN";
                 }
             }
         }
@@ -841,12 +887,12 @@ class objeto_base
             // Para cada um dos filtros...
             //////////////////////////////
 
-            foreach ($pa_filtros_busca as $va_parametro_nome => $va_parametro) 
+            foreach ($pa_filtros_busca as $vs_parametro_nome => $va_parametro) 
             {
                 // Tentativa: restringir pela existência de um relacionamento (hardcoded)
                 /////////////////////////////////////////////////////////////////////////
 
-                if ($va_parametro_nome == "tipo_relacionamento") 
+                if ($vs_parametro_nome == "tipo_relacionamento") 
                 {
                     if (isset($po_objeto->relacionamentos[$va_parametro])) {
                         $va_relacionamento = $po_objeto->relacionamentos[$va_parametro];
@@ -863,9 +909,9 @@ class objeto_base
                         continue;
                     }
                 }
-                elseif (substr($va_parametro_nome, 0, 6) == "LENGTH")
+                elseif (substr($vs_parametro_nome, 0, 6) == "LENGTH")
                 {
-                    $vs_parametro_nome = explode(":", $va_parametro_nome)[1];
+                    $vs_parametro_nome = explode(":", $vs_parametro_nome)[1];
 
                     if (isset($po_objeto->atributos[$vs_parametro_nome]))
                     {
@@ -892,42 +938,46 @@ class objeto_base
                     // É array e não está vazio...
                     //////////////////////////////
 
-                    if (count($va_parametro)) {
+                    if (count($va_parametro)) 
+                    {
                         $va_valor_filtro = reset($va_parametro);
+
                         $va_valores_busca = array();
                         $vs_operador = "";
                         $vs_interrogacoes = "(?)";
+                        $vs_operador_logico = "AND";
                         $vb_tem_valor = false;
 
                         //Vamos tratar as DATAS
                         // Primeiro para o caso de a data ser atributo do próprio objeto
-                        //if ( ($va_valor_filtro == "_data_") && (isset($po_objeto->atributos[$va_parametro_nome])) )
+                        //if ( ($va_valor_filtro == "_data_") && (isset($po_objeto->atributos[$vs_parametro_nome])) )
                         /////////////////////////////////////////////////////////////////////////////////////////////
 
-                        if ($va_valor_filtro == "_data_") {
+                        if ($va_valor_filtro == "_data_") 
+                        {
                             // O primeiro valor do array (reset), dá os valores
                             // O segundo dá o operador
                             ///////////////////////////////////////////////////
 
                             $vo_data = new Periodo;
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_dia_inicial"]))
-                                $vo_data->set_dia_inicial($pa_filtros_busca[$va_parametro_nome . "_dia_inicial"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_dia_inicial"]))
+                                $vo_data->set_dia_inicial($pa_filtros_busca[$vs_parametro_nome . "_dia_inicial"]);
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_mes_inicial"]))
-                                $vo_data->set_mes_inicial($pa_filtros_busca[$va_parametro_nome . "_mes_inicial"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_mes_inicial"]))
+                                $vo_data->set_mes_inicial($pa_filtros_busca[$vs_parametro_nome . "_mes_inicial"]);
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_ano_inicial"]))
-                                $vo_data->set_ano_inicial($pa_filtros_busca[$va_parametro_nome . "_ano_inicial"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_ano_inicial"]))
+                                $vo_data->set_ano_inicial($pa_filtros_busca[$vs_parametro_nome . "_ano_inicial"]);
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_dia_final"]))
-                                $vo_data->set_dia_final($pa_filtros_busca[$va_parametro_nome . "_dia_final"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_dia_final"]))
+                                $vo_data->set_dia_final($pa_filtros_busca[$vs_parametro_nome . "_dia_final"][0]);
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_mes_final"]))
-                                $vo_data->set_mes_final($pa_filtros_busca[$va_parametro_nome . "_mes_final"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_mes_final"]))
+                                $vo_data->set_mes_final($pa_filtros_busca[$vs_parametro_nome . "_mes_final"][0]);
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_ano_final"]))
-                                $vo_data->set_ano_final($pa_filtros_busca[$va_parametro_nome . "_ano_final"]);
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_ano_final"]))
+                                $vo_data->set_ano_final($pa_filtros_busca[$vs_parametro_nome . "_ano_final"]);
 
                             $vo_data->consolidar();
 
@@ -937,45 +987,60 @@ class objeto_base
                             if ($vo_data->get_data_final())
                                 $va_valores_busca[] = $vo_data->get_data_final();
 
-                            if (isset($pa_filtros_busca[$va_parametro_nome . "_sem_data"]))
+                            if (isset($pa_filtros_busca[$vs_parametro_nome . "_sem_data"]))
                                 $va_valores_busca[] = "_sem_data_";
 
                             if (count($va_valores_busca))
                                 $vb_tem_valor = true;
 
-                            if (isset($po_objeto->atributos[$va_parametro_nome])) 
-                            {
-                                $va_atributo = $po_objeto->atributos[$va_parametro_nome]["coluna_tabela"];
+                            // Se for um filtro de busca que pode aparecer mais de uma vez na tela
+                            //////////////////////////////////////////////////////////////////////
 
-                                if (isset($pa_filtros_busca[$va_parametro_nome . "_ano_inicial"]) && $pa_filtros_busca[$va_parametro_nome . "_ano_inicial"]) {
-                                    if ($vo_data->get_data_inicial()) {
+                            $vs_campo = $vs_parametro_nome;
+                            if (strpos($vs_parametro_nome, "_F_") !== false)
+                                $vs_campo = substr($vs_parametro_nome, 0, strpos($vs_parametro_nome, "_F_"));
+
+                            if (isset($po_objeto->atributos[$vs_campo])) 
+                            {
+                                $va_atributo = $po_objeto->atributos[$vs_campo]["coluna_tabela"];
+
+                                if (isset($pa_filtros_busca[$vs_parametro_nome . "_ano_inicial"]) && $pa_filtros_busca[$vs_parametro_nome . "_ano_inicial"]) 
+                                {
+                                    if ($vo_data->get_data_inicial()) 
+                                    {
                                         $pa_tipos_parametros_select[] = "s";
                                         $pa_parametros_select[] = $vo_data->get_data_inicial();
                                         $pa_wheres_select[] = $po_objeto->tabela_banco . "." . $va_atributo["data_inicial"] . " >= (?) ";
                                     }
 
-                                    if ($vo_data->get_data_final()) {
+                                    if ($vo_data->get_data_final()) 
+                                    {
                                         $pa_tipos_parametros_select[] = "s";
                                         $pa_parametros_select[] = $vo_data->get_data_final();
                                         $pa_wheres_select[] = $po_objeto->tabela_banco . "." . $va_atributo["data_final"] . " <= (?) ";
                                     }
-                                } elseif (isset($pa_filtros_busca[$va_parametro_nome . "_sem_data"])) {
+                                } 
+                                elseif (isset($pa_filtros_busca[$vs_parametro_nome . "_sem_data"])) {
                                     $pa_tipos_parametros_select[] = "i";
                                     $pa_parametros_select[] = 1;
                                     $pa_wheres_select[] = $po_objeto->tabela_banco . "." . $va_atributo["sem_data"] . " = (?) ";
                                 }
                             }
                         } else {
-                            $vb_tem_valor = $this->montar_valores_busca($va_parametro, $va_valores_busca, $vs_operador, $vs_interrogacoes);
+                            $vb_tem_valor = $this->montar_valores_busca($va_parametro, $va_valores_busca, $vs_operador, $vs_interrogacoes, $vs_operador_logico);
                         }
 
-                        if ($vb_tem_valor) {
-                            $va_filtro = explode("_0_", $va_parametro_nome);
+                        if ($vb_tem_valor) 
+                        {
+                            if (preg_match('/\w+(_F_\d+)$/', $vs_parametro_nome))
+                                $vs_parametro_nome = substr($vs_parametro_nome, 0, strpos($vs_parametro_nome, "_F_"));
+                            
+                            $va_filtro = explode("_0_", $vs_parametro_nome);
 
                             // O terceiro parâmetro vazio quer dizer que ainda não foi feito nenhum join para este filtro
                             /////////////////////////////////////////////////////////////////////////////////////////////
-
-                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas);
+                            
+                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico);
                         }
                     }
                 }
@@ -983,7 +1048,7 @@ class objeto_base
         }
     }
 
-    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array())
+    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND')
     {
         // A partir daqui, vamos procurar o campo/atributo ao qual o filtro se refere
         ////////////////////////////////////////////////////////////////////////////
@@ -1024,7 +1089,7 @@ class objeto_base
 
                 $vo_objeto_pai = new $po_objeto->objeto_pai($po_objeto->objeto_pai);
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $ps_operador_logico);
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]) || isset($po_objeto->chave_primaria[$va_filtro[0]])) 
             {
@@ -1046,7 +1111,7 @@ class objeto_base
                     $vs_id_objeto = $po_objeto->objeto_pai;
                     $vs_campo_chave_importada = $po_objeto->campo_relacionamento_pai;
                 }
-            } 
+            }
             elseif (isset($po_objeto->relacionamentos[$va_filtro[0]])) 
             {
                 // Se o filtro corresponde a um relacionamento do objeto
@@ -1090,7 +1155,11 @@ class objeto_base
 
                     if (!in_array($vs_alias_tabela_join, $pa_joins_select)) 
                     {
-                        $pa_joins_select[$vs_alias_tabela_join] = " JOIN " . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
+                        $vs_tipo_join = " JOIN ";
+                        if ($ps_operador == "_EXISTS_")
+                            $vs_tipo_join = " LEFT JOIN ";
+
+                        $pa_joins_select[$vs_alias_tabela_join] = $vs_tipo_join . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
                         $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
                     }
 
@@ -1117,27 +1186,104 @@ class objeto_base
                         }
 
                         $va_atributo_filtro_relacionamento = $vo_objeto_relacionamento->atributos[$va_filtro[2]];
-
-                        $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
-
-                        foreach ($pa_valores_busca as $va_valor_busca) 
+                       
+                        if ( ($ps_operador != "LIKE") && ($ps_operador_logico != "OR") )
                         {
-                            $pa_parametros_select[] = $va_valor_busca;
-                            $pa_tipos_parametros_select[] = $va_atributo_filtro_relacionamento["tipo_dado"];
+                            if ($ps_operador == "_EXISTS_") {
+                                $vb_valor_busca = reset($pa_valores_busca);
+        
+                                if (!$vb_valor_busca)
+                                    $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " IS NULL ";
+                                else
+                                    $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " IS NOT NULL ";
+
+                                unset($pa_valores_busca);
+                            }
+                            else
+                                $pa_wheres_select[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " " . $ps_interrogacoes;
                         }
-                    }                        
+
+                        $va_or_conditions = array();
+                        $va_and_conditions = array();
+
+                        if (isset($pa_valores_busca))
+                        {
+                            foreach ($pa_valores_busca as $va_valor_busca) 
+                            {
+                                if (!is_array($va_valor_busca))
+                                    $va_valor_busca = array($va_valor_busca);
+
+                                foreach ($va_valor_busca as $vs_valor_busca)
+                                {
+                                    if ($ps_operador_logico == "OR")
+                                        $va_and_conditions[] = $vs_alias_tabela_join_objeto_relacionamento . "." . $va_atributo_filtro_relacionamento["coluna_tabela"] . " " . $ps_operador . " (?)";
+
+                                    $pa_parametros_select[] = $vs_valor_busca;
+                                    $pa_tipos_parametros_select[] = $va_atributo_filtro_relacionamento["tipo_dado"];
+                                }
+                                
+                                if ($ps_operador_logico == "OR")
+                                    $va_or_conditions[] = implode(" AND ", $va_and_conditions);
+                            }
+                        }
+
+                        if ($ps_operador_logico == "OR")
+                            $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
+                    }                     
                     else
                     {
                         $vn_index_tipo_campo = array_search($va_filtro[1], array_keys($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"]));
                         $vs_tipo_dado_campo = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$vn_index_tipo_campo];
 
-                        $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
-
-                        foreach ($pa_valores_busca as $va_valor_busca) 
+                        if ($ps_operador_logico != "OR")
                         {
-                            $pa_parametros_select[] = $va_valor_busca;
-                            $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                            if ($ps_operador == "_EXISTS_") {
+                                $vb_valor_busca = reset($pa_valores_busca);
+        
+                                if (!$vb_valor_busca)
+                                    $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NULL ";
+                                else
+                                    $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NOT NULL ";
+
+                                unset($pa_valores_busca);
+                            }
+                            else
+                                $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
                         }
+
+                        $va_or_conditions = array();
+                        
+                        if (isset($pa_valores_busca))
+                        {
+                            foreach ($pa_valores_busca as $va_valor_busca) 
+                            {
+                                if (is_array($va_valor_busca))
+                                {
+                                    $va_and_conditions = array();
+
+                                    foreach ($va_valor_busca as $vs_valor_busca)
+                                    {
+                                        $va_and_conditions[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                                        $pa_parametros_select[] = $vs_valor_busca;
+                                        $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                                    }
+
+                                    $va_or_conditions[] = implode(" AND ", $va_and_conditions);
+                                }
+                                else
+                                {
+                                    if ($ps_operador_logico == "OR")
+                                        $va_or_conditions[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                                    $pa_parametros_select[] = $va_valor_busca;
+                                    $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                                }
+                            }
+                        }
+
+                        if ($ps_operador_logico == "OR")
+                            $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
                     }
                 }
             }
@@ -1221,7 +1367,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico);
             }
         } else {
             // Se o filtro for chave primária ou atributo da tabela do objeto, a montagem é simples
@@ -1250,41 +1396,44 @@ class objeto_base
                 else
                     $vs_tabela_banco = $po_objeto->tabela_banco;
 
-                //$vs_campo_tabela = $po_objeto->chave_primaria["coluna_tabela"];
-                //$vs_tipo_dado_campo = $po_objeto->chave_primaria["tipo_dado"];
-
                 $vs_campo_tabela = "codigo";
                 $vs_tipo_dado_campo = "i";
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]) || $vb_is_attribute) 
             {
-                if ($po_objeto->atributos[$va_filtro[0]]["tipo_dado"] == "dt") 
+                if ($po_objeto->atributos[$va_filtro[0]]["tipo_dado"] == "dt")
                 {
-                    if ($pa_valores_busca[0] == "_sem_data_")
+                    if ($ps_operador == "_EXISTS_") 
                     {
-                        //$pa_tipos_parametros_select[] = "i";
-                        //$pa_parametros_select[] = 1;
+                        $vb_valor_busca = reset($pa_valores_busca);
+
+                        if (!$vb_valor_busca)
+                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NULL ";
+                        else
+                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NOT NULL ";
+                    }
+                    elseif ($pa_valores_busca[0] == "_sem_data_")
+                    {
                         $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " IS NULL ";
                     }
                     elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_final"]) || isset($pa_valores_busca[1]))
                     {
-                        $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " >= (?) ";
+                        $vs_where = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " >= (?) ";
 
                         if (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_final"]))
-                        {
-                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_final"] . " <= (?) ";
-                        }
+                            $vs_where .= " AND " . $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_final"] . " <= (?) ";
                         else
-                        {
-                            $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " <= (?) ";
-                        }
+                            $vs_where .= " AND " . $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " <= (?) ";
+
+                        $pa_wheres_select[] = $vs_where;
 
                         $pa_tipos_parametros_select[] = "s";
                         $pa_parametros_select[] = $pa_valores_busca[0];
 
                         $pa_tipos_parametros_select[] = "s";
                         $pa_parametros_select[] = $pa_valores_busca[1];
-                    } else {
+                    } 
+                    else {
                         $pa_wheres_select[] = $vs_tabela_filtro . "." . $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]["data_inicial"] . " = (?) ";
 
                         $pa_tipos_parametros_select[] = "s";
@@ -1303,7 +1452,8 @@ class objeto_base
                     $vs_campo_tabela = $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"];
                     $vs_tipo_dado_campo = $po_objeto->atributos[$va_filtro[0]]["tipo_dado"];
 
-                    if ($ps_operador == "_EXISTS_") {
+                    if ($ps_operador == "_EXISTS_") 
+                    {
                         $vb_valor_busca = reset($pa_valores_busca);
 
                         if (!$vb_valor_busca)
@@ -1346,16 +1496,44 @@ class objeto_base
                 $vs_tipo_dado_campo = reset($po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"]);
             }
 
-            if (($vs_campo_tabela) && ($ps_operador != "_EXISTS_")) {
+            if (($vs_campo_tabela) && ($ps_operador != "_EXISTS_")) 
+            {
                 if ($ps_operador == "NOT")
                     $pa_wheres_select[] = $ps_operador . " " . $vs_tabela_banco . "." . $vs_campo_tabela . "<=>" . $ps_interrogacoes;
-                else
+                
+                elseif ($ps_operador_logico != "OR")
                     $pa_wheres_select[] = $vs_tabela_banco . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
 
-                foreach ($pa_valores_busca as $va_valor_busca) {
-                    $pa_parametros_select[] = $va_valor_busca;
-                    $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                $va_or_conditions = array();
+                
+                foreach ($pa_valores_busca as $va_valor_busca) 
+                {
+                    if (is_array($va_valor_busca))
+                    {
+                        $va_and_conditions = array();
+
+                        foreach ($va_valor_busca as $vs_valor_busca)
+                        {
+                            $va_and_conditions[] = $vs_tabela_banco . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                            $pa_parametros_select[] = $vs_valor_busca;
+                            $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                        }
+
+                        $va_or_conditions[] = implode(" AND ", $va_and_conditions);
+                    }
+                    else
+                    {
+                        if ($ps_operador_logico == "OR")
+                            $va_or_conditions[] = $vs_tabela_banco . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                        $pa_parametros_select[] = $va_valor_busca;
+                        $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                    }
                 }
+
+                if ($ps_operador_logico == "OR")
+                    $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
             }
         }
     }
@@ -1637,7 +1815,9 @@ class objeto_base
                 foreach ($va_atributos_objeto as $va_atributo_objeto) 
                 {
                     if (isset($va_atributo_objeto["valor_padrao"]) && !in_array(reset($va_atributo_objeto), $va_filtros_busca))
+                    {
                         $va_filtros_busca[reset($va_atributo_objeto)] = $va_atributo_objeto["valor_padrao"];
+                    }
                 }
 
                 $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas);
@@ -1653,6 +1833,7 @@ class objeto_base
                     "campos" => $va_campos_select,
                     "joins" => $va_joins_select,
                     "wheres" => $va_wheres_select,
+                    "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
                 ];
 
                 $contador++;
@@ -1668,8 +1849,6 @@ class objeto_base
             $vo_banco = $this->get_banco();
             $va_resultado = $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, $va_order_by, $vs_limit, true, $va_group_by);
         }
-
-
 
         // Agora vamos montar o objeto pai, atributos que
         // são chaves estrangeiras e relacionamentos
@@ -2263,14 +2442,19 @@ class objeto_base
     public function montar_ordenacao($po_objeto, $pa_order_by = array(), &$pa_campos_select = array(), &$pa_joins_select = array(), $ps_order = null, $pa_tabelas_adicionadas = array())
     {
         $va_order_by = array();
+
         if (!count($pa_order_by))
             return $va_order_by;
 
         $vs_campo_order_by = "";
 
         $vs_tabela_objeto = $po_objeto->tabela_banco;
-        //$vs_coluna_chave_primaria = $po_objeto->chave_primaria["coluna_tabela"];
         $vs_coluna_chave_primaria = "codigo";
+
+        if (isset($pa_order_by[get_class($po_objeto)]))
+        {
+            $pa_order_by = array($pa_order_by[get_class($po_objeto)]);
+        }
 
         foreach($pa_order_by as $vs_order_by)
         {
@@ -2311,9 +2495,9 @@ class objeto_base
                     $va_atributo_order_by = $vo_objeto_pai->atributos[$va_campo_order_by[1]];
 
                     if (is_array($va_atributo_order_by["coluna_tabela"]))
-                        $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_pai . "." . reset($va_atributo_order_by["coluna_tabela"]) . " as " . $va_campo_order_by[1];
+                        $pa_campos_select["ord"] = $vs_tabela_pai . "." . reset($va_atributo_order_by["coluna_tabela"]) . " as ord";
                     else
-                        $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_pai . "." . $va_atributo_order_by["coluna_tabela"] . " as " . $va_campo_order_by[1];
+                        $pa_campos_select["ord"] = $vs_tabela_pai . "." . $va_atributo_order_by["coluna_tabela"] . " as ord";
 
                     $vs_campo_order_by = $va_campo_order_by[1];
                 } elseif (isset($vo_objeto_pai->relacionamentos[$va_campo_order_by[1]])) {
@@ -2331,7 +2515,7 @@ class objeto_base
                     if ($vb_adicionar_tabela_intermediaria)
                         $pa_joins_select[$vs_tabela_intermediaria] = " JOIN " . $vs_tabela_intermediaria . " ON " . $vs_tabela_pai . "." . $vs_coluna_chave_primaria . " = " . $vs_tabela_intermediaria . "." . $vs_campo_tabela_join;
 
-                    $pa_campos_select[$va_campo_order_by[2]] = $vs_tabela_intermediaria . "." . $vo_objeto_pai->relacionamentos[$va_campo_order_by[1]]["campos_relacionamento"][$va_campo_order_by[2]] . " as " . $va_campo_order_by[2];
+                    $pa_campos_select["ord"] = $vs_tabela_intermediaria . "." . $vo_objeto_pai->relacionamentos[$va_campo_order_by[1]]["campos_relacionamento"][$va_campo_order_by[2]] . " as ord";
 
                     $vs_campo_order_by = $va_campo_order_by[2];
                 }
@@ -2355,19 +2539,29 @@ class objeto_base
                 else
                     $vs_coluna_order_by = $va_campo_order_by[1];
 
-                $pa_campos_select[$va_campo_order_by[1]] = $vs_tabela_intermediaria . "." . $vs_coluna_order_by . " as " . $va_campo_order_by[1];
+                $pa_campos_select["ord"] = $vs_tabela_intermediaria . "." . $vs_coluna_order_by . " as ord";
 
                 $vs_campo_order_by = $va_campo_order_by[1];
-            } else
-                $vs_campo_order_by = $vs_order_by;
+            } 
+            elseif (isset($po_objeto->atributos[$vs_order_by]))
+            {                
+                $va_atributo_order_by = $po_objeto->atributos[$vs_order_by];
 
-            if ($vs_campo_order_by && $vs_campo_order_by != "_rand_") {
+                $pa_campos_select["ord"] = $vs_tabela_objeto . "." . $va_atributo_order_by["coluna_tabela"] . " as ord";
+
+                $vs_campo_order_by = $vs_order_by;
+            }
+
+            if ($vs_campo_order_by && ($vs_campo_order_by != "_rand_"))
+            {
                 if (!isset($ps_order))
                     $ps_order = "";
 
-                $va_order_by[$vs_campo_order_by] = $vs_campo_order_by . " IS NULL " . $ps_order . ", " . $vs_campo_order_by . " " . $ps_order;
+                $va_order_by[$vs_campo_order_by] = " ord IS NULL " . $ps_order . ", ord " . $ps_order;
             } else
+            {
                 $va_order_by = "_rand_";
+            }
         }
 
         return $va_order_by;

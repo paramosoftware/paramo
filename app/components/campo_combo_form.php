@@ -7,7 +7,11 @@
     else
     {
         $vs_nome_campo = $pa_parametros_campo["nome"];
-        $vs_id_campo = str_replace(",", "_", $vs_nome_campo);
+
+        if (isset($pa_parametros_campo["id"]))
+            $vs_id_campo = $pa_parametros_campo["id"];
+        else
+            $vs_id_campo = str_replace(",", "_", $vs_nome_campo);
     }
 
     $vn_valor_campo_codigo = "";
@@ -85,7 +89,7 @@ if (!$vb_pode_exibir)
     {
     ?>
         <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
-            <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+            <?php if ($vs_modo == "lote")
             {
             ?>
                 <input type="checkbox" class="check-campo" id="chk_<?php print $vs_id_campo; ?>">
@@ -191,8 +195,11 @@ if (!$vb_pode_exibir)
 
     <select class="<?php print $pa_parametros_campo["css-class"] ?> input" name="<?php print $vs_nome_campo ?>" id="<?php print $vs_id_campo ?>"
     <?php
+        if ( (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"]) || ($vs_modo == "lote") )
+            print ' style="display:none"';
+
         if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-            print ' disabled style="display:none"';
+            print ' disabled ';
     ?>
     >
         <?php if ($vb_permitir_sem_valor)
@@ -224,6 +231,26 @@ if (!$vb_pode_exibir)
         }
         ?>            
     </select>
+
+    <?php if ($vs_modo == "listagem")
+    {
+    ?>
+        <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_nome_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo ?>(this.checked, 'com_valor')"
+        <?php 
+        if ($vb_marcar_com_valor)
+            print " checked";
+        ?>
+        > preenchido
+        
+        <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_sem_valor" id="<?php print $vs_nome_campo ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo ?>(this.checked, 'sem_valor')"
+        <?php 
+        if ($vb_marcar_sem_valor)
+            print " checked";
+        ?>
+        > não preenchido
+    <?php
+    }
+    ?>
 
     <?php
     if (isset($pa_parametros_campo["conectar"]))
@@ -302,7 +329,6 @@ if (!$vb_pode_exibir)
                 ?>
                     vs_url_campo_atualizado = 'functions/montar_campos.php?obj=<?php print $vs_objeto_fonte; ?>&campo=<?php print $vs_campo; ?>&modo=edicao&cod='+$(this).val()+'&exibir=<?php print $vb_exibir; ?>';
 
-                    //console.log(vs_url_campo_atualizado);
                     $.get(vs_url_campo_atualizado, function(data, status)
                     {
                         var v_field_to_update = document.querySelector("#div_<?php print $vs_campo; ?>");
@@ -406,5 +432,16 @@ $(document).on('click', "#chk_<?php print $vs_id_campo ?>", function()
 
     $("#<?php print $vs_id_campo; ?>").focus();
 });
+
+function alterar_valor_filtro_<?php print $vs_id_campo ?>(pb_checked, ps_valor)
+{
+    if (ps_valor == "sem_valor")
+        $("#<?php print $vs_id_campo ?>_com_valor").prop("checked", false);
+    else if (ps_valor == "com_valor")
+        $("#<?php print $vs_id_campo ?>_sem_valor").prop("checked", false);
+
+    $("#<?php print $vs_id_campo ?>").val("");
+    $("#<?php print $vs_id_campo ?>").prop("disabled", pb_checked);
+};
 
 </script>

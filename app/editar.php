@@ -191,6 +191,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
         if ($vb_duplicacao)
         {
+            $vs_modo = "duplicacao";
             $vn_objeto_codigo = "";
 
             if ($vo_objeto->get_objeto_pai())
@@ -232,7 +233,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
         <?php require_once dirname(__FILE__) ."/components/header.php"; ?>
 
-        <form method="post" enctype="multipart/form-data" action="salvar.php" id="form_cadastro">
+        <form method="post" enctype="multipart/form-data" action="functions/salvar.php" id="form_cadastro">
             <input type="hidden" name="modo" id="modo" value="<?php print $vs_modo; ?>">
             <input type="hidden" name="recurso_sistema_codigo" id="recurso_sistema_codigo" value="<?php print $vn_recurso_sistema_codigo; ?>">
             <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">
@@ -253,12 +254,24 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                         <div class="card mb-4">
                             
                             <div class="card-header row no-margin-side">
-                                <div class="col-md-9">
+                                <div class="col-md-9 px-0">
                                 <?php 
                                     if (!$vn_objeto_codigo)
                                         print $vs_nome_botao_novo . " ";
                                     
-                                    print "<u>" . htmlspecialchars($vs_recurso_sistema_nome_singular) . "</u>";
+                                    print "<a class='link-sem-estilo' href='listar.php?obj=". $vs_id_objeto_tela . "'>";
+                                    print "<u>". htmlspecialchars($vs_recurso_sistema_nome_singular) . "</u>";
+                                    print "</a>";
+
+                                    if ($vn_objeto_codigo && !$vb_duplicacao)
+                                    {
+                                        $vs_campo_identificador = "item_acervo_identificador";
+
+                                        if (!empty($va_objeto[$vs_campo_identificador]))
+                                        {
+                                            print " (". htmlspecialchars($va_objeto[$vs_campo_identificador]) .")";
+                                        }
+                                    }
                                 ?>
                                 </div>
 
@@ -468,7 +481,8 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             require dirname(__FILE__) ."/functions/configurar_campos_tela.php";
 
                                             $vo_form_cadastro = new html_form_cadastro($vs_id_objeto_tela, $va_abas_form, $va_campos, $va_objeto, $va_objeto_portugues, $va_recursos_sistema_permissao_edicao);
-                                            $vs_campo_foco = $vo_form_cadastro->build($vn_objeto_codigo, $vn_usuario_logado_instituicao_codigo, $vn_usuario_logado_acervo_codigo, $vb_duplicacao, $vb_ler_campos_banco);
+                                            
+                                            $vs_campo_foco = $vo_form_cadastro->build($vn_objeto_codigo, $vn_usuario_logado_instituicao_codigo, $vn_usuario_logado_acervo_codigo, $vs_modo, $vb_ler_campos_banco);
                                         ?>
 
                                     </div>
@@ -697,7 +711,7 @@ $(document).on('click', "#btn_excluir", function()
 {
     if (confirm('Tem certeza de que deseja excluir este registro?')) 
     {
-        window.location.href = "excluir.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
+        window.location.href = "functions/excluir.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
     }
 });
 

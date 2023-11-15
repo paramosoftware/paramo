@@ -27,8 +27,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             $vn_objeto_codigo = $_GET['cod'];
         else
         {
-            print "Não é possível ler objeto sem codigo.";
-            exit();
+            session::log_and_redirect_error(
+                "Nenhum código de objeto foi informado.",
+                "Nenhum código de objeto foi informado: " . __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__,
+                true
+            );
         }
     }
 
@@ -37,7 +40,14 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
     if (!$vb_exclusao_lote)
     {
         if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+        {
+            utils::log(
+                "Tentativa de exclusão sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " .
+                var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            );
             exit();
+        }
 
         $va_parametros_filtros_consulta[$vo_objeto->get_chave_primaria()[0]] = $vn_objeto_codigo;
     }
@@ -83,7 +93,14 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
         $vn_objeto_codigo = implode("|", $va_objeto_codigo);
 
         if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+        {
+            utils::log(
+                "Tentativa de exclusão sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " .
+                var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            );
             exit();
+        }
     }
 ?>
 
@@ -91,7 +108,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
 
-    <form method="post" action="excluir.php" id="form_lista"> 
+    <form method="post" action="functions/excluir.php" id="form_lista">
         <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">
         <input type="hidden" name="cod" id="cod" value="<?php print $vn_objeto_codigo; ?>">
 

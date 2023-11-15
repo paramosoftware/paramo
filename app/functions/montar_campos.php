@@ -21,6 +21,8 @@
         }
 
         // $vs_modo indica se estamos em edição ou em listagem (filtros)
+        ////////////////////////////////////////////////////////////////
+        
         if (!isset($vs_modo))
         {
             if (isset($_GET['modo']))
@@ -28,6 +30,8 @@
             else
                 exit();
         }
+
+        $vb_exibir_campo = true;
 
         if (!isset($vs_id_campo))
         {
@@ -50,9 +54,11 @@
             if (isset($_GET['atualizacao']))
                 $vb_atualizacao_campo = true;
 
-            $vb_exibir_campo = 1;
             if (isset($_GET['exibir']))
                 $vb_exibir_campo = $_GET['exibir'];
+
+            if (isset($_GET['multiplas_instancias']))
+                $vb_multiplas_instancias_campo = $_GET['multiplas_instancias'];
 
             // configurar_campos_tela.php precisa saber o código do objeto
             // para atualizar os campos dos representantes digitais
@@ -60,42 +66,40 @@
             
             if ($vb_atualizacao_campo && isset($_GET['cod']) && $_GET['cod'])
                 $pn_objeto_codigo = $_GET['cod'];
+        }
 
-            require dirname(__FILE__) . "/configurar_campos_tela.php";
+        require dirname(__FILE__) . "/configurar_campos_tela.php";
 
-            // A avaliar o impacto: quando queremos só um campo específico (atualização via AJAX)
-            // tem que pegar os parâmetros vindo do $_GET
-            /////////////////////////////////////////////////////////////////////////////////////
+        // A avaliar o impacto: quando queremos só um campo específico (atualização via AJAX)
+        // tem que pegar os parâmetros vindo do $_GET
+        /////////////////////////////////////////////////////////////////////////////////////
 
-            if ($vb_atualizacao_campo)
+        if ($vb_atualizacao_campo)
+        {
+            if (isset($_GET['cod']) && $_GET['cod'])
             {
-                if (isset($_GET['cod']) && $_GET['cod'])
+                $pn_objeto_codigo = $_GET['cod'];
+
+                $vs_id_objeto = "";
+
+                if (!$vb_ler_valor_campo_correlato)
+                    $vs_id_objeto = $vs_id_objeto_tela;
+                elseif (isset($va_campos[$vs_id_campo]["campo_correlato"]["objeto"]))
+                    $vs_id_objeto = $va_campos[$vs_id_campo]["campo_correlato"]["objeto"];
+
+                if ($vs_id_objeto)
                 {
-                    $pn_objeto_codigo = $_GET['cod'];
-
-                    $vs_id_objeto = "";
-
-                    if (!$vb_ler_valor_campo_correlato)
-                        $vs_id_objeto = $vs_id_objeto_tela;
-                    elseif (isset($va_campos[$vs_id_campo]["campo_correlato"]["objeto"]))
-                        $vs_id_objeto = $va_campos[$vs_id_campo]["campo_correlato"]["objeto"];
-
-                    if ($vs_id_objeto)
-                    {
-                        $vo_objeto = new $vs_id_objeto;
-                        $va_objeto = $vo_objeto->ler($pn_objeto_codigo, "ficha");
-                    }
-                    else
-                        $va_objeto = $_GET;
+                    $vo_objeto = new $vs_id_objeto;
+                    $va_objeto = $vo_objeto->ler($pn_objeto_codigo, "ficha");
                 }
                 else
                     $va_objeto = $_GET;
             }
+            else
+                $va_objeto = $_GET;
         }
-
-        //require dirname(__FILE__) . "/configurar_campos_tela.php";
-
-        if (!$vb_exibir_campo)
+        
+        if (!$vb_exibir_campo && isset($va_campos[$vs_id_campo]))
             $va_campos[$vs_id_campo]["nao_exibir"] = true;
     }
 
@@ -144,7 +148,7 @@
     $contador = 1;
     foreach ($va_abas_form as $vs_key_aba => $va_aba)
     {
-        if (!$vb_atualizacao_campo)
+        if (!$vb_atualizacao_campo && ($vs_modo != "listagem") && isset($va_aba["campos"]) && count($va_aba["campos"]))
         {
         ?>
             <div class="tab" id="tab_<?php print $vs_key_aba; ?>" style="margin-top:10px;
@@ -189,7 +193,6 @@
                 if (!isset($va_objeto_portugues))
                     $va_objeto_portugues = array();
 
-                //$vo_campo->build($va_objeto, $va_parametros_campo, $va_objeto_portugues, $va_recursos_sistema_permissao_edicao);
                 $vo_campo->build($va_objeto, $va_parametros_campo, $va_recursos_sistema_permissao_edicao);
 
                 if (isset($va_parametros_campo["foco"]))
@@ -197,7 +200,7 @@
             }
         }
 
-        if (!$vb_atualizacao_campo)
+        if (!$vb_atualizacao_campo && ($vs_modo != "listagem") && isset($va_aba["campos"]) && count($va_aba["campos"]))
         {
         ?>
             </div>

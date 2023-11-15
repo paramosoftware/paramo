@@ -1,4 +1,4 @@
-<div class="filtro-row row" id="div_opcoes_relatorios_catalogacao">
+<div class="filtro-row row" id="div_opcoes_estatisticas_catalogacao">
 
     <?php
         $va_valores = array();
@@ -67,6 +67,17 @@
 
         $vo_combo_paginas_etiquetas = new html_combo_input($vs_id_objeto_tela, "ordenacao_relatorio_catalogacao");
         $vo_combo_paginas_etiquetas->build($va_valores, $va_parametros_campo);
+
+
+        $va_parametros_campo = [
+            "html_checkbox_input",
+            "nome" => "incluir_porcentagem_catalogacao",
+            "label" => "Incluir porcentagem?",
+            "valor_padrao" => "1"
+        ];
+
+        $vo_checkbox_incluir_porcentagem = new html_checkbox_input($vs_id_objeto_tela, "incluir_porcentagem_catalogacao");
+        $vo_checkbox_incluir_porcentagem->build($va_valores, $va_parametros_campo);
     ?>
 
     <div class="text-end">
@@ -78,15 +89,18 @@
 </div>
 
 <script>
-    $(document).on('click', "#btn_imprimir_relatorio_catalogacao", function()
-    {
-        $("#form_lista").attr('action', 'relatorio_catalogacao.php');
-        $("#form_lista").attr('method', 'post');
-        $("#form_lista").attr('target', '_blank');
-        $("#form_lista").submit();
-
-        $("#form_lista").attr('action', 'listar.php');
-        $("#form_lista").attr('method', 'get');
-        $("#form_lista").attr('target', '');
+    $(document).on('click', "#btn_imprimir_relatorio_catalogacao", function() {
+        const form = $("#form_lista");
+        form.append('<input type="hidden" name="relatorio" value="estatisticas_catalogacao">');
+        $.ajax({
+            url: 'functions/imprimir_relatorio.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
     });
 </script>

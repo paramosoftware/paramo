@@ -383,7 +383,11 @@
         if (isset($pa_parametros_campo["numero_linhas"]))
         {
     ?>
-            <textarea class="form-control lookup input" rows="<?php print $pa_parametros_campo["numero_linhas"] ?>" name="<?php print $vs_nome_campo_lookup ?>" id="<?php print $vs_nome_campo_lookup ?>"
+            <textarea class="form-control lookup input"
+                      <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"]) print ' disabled'; ?>
+                      rows="<?php print $pa_parametros_campo["numero_linhas"] ?>"
+                      name="<?php print $vs_nome_campo_lookup ?>"
+                      id="<?php print $vs_nome_campo_lookup ?>"><?php print htmlspecialchars($vs_valor_campo_nome); ?></textarea>
     <?php
         }
         else
@@ -400,25 +404,23 @@
                    value="<?php print htmlentities($vs_valor_campo_nome, ENT_QUOTES, "UTF-8", false);
                    ?>"
     <?php
-        }
-        if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-            print ' disabled style="display:none"';
-        
-        elseif ($vb_valor_nulo)
-            print 'disabled';
+            if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                print ' disabled style="display:none"';
 
-        elseif (!isset($pa_parametros_campo["sugerir_valores"]) || (isset($pa_parametros_campo["sugerir_valores"]) && $pa_parametros_campo["sugerir_valores"]))
-        {
-            if ((!$vb_multiplos_valores) && isset($va_valor_campo[$vs_nome_campo_codigos]))
+            elseif ($vb_valor_nulo)
+                print 'disabled';
+
+            elseif (!isset($pa_parametros_campo["sugerir_valores"]) || (isset($pa_parametros_campo["sugerir_valores"]) && $pa_parametros_campo["sugerir_valores"]))
             {
-                print ' style="display:none"';
+                if ((!$vb_multiplos_valores) && isset($va_valor_campo[$vs_nome_campo_codigos]))
+                {
+                    print ' style="display:none"';
+                }
             }
+
+            print '></div>';
         }
     ?>
-            ></div>
-
-            <?php if (isset($pa_parametros_campo["numero_linhas"])) { print htmlspecialchars($vs_valor_campo_nome); ?></textarea><?php } ?>
-            
     <div id="div_sugestoes_<?php print $vs_nome_campo_lookup ?>"></div>
 
     <input type="hidden" id="<?php print $vs_nome_campo_codigos; ?>" name="<?php print $vs_nome_campo_codigos; ?>" value="<?php print $vn_valor_campo_codigo; ?>"
@@ -579,7 +581,7 @@ $('#btn_modal_<?php print $vs_nome_campo_lookup; ?>').on('click',function()
     }
     ?>
 
-    $('#modal_body_<?php print $vs_nome_campo_lookup ?>').load('selecao_modal.php?obj=<?php print $vs_objeto_campo; ?>&campo_modal=<?php print $vs_nome_campo_lookup; ?>'+vs_filtro,function() {
+    $('#modal_body_<?php print $vs_nome_campo_lookup ?>').load('functions/selecao_modal.php?obj=<?php print $vs_objeto_campo; ?>&campo_modal=<?php print $vs_nome_campo_lookup; ?>'+vs_filtro,function() {
         $('#myModal_<?php print $vs_nome_campo_lookup; ?>').modal('show');
     });
 });
@@ -1121,7 +1123,7 @@ $(document).on('click', "#lnk_cadastrar_<?php print $vs_nome_campo_lookup ?>", f
     }
     ?>
 
-    $.post("salvar.php", vo_post_data, function(data, status) 
+    $.post("functions/salvar.php", vo_post_data, function(data, status)
     {
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").html(data);
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").show();

@@ -9,6 +9,7 @@
 <html lang="pt-br">
 
 <?php require_once dirname(__FILE__) . "/components/header_html.php"; ?>
+<?php require_once dirname(__FILE__) . "/components/modal_progresso.php"; ?>
 
 <body>
 
@@ -104,7 +105,7 @@
                                     }
                                 ?>
                                 <div class="row">
-                                    <div class="filter-documents col-md-9">
+                                    <div class="filter-documents col-md-8">
                                         <?php if ($vb_pode_inserir)
                                         {
                                         ?>
@@ -117,8 +118,8 @@
                                             <!--
                                             <button class="btn btn-outline-primary" type="button" id="btn_atualizar">Atualizar</button>
                                             -->
-                                            <button class="btn btn-outline-primary" type="button" id="btn_imprimir">Imprimir</button>
-                                            <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="relatorios">Relatórios</button>
+                                            <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
+
                                             <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
 
                                             <?php
@@ -143,20 +144,24 @@
                                         </div>
                                     </div>
                             
-                                    <div class="col-md-3 text-right">
-                                        <button class="btn btn-primary dropdown-toggle filtros" type="button" onclick="toggle_filtro()">
-                                            Filtros
+                                    <div class="col-md-4 text-right">
+                                        <button class="btn btn-primary dropdown-toggle filtros" type="button" id="btn_filtro" onclick="toggle_filtro()">
+                                            Busca básica
+                                        </button>
+
+                                        <button class="btn btn-primary dropdown-toggle" type="button" id="btn_filtro_combinado" onclick="toggle_filtro_combinado()">
+                                            Busca avançada
                                         </button>
                                     </div>
                                 </div>
 
-                                <div id="modal-relatorios" class="modal fade" tabindex="-1">
+                                <div id="modal-imprimir" class="modal fade" tabindex="-1">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <div class="btn-group" role="group" aria-label="First group">
-                                                    <button class="btn btn-tab-rel btn-outline-primary active" id="tab_relatorios" type="button">Quantificadores</button>
-                                                    <button class="btn btn-tab-rel btn-outline-primary" id="tab_indexacao" type="button">Logs de indexação</button>
+                                                    <button class="btn btn-tab-rel btn-outline-primary active" id="tab_lista" type="button">Lista</button>
+                                                    <button class="btn btn-tab-rel btn-outline-primary" id="tab_relatorios" type="button">Relatórios</button>
 
                                                     <?php if (config::get(["f_geracao_etiquetas"]) ?? false)
                                                     {
@@ -167,16 +172,16 @@
                                                     ?>
                                                 </div>
 
-                                                <button class="btn-close" data-modal-id="relatorios"></button>
+                                                <button class="btn-close" data-modal-id="imprimir"></button>
                                             </div>
 
                                             <div class="modal-body">
-                                                <div class="tab" id="div_tab_relatorios">
-                                                    <?php require_once dirname(__FILE__)."/components/barra_opcoes_relatorios.php"; ?>
+                                                <div class="tab" id="div_tab_lista">
+                                                    <?php require_once dirname(__FILE__)."/components/barra_opcoes_lista.php"; ?>
                                                 </div>
 
-                                                <div class="tab" id="div_tab_indexacao" style="display:none">
-                                                    <?php require_once dirname(__FILE__)."/components/barra_opcoes_relatorios_catalogacao.php"; ?>
+                                                <div class="tab" id="div_tab_relatorios" style="display:none">
+                                                    <?php require_once dirname(__FILE__)."/components/barra_opcoes_relatorios.php"; ?>
                                                 </div>
 
                                                 <div class="tab" id="div_tab_etiquetas" style="display:none">
@@ -190,6 +195,8 @@
                                 <!-- FILTRO-->
 
                                 <?php require_once dirname(__FILE__)."/components/barra_filtros_navegacao.php"; ?>
+
+                                <?php require_once dirname(__FILE__)."/components/barra_filtros_combinados.php"; ?>
                                 
                                 <!-- / FILTRO-->
 
@@ -253,18 +260,6 @@ $(document).on('click', "#btn_novo", function () {
 
 $(document).on('click', "#btn_atualizar", function () {
     $("#form_lista").submit();
-});
-
-$(document).on('click', "#btn_imprimir", function()
-{
-    $("#form_lista").attr('action', 'imprimir.php');
-    $("#form_lista").attr('method', 'post');
-    $("#form_lista").attr('target', '_blank');
-    $("#form_lista").submit();
-
-    $("#form_lista").attr('action', 'listar.php');
-    $("#form_lista").attr('method', 'get');
-    $("#form_lista").attr('target', '');
 });
 
 $(document).on('click', "#btn_exportar", function()

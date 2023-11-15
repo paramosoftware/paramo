@@ -470,6 +470,7 @@ class acervo extends entidade
             "operador_filtro" => "=",
             "dependencia" => [
                 [
+                    "tipo" => "interface",
                     "campo" => "instituicao_codigo",
                     "atributo" => "instituicao_codigo",
                     "obrigatoria" => false

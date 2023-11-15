@@ -14,16 +14,14 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
 <?php require_once dirname(__FILE__)."/components/sidebar.php"; ?>
 
-<?php
-
-    
-?>
+<?php require_once dirname(__FILE__) . "/components/modal_progresso.php"; ?>
 
 <div class="wrapper d-flex flex-column min-vh-100 bg-light">
 
     <?php require_once dirname(__FILE__)."/components/header.php"; ?>
 
-    <form method="post" action="relatorio_pesquisas.php" id="form_filtro_relatorio_pesquisas">
+    <form id="form_filtro_relatorio_pesquisas">
+        <input type="hidden" name="relatorio" value="pesquisa_usuario">
         <div class="body flex-grow-1 px-3">
             <div class="container-lg">
                 <div class="row">
@@ -38,7 +36,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     </div>
                                     
                                     <div class="col-md-3 text-right">
-                                        <button class="btn btn-primary btn-imprimir" type="submit" id="btn_imprimir">
+                                        <button class="btn btn-primary btn-imprimir" type="button" id="btn_imprimir">
                                             Imprimir
                                         </button>
                                     </div>
@@ -84,6 +82,18 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     
                                         $vo_combo = new html_combo_input("setor_sistema", "setor_sistema_codigo");
                                         $vo_combo->build($va_valores, $va_parametros_campo);
+
+
+                                        $va_parametros_campo = [
+                                            "html_checkbox_input",
+                                            "nome" => "incluir_porcentagem",
+                                            "label" => "Incluir porcentagem?",
+                                            "valor_padrao" => "1"
+                                        ];
+
+                                        $vo_checkbox = new html_checkbox_input($vs_id_objeto_tela, "incluir_porcentagem");
+                                        $vo_checkbox->build($va_valores, $va_parametros_campo);
+
                                     ?>
                                     
 
@@ -106,9 +116,19 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
 
 <script>
-
-
-
+    $(document).on('click', "#btn_imprimir", function () {
+        const form = $("#form_filtro_relatorio_pesquisas");
+        $.ajax({
+            url: 'functions/imprimir_relatorio.php',
+            type: "POST",
+            data: form.serialize(),
+            processData: false,
+            success: function (data) {
+                $("#modal-imprimir").modal("hide");
+                getProgress(data);
+            }
+        });
+    });
 </script>
 
 </body>

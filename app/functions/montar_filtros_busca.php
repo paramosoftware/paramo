@@ -44,42 +44,79 @@
     if (isset($va_campos))
     {
         $vb_aplicar_controle_acesso = true;
+        $vb_busca_combinada = false;
         $va_controles_acesso_aplicados = array();
 
-        foreach($va_campos as $va_campo_filtro)
+        foreach ($va_parametros_submit as $vs_key_filtro => $vs_valor_filtro)
         {
-            if (is_array($va_campo_filtro["nome"]))
-                $vs_campo = $va_campo_filtro["nome"][1];
-            else
-                $vs_campo = $va_campo_filtro["nome"];
+            // Se for um filtro de busca que pode aparecer mais de uma vez na tela
+            //////////////////////////////////////////////////////////////////////
 
-            if (isset($va_parametros_submit[$vs_campo]))
+            $vs_campo = $vs_key_filtro;
+            if ( preg_match('/\w+(_F_\d+)$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
             {
+                $vs_campo = substr($vs_key_filtro, 0, strpos($vs_key_filtro, "_F_"));
+                $vb_busca_combinada = true;
+            }
+            elseif ((strpos($vs_key_filtro, "_com_valor") != FALSE) || (strpos($vs_key_filtro, "_sem_valor") != FALSE))
+            {
+                $vs_campo = str_replace("_com_valor", "", $vs_campo);
+                $vs_campo = str_replace("_sem_valor", "", $vs_campo);
+            }
+
+            if (isset($va_campos[$vs_campo]))
+            {
+                $va_campo_filtro = $va_campos[$vs_campo];
+                $vs_campo = $vs_key_filtro;
+                
                 // Vamos tratar as datas
                 ////////////////////////
 
                 if ($va_parametros_submit[$vs_campo] == "_data_")
                 {
-                    $va_parametros_filtros_consulta[$vs_campo] = "_data_";
+                    $va_parametros_filtros_consulta[$vs_campo] = $va_parametros_filtros_form[$vs_campo] = "_data_";
 
+                    $vb_tem_data_preenchida = false;
+                    
                     if (isset($va_parametros_submit[$vs_campo . "_dia_inicial"]) && $va_parametros_submit[$vs_campo . "_dia_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_dia_inicial"] = $va_parametros_submit[$vs_campo . "_dia_inicial"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_mes_inicial"]) && $va_parametros_submit[$vs_campo . "_mes_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_mes_inicial"] = $va_parametros_submit[$vs_campo . "_mes_inicial"];
+                    }                        
 
                     if (isset($va_parametros_submit[$vs_campo . "_ano_inicial"]) && $va_parametros_submit[$vs_campo . "_ano_inicial"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_ano_inicial"] = $va_parametros_submit[$vs_campo . "_ano_inicial"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_dia_final"]) && $va_parametros_submit[$vs_campo . "_dia_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_dia_final"] = $va_parametros_submit[$vs_campo . "_dia_final"];
+                    }
 
                     if (isset($va_parametros_submit[$vs_campo . "_mes_final"]) && $va_parametros_submit[$vs_campo . "_mes_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_mes_final"] = $va_parametros_submit[$vs_campo . "_mes_final"];
-
+                    }
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
+                    {
+                        $vb_tem_data_preenchida = true;
                         $va_parametros_filtros_form[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
+                    }
 
+                    if (!$vb_tem_data_preenchida)
+                        unset($va_parametros_filtros_form[$vs_campo]);
+                        
                     if (isset($va_parametros_submit[$vs_campo . "_sem_data"]))
                     {
                         $va_parametros_filtros_form[$vs_campo . "_sem_data"] = $va_parametros_submit[$vs_campo . "_sem_data"];
@@ -104,15 +141,38 @@
                     if (isset($va_parametros_submit[$vs_campo . "_ano_final"]) && $va_parametros_submit[$vs_campo . "_ano_final"])
                         $va_parametros_filtros_consulta[$vs_campo . "_ano_final"] = $va_parametros_submit[$vs_campo . "_ano_final"];
                 }
+                elseif (strpos($vs_key_filtro, "_sem_valor") !== FALSE)
+                {
+                    $va_parametros_filtros_form[$vs_key_filtro] = 1;
+                    $va_parametros_filtros_consulta[str_replace("_sem_valor", "", $vs_key_filtro)] = ["0", "_EXISTS_"];
+                }
+                elseif (strpos($vs_key_filtro, "_com_valor") !== FALSE)
+                {
+                    $va_parametros_filtros_form[$vs_key_filtro] = 1;
+                    $va_parametros_filtros_consulta[str_replace("_com_valor", "", $vs_key_filtro)] = ["1", "_EXISTS_"];
+                }
                 else
                 {
-                    $vs_valor = trim($va_parametros_submit[$vs_campo]);
+                    $vs_valor = $va_parametros_submit[$vs_campo];
 
+                    $vb_tem_valor_busca = true;
+
+                    if (is_array($vs_valor))
+                    {
+                        foreach ($vs_valor as $vs_valor_individual)
+                        {
+                            if (trim($vs_valor_individual) == "")
+                                $vb_tem_valor_busca = false;
+                        }
+                    }
+                    elseif (trim($vs_valor) == "")
+                        $vb_tem_valor_busca = false;
+                    
                     // Pensar: só adiciono o filtro se vier algum valor escolhido
                     // Como fazer quando o usuário realmente quiser que o valor seja vazio?
                     ///////////////////////////////////////////////////////////////////////
 
-                    if ($vs_valor != "")
+                    if ($vb_tem_valor_busca)
                     {
                         $va_parametros_filtros_form[$vs_campo] = $vs_valor;
                         
@@ -142,8 +202,14 @@
                 $vb_tem_filtros_consulta = true;
         }
 
+        if (isset($va_parametros_submit["concatenadores"]))
+            $va_parametros_filtros_consulta["concatenadores"] = $va_parametros_submit["concatenadores"];
+
         if (isset($vo_objeto->controlador_acesso))
         {
+            // Verificação preliminar da existência de permissões de acesso
+            ///////////////////////////////////////////////////////////////
+
             $vb_acesso_invalido_registro = false;
     
             foreach ($vo_objeto->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
@@ -168,6 +234,9 @@
                 $vb_pode_inserir = false;
                 $vb_pode_editar = false;
             }
+
+            // Verificação das permissões de acesso efetivamente atribuídas
+            ///////////////////////////////////////////////////////////////
 
             foreach ($vo_objeto->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
             {
@@ -220,15 +289,6 @@
                 unset($va_parametros_filtros_form[$vs_controle_acesso_aplicado]);
             }
         }
-
-        // Trouxe de listar.php, mas será que precisa para todos os contextos?
-        //////////////////////////////////////////////////////////////////////
-
-        //if (!isset($va_parametros_filtros_form["recurso_sistema_codigo"]))
-            //$va_parametros_filtros_form["recurso_sistema_codigo"] = $vn_recurso_sistema_codigo;
-
-        //if ( ($vs_id_objeto_tela != "usuario") && !isset($va_parametros_filtros_form["usuario_codigo"]) && isset($vn_usuario_logado_codigo))
-            //$va_parametros_filtros_form["usuario_codigo"] = $vn_usuario_logado_codigo;
     }
 
     $vb_existe_filtro_log = false;

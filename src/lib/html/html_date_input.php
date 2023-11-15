@@ -9,11 +9,15 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     $vs_modo = $this->get_modo_form();
     $vs_ui_element = $this->get_ui_element();
 
+    $vb_marcar_sem_valor = false;
+    $vb_marcar_com_valor = false;
+
     $vs_sufixo_nome_campo = "";
     if (isset($pa_parametros_campo["sufixo_nome"]))
         $vs_sufixo_nome_campo = $pa_parametros_campo["sufixo_nome"];
 
     $vb_campo_preenchido = false;
+    
     if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_data_inicial" . $vs_sufixo_nome_campo]))
     {
         $vo_data = new Periodo;
@@ -76,7 +80,8 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     {
         $vo_data = new Periodo;
 
-        $vo_data->set_data_inicial($pa_valores_form[$pa_parametros_campo["nome"] . $vs_sufixo_nome_campo]);
+        if ( $pa_valores_form[$pa_parametros_campo["nome"] . $vs_sufixo_nome_campo] != "_data_")
+            $vo_data->set_data_inicial($pa_valores_form[$pa_parametros_campo["nome"] . $vs_sufixo_nome_campo]);
 
         $vn_dia_inicial = $vo_data->get_dia_inicial_exibicao();
         $vn_mes_inicial = $vo_data->get_mes_inicial_exibicao();
@@ -104,10 +109,18 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_periodo" . $vs_sufixo_nome_campo]))
         $vs_periodo = $pa_valores_form[$pa_parametros_campo["nome"] . "_periodo". $vs_sufixo_nome_campo];
 
+    if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_sem_valor"]))
+        $vb_marcar_sem_valor = true;
+    elseif (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_com_valor"]))
+        $vb_marcar_com_valor = true;
+    
+    if ($vb_marcar_sem_valor || $vb_marcar_com_valor)
+        $pa_parametros_campo["desabilitar"] = true;
+
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
-        $vb_pode_exibir = $vb_pode_exibir && $vb_campo_preenchido && $pa_parametros_campo["exibir_quando_preenchido"];
+        $vb_pode_exibir = $vb_pode_exibir && ($vb_campo_preenchido || $vb_marcar_sem_valor || $vb_marcar_com_valor) && $pa_parametros_campo["exibir_quando_preenchido"];
 
     if (isset($pa_parametros_campo["formato"]))
         $vn_formato_data = $pa_parametros_campo["formato"];

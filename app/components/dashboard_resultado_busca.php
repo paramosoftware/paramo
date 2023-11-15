@@ -66,37 +66,47 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                         </div>
                     </div>
 
+                    <?php
+                        $va_colunas_resultado_busca = array();
+                        if (method_exists($vo_dashboard, "get_colunas_resultado_busca"))
+                            $va_colunas_resultado_busca = $vo_dashboard->get_colunas_resultado_busca($vs_id_objeto_tela);
+                    ?>
+
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table border mb-0">
-                                <thead class="table-light fw-semibold">
-                                <tr class="align-middle">
-                                    <th>Identificador</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                    <?php
+                                    foreach ($va_colunas_resultado_busca as $vs_label_resultado_busca => $vs_atributo_resultado_busca)
+                                    {
+                                        print "<th>" . $vs_label_resultado_busca . "</th>";
+                                    }
+                                    ?>
+                                    </tr>
                                 </thead>
-
                                 <tbody>
                                 <?php
 
-                                $va_colunas_resultado_busca = array();
-                                if (method_exists($vo_dashboard, "get_colunas_resultado_busca"))
-                                    $va_colunas_resultado_busca = $vo_dashboard->get_colunas_resultado_busca($vs_id_objeto_tela);
-
                                 foreach ($va_itens_listagem as $va_item_listagem)
                                 {
+
+                                    $vs_identificador = "Sem identificador";
+
                                     $vn_objeto_codigo = $va_item_listagem[$vo_objeto->get_chave_primaria()[0]];
 
-                                    if (count($va_colunas_resultado_busca))
+                                    $va_atributos = [];
+
+                                    foreach ($va_colunas_resultado_busca as $vs_label_resultado_busca => $vs_atributo_resultado_busca)
                                     {
-                                        $vs_identificador = ler_valor1($va_colunas_resultado_busca[0], $va_item_listagem);
-                                        $vs_titulo = ler_valor1($va_colunas_resultado_busca[1], $va_item_listagem);
-                                    }
-                                    else
-                                    {
-                                        $vs_identificador = "id";
-                                        $vs_identificador = "sem campo configurado";
+                                        if ($vs_atributo_resultado_busca == "item_acervo_identificador")
+                                        {
+                                           $vs_identificador = ler_valor1($vs_atributo_resultado_busca, $va_item_listagem);
+                                        }
+                                        else
+                                        {
+                                            $va_atributos[$vs_atributo_resultado_busca] = ler_valor1($vs_atributo_resultado_busca, $va_item_listagem);
+                                        }
                                     }
 
                                     $vs_url_editar = " #";
@@ -106,11 +116,19 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                     <tr class="align-middle">
                                         <td>
                                             <a href="<?php print $vs_url_editar; ?>">
+                                                <div></div>
+                                                <span class="mx-auto">
+                                                <?= $vs_identificador; ?>
+                                                </span>
+
+                                                <?php
+
+                                                $vb_tem_representante_digital = isset($va_item_listagem["representante_digital_codigo"][0]["representante_digital_path"]);
+
+                                                if ($vb_tem_representante_digital)
+                                                {
+                                                ?>
                                                 <div class="card-content-img">
-                                                <?php 
-                                                    if (isset($va_item_listagem["representante_digital_codigo"][0]["representante_digital_path"]))
-                                                    {
-                                                    ?>
                                                         <div class="">
                                                             <?php
 
@@ -126,23 +144,23 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                                             }
                                                             ?>
                                                         </div>
-                                                    <?php
-                                                    }
-                                                    
-                                                    print htmlspecialchars($vs_identificador);
-                                                ?>
                                                 </div>
+                                                <?php
+                                                }
+                                                ?>
                                             </a>
                                         </td>
-                                        <td>
-                                            <div>
-                                                <?php
-                                                    print $vs_titulo;
-                                                ?>
-                                            </div>
-                                        </td>
+                                        <?php
+                                        foreach ($va_atributos as $vs_atributo_resultado_busca)
+                                        {
+                                            ?>
+                                            <td>
+                                                <?= $vs_atributo_resultado_busca; ?>
+                                            </td>
+                                            <?php
+                                        }
+                                        ?>
                                     </tr>
-                                    </a>
                                     <?php
                                 }
                                 ?>

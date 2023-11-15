@@ -36,7 +36,7 @@
         "html_checkbox_input",
         "nome" => "salvar_arquivo_original",
         "label" => "Salvar arquivo original?",
-        "valor_padrao" => 1
+        "valor_padrao" => config::get(["salvar_arquivo_original"]) ? "1" : "0"
     ];
 
     $va_campos_upload["nome_arquivo_identificador"] = [

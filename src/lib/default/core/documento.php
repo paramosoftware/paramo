@@ -632,6 +632,7 @@ class documento extends item_acervo
             "operador_filtro" => "=",
             "dependencia" => [
                 [
+                    "tipo" => "interface",
                     "campo" => "instituicao_codigo",
                     "atributo" => "instituicao_codigo",
                     "obrigatoria" => true
@@ -658,11 +659,13 @@ class documento extends item_acervo
             "operador_filtro" => "=",
             "dependencia" => [
                 [
+                    "tipo" => "interface",
                     "campo" => "item_acervo_codigo_0_item_acervo_instituicao_codigo",
                     "atributo" => "acervo_codigo_0_acervo_instituicao_codigo",
                     "obrigatoria" => true
                 ],
                 [
+                    "tipo" => "interface",
                     "campo" => "acervo_codigo",
                     "atributo" => "acervo_codigo",
                     "obrigatoria" => true
@@ -769,6 +772,7 @@ class documento extends item_acervo
             "sem_valor" => true,
             "operador_filtro" => "=",
             "dependencia" => [
+                "tipo" => "interface",
                 "campo" => "item_acervo_acervo_codigo",
                 "atributo" => "unidade_armazenamento_acervo_codigo",
                 "obrigatoria" => true

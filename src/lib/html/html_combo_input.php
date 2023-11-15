@@ -40,19 +40,34 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
             foreach ($va_dependencias as $va_dependencia)
             {
-                if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]] != "")
+                // Vou verificar antes se eu posso aplicar a dependência
+                // Não posso aplicar a dependência se o campo estiver sendo construído para uma busca combinada
+                // e a dependência é originada de outro campo do mesmo conjunto de filtro
+
+                $vb_busca_combinada = isset($pa_parametros_campo["busca_combinada"]) ? true : false;
+
+                $vb_dependencia_campo_interface = false;
+                if (!isset($va_dependencia["tipo"]) || (isset($va_dependencia["tipo"]) && $va_dependencia["tipo"] == "interface"))
+                    $vb_dependencia_campo_interface = true;
+
+                if (!$vb_busca_combinada || ($vb_busca_combinada && !$vb_dependencia_campo_interface))
                 {
-                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
-                }
-                elseif (isset($pa_filtro_listagem[$va_dependencia["atributo"]]))
-                {
-                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["atributo"]];
-                }
-                else
-                {
-                    // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
-                    if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
-                        return false;
+                    if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]] != "")
+                    {
+                        $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
+                    }
+                    elseif (isset($pa_filtro_listagem[$va_dependencia["atributo"]]))
+                    {
+                        $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["atributo"]];
+                    }
+                    else
+                    {
+                        // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
+                        ///////////////////////////////////////////////////////////////////////////////////
+
+                        if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
+                            return false;
+                    }
                 }
             }
         }
@@ -193,6 +208,9 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     $vs_modo = $this->get_modo_form();
     $vs_ui_element = $this->get_ui_element();
 
+    $vb_marcar_sem_valor = false;
+    $vb_marcar_com_valor = false;
+
     $vs_sufixo_nome_campo = "";
     if (isset($pa_parametros_campo["sufixo_nome"]))
         $vs_sufixo_nome_campo = $pa_parametros_campo["sufixo_nome"];
@@ -223,6 +241,14 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
 
     if ( ($vs_valor_campo == "") && isset($pa_parametros_campo["sem_valor"]) && !$pa_parametros_campo["sem_valor"] && count($va_itens_campo))
         $vs_valor_campo = array_keys($va_itens_campo)[0];
+
+    if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_sem_valor"]))
+        $vb_marcar_sem_valor = true;
+    elseif (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_com_valor"]))
+        $vb_marcar_com_valor = true;
+    
+    if ($vb_marcar_sem_valor || $vb_marcar_com_valor)
+        $pa_parametros_campo["desabilitar"] = true;
     
     $vb_pode_exibir = true;
     if (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"])
@@ -231,7 +257,7 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     $vb_pode_exibir = $vb_pode_exibir && $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
-        $vb_pode_exibir = $vb_pode_exibir && (trim($vs_valor_campo) != "") && $pa_parametros_campo["exibir_quando_preenchido"];
+        $vb_pode_exibir = $vb_pode_exibir && ((trim($vs_valor_campo) != "") || $vb_marcar_sem_valor || $vb_marcar_com_valor) && $pa_parametros_campo["exibir_quando_preenchido"];
 
     if ($vs_ui_element == "linha")
         require dirname(__FILE__) . "/../../../app/components/campo_combo_linha.php";

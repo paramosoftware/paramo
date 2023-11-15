@@ -137,15 +137,20 @@ class utils
         return '<img src="assets/img/placeholder-link.png">';
     }
 
-    public static function log(string $summary, string $stacktrace) : string
+    public static function log(string $summary, $stacktrace) : string
     {
         $logs_folder = config::get(["pasta_logs"]);
         $file = $logs_folder . date("Y-m-d") . ".log";
         $code = md5(uniqid(rand(), true));
         $code = substr($code, 0, 12);
 
-        $stacktrace = str_replace("\r", "", $stacktrace);
-        $stacktrace = str_replace("\n", "", $stacktrace);
+        if (is_array($stacktrace))
+        {
+            $stacktrace = implode(" ", $stacktrace);
+        }
+
+        $stacktrace = str_replace("\r", " ", $stacktrace);
+        $stacktrace = str_replace("\n", " ", $stacktrace);
 
         $log = date("Y-m-d H:i:s") . "*-*" . $code . "*-*" . $summary . "*-*" . $stacktrace . "\n";
         file_put_contents($file, $log, FILE_APPEND);
@@ -279,6 +284,43 @@ class utils
 
 
         return $html;
+    }
+
+    public static function clear_temp_folder($ps_time = "1 minute", $part_filename = ""): void
+    {
+        $va_files = scandir(config::get(["pasta_media", "temp"]));
+
+        foreach ($va_files as $vs_file)
+        {
+            if (in_array($vs_file, [".", "..", ".gitignore"]))
+            {
+                continue;
+            }
+
+            if ($part_filename != "" && strpos($vs_file, $part_filename) === false)
+            {
+                continue;
+            }
+
+            if (filemtime(config::get(["pasta_media", "temp"]) . $vs_file) < strtotime($ps_time))
+            {
+                unlink(config::get(["pasta_media", "temp"]) . $vs_file);
+            }
+        }
+    }
+
+    public static function callback_progress($vs_file_name, $vn_progress)
+    {
+        $vs_temp = config::get(["pasta_media", "temp"]);
+
+        $vs_file_path = $vs_temp . $vs_file_name . ".progress";
+
+        file_put_contents($vs_file_path, $vn_progress);
+
+        if (file_exists($vs_temp . $vs_file_name . ".stop")) {
+            utils::clear_temp_folder("1 minute", $vs_file_name);
+            exit();
+        }
     }
 
 

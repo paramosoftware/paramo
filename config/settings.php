@@ -83,6 +83,9 @@ return [
     "f_keywords" => false,
     # Permite que um usuário administrador de uma instituição administradora possa se logar como uma outra instituição
     "f_logado_como" => false,
+    # Habilita abertura do campo representantes digitais por padrão na ficha de cadastro
+    "f_abrir_campo_representantes_digitais" => false,
+
 
     # ============================================== CONTROLE DE ACESSO ============================================== #
 
