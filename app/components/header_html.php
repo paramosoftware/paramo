@@ -23,7 +23,24 @@
     <link href="assets/libraries/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
     <link href="assets/css/style.css?v=<?= config::get(["versao"]); ?>" rel="stylesheet">
 
-    
+    <?php
+    $vs_custom_style = config::get(["pasta_business"]) . "layout/css/style.css";
+    if (file_exists($vs_custom_style))
+    {
+        $vs_css_custom_folder = config::get(["pasta_assets", "custom"]) . "css/";
+        $vs_css_custom_file = $vs_css_custom_folder . "style.css";
+
+        if (!file_exists($vs_css_custom_folder)) {
+            mkdir($vs_css_custom_folder, 0775, true);
+        }
+
+        if (!file_exists($vs_css_custom_file) || filemtime($vs_custom_style) > filemtime($vs_css_custom_folder . "style.css")) {
+            copy($vs_custom_style, $vs_css_custom_file);
+        }
+
+        echo '<link href="assets/custom/css/style.css?v=' . filemtime($vs_css_custom_file) . '" rel="stylesheet">';
+    }
+    ?>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
