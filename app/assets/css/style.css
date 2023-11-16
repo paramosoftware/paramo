@@ -14949,3 +14949,7 @@ padding-right: 0px;
 .autocomplete-group:focus-within {
     color: #ee5820;
 }
+
+.nav-item-active {
+    background-color: #768192 !important;
+}

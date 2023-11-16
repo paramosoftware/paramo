@@ -85,12 +85,12 @@
 
                                     $vs_icon = $icons[$vs_recurso_sistema_id] ?? "";
                                 ?>
-                                    <li class="nav-item"
+                                    <li class="nav-item
                                     <?php
                                         if ( ($va_recurso_sistema["setor_sistema_recurso_sistema_codigo"]["recurso_sistema_id"] == $vs_id_objeto_tela) && (!$vn_bibliografia_codigo) )
-                                            print ' style="background-color:#768192"';
+                                            print ' nav-item-active';
                                     ?>
-                                    >
+                                    ">
                                         <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $va_recurso_sistema["setor_sistema_recurso_sistema_codigo"]["recurso_sistema_id"] . "&s=" . $va_setor["setor_sistema_codigo"]); ?>">
                                             <svg class="nav-icon">
                                                 <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#<?php print $vs_icon; ?>"></use>
@@ -145,12 +145,12 @@
                                     foreach ($va_recurso_sistema_nomes as $vs_recurso_sistema_id_menu => $vs_recurso_sistema_nome_plural_menu)
                                     {
                                     ?>
-                                        <li class="nav-item"
+                                        <li class="nav-item
                                         <?php
                                             if ( ($vs_recurso_sistema_id_menu == $vs_id_objeto_tela) && ($vb_expandir_menu_auxiliar) )
-                                                print ' style="background-color:#768192"';
+                                                print ' nav-item-active';
                                         ?>
-                                        >
+                                        ">
                                             <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $vs_recurso_sistema_id_menu . "&s=" . $va_setor["setor_sistema_codigo"]); ?>">
                                                 <span class="nav-icon"></span><?php print htmlspecialchars($vs_recurso_sistema_nome_plural_menu); ?>
                                             </a>
@@ -219,12 +219,12 @@
                                 if (in_array($va_recurso_sistema["recurso_sistema_id"], $va_recursos_bibliografia))
                                 {
                             ?>
-                                <li class="nav-item"
+                                <li class="nav-item
                                 <?php
                                     if ( ($va_recurso_sistema["recurso_sistema_id"] == $vs_id_objeto_tela) && ($vb_expandir_menu_auxiliar) )
-                                        print ' style="background-color:#768192"';
+                                        print ' nav-item-active';
                                 ?>
-                                >
+                                ">
                                     <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $va_recurso_sistema["recurso_sistema_id"] . '&bibliografia=' . $va_bibliografia["bibliografia_codigo"]); ?>">
                                     <span class="nav-icon"></span><?php print htmlspecialchars($va_recurso_sistema["recurso_sistema_nome_plural"]); ?>
                                     </a>
@@ -336,9 +336,9 @@
                                             <li class="nav-item"
                                             <?php
                                                 if ($va_recurso_sistema["recurso_sistema_id"] == $vs_id_objeto_tela)
-                                                    print ' style="background-color:#768192"';
+                                                    print ' nav-item-active';
                                             ?>
-                                            >
+                                            ">
                                                 <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $va_recurso_sistema["recurso_sistema_id"]); ?>">
                                                 <span class="nav-icon"></span><?php print htmlspecialchars($va_recurso_sistema["recurso_sistema_nome_plural"]); ?>
                                                 </a>
@@ -401,9 +401,9 @@
                                         <li class="nav-item"
                                         <?php
                                             if ($va_recurso_sistema["recurso_sistema_id"] == $vs_id_objeto_tela)
-                                                print ' style="background-color:#768192"';
+                                                print ' nav-item-active';
                                         ?>
-                                        >
+                                        ">
                                             <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $va_recurso_sistema["recurso_sistema_id"]); ?>">
                                                 <span class="nav-icon"></span><?php print htmlspecialchars($va_recurso_sistema["recurso_sistema_nome_plural"]); ?>
                                             </a>
@@ -458,9 +458,9 @@
                                         <li class="nav-item"
                                         <?php
                                             if ($va_recurso_sistema["recurso_sistema_id"] == $vs_id_objeto_tela)
-                                                print ' style="background-color:#768192"';
+                                                print ' nav-item-active';
                                         ?>
-                                        >
+                                        ">
                                             <a class="nav-link" href="<?php print htmlspecialchars($vs_url_base . $va_recurso_sistema["recurso_sistema_id"]); ?>">
                                                 <span class="nav-icon"></span><?php print htmlspecialchars($va_recurso_sistema["recurso_sistema_nome_plural"]); ?>
                                             </a>
