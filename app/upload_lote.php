@@ -187,10 +187,10 @@ $vn_espaco_usado = (int)($vn_espaco_usado / 1024 / 1024 / 1024);
                                         <?php if (config::get(["f_integracao_google_drive"]) ?? false) : ?>
                                             <span id="google-drive-button" data-campo-tipo="<?= $pa_parametros_campo["tipo"] ?? 1 ?>">
                                                 <?php if (!empty($authUrl)) : ?>
-                                                    <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button"
+                                                    <button class="btn btn-outline-primary px-4" type="button"
                                                             onclick="openOAuthPopup('<?= $authUrl ?>')">Conectar ao Google Drive</button>
                                                 <?php else : ?>
-                                                    <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button"
+                                                    <button class="btn btn-outline-primary px-4" type="button"
                                                             onclick="openGoogleDriveModal<?= $pa_parametros_campo["tipo"] ?? 1 ?>()">Adicionar do Google Drive</button>
                                                 <?php endif; ?>
                                             </span>

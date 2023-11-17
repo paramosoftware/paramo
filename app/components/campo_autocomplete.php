@@ -457,7 +457,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn btn-outline-primary px-4 bg-cor-branca" data-bs-dismiss="modal"
+                    <button type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal"
                             onClick="$('#myModal_<?php print $vs_nome_campo_lookup; ?>').modal('hide');">Fechar
                     </button>
                 </div>
@@ -468,7 +468,7 @@
                     <div class="modal-body" id="modal_body_<?php print $vs_nome_campo_lookup ?>"></div>
 
                     <div class="modal-footer">
-                        <button id='closeModal' type="button" class="btn btn-outline-primary px-4 bg-cor-branca"
+                        <button id='closeModal' type="button" class="btn btn-outline-primary px-4"
                                 data-bs-dismiss="modal"
                                 onClick="$('#myModal_<?php print $vs_nome_campo_lookup; ?>').modal('hide');">Fechar
                         </button>

@@ -106,8 +106,8 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id='btn_salvar_modal_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>' type="button" class="btn btn-outline-primary px-4 bg-cor-branca">Adicionar</button>
-                        <button id='closeModal' type="button" class="btn btn-outline-primary px-4 bg-cor-branca" data-bs-dismiss="modal">Fechar</button>
+                        <button id='btn_salvar_modal_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>' type="button" class="btn btn-outline-primary px-4">Adicionar</button>
+                        <button id='closeModal' type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal">Fechar</button>
                     </div>
 
                 </div>

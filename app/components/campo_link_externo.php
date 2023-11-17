@@ -38,11 +38,11 @@ if (!isset($pa_parametros_campo["tipo"])) {
         Os arquivos devem ser públicos para serem visualizados no sistema.
     </p>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary px-4 bg-cor-branca" onclick="saveLinks()">
+        <button type="button" class="btn btn-outline-primary px-4" onclick="saveLinks()">
             Salvar links
         </button>
         <button id='closeModal_<?php print $vs_nome_campo ?>' type="button"
-                class="btn btn-outline-primary px-4 bg-cor-branca" data-bs-dismiss="modal">Fechar
+                class="btn btn-outline-primary px-4" data-bs-dismiss="modal">Fechar
         </button>
     </div>
 </div>
