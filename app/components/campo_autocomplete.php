@@ -218,7 +218,7 @@
         <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
         {
         ?>
-            <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>">
+            <input type="checkbox" class="check-campo form-check-input" id="chk_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>">
         <?php
         }
         ?>
@@ -437,7 +437,7 @@
     <?php if (isset($pa_parametros_campo["permitir_valor_nulo"]) && ($pa_parametros_campo["permitir_valor_nulo"]))
     {
     ?>
-        <input type="checkbox" class="check-campo" id="chk_nulo_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>"
+        <input type="checkbox" class="check-campo form-check-input" id="chk_nulo_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>"
         <?php if ($vb_valor_nulo) print " checked"; ?>
         > Desconhecido(a)
     <?php

@@ -104,7 +104,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                             }
                             ?>
 
-                                <input type="checkbox" id="chk_publicar_todos_online"<?= ($vb_todos_publicados_online) ? " checked" : "" ?>
+                                <input type="checkbox" class="form-check-input" id="chk_publicar_todos_online"<?= ($vb_todos_publicados_online) ? " checked" : "" ?>
                                 > Publicar todos online
                         <?php endif; ?>
 
@@ -188,7 +188,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                                     </div>
 
                                                     <div style="margin-bottom:10px">
-                                                    <input type="checkbox" class="chk-publicar-online" id="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>" name="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>"
+                                                    <input type="checkbox" class="chk-publicar-online form-check-input" id="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>" name="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>"
                                                     <?php
                                                         if ($va_valores_linha['representante_digital_publicado_online'])
                                                             print " checked";
