@@ -525,6 +525,7 @@ $(document).on('click', ".btn-tab", function() {
     $('.btn-tab').removeClass('active');
     $('.tab').hide();
     $('#tab_'+$(this).attr('id')).show();
+    $(this).addClass('active');
 });
 
 </script>
