@@ -1,3 +1,0 @@
-[submodule "src/lib/business"]
-	path = src/lib/business
-	url = https://github.com/paramosoftware/cdt.git
