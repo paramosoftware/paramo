@@ -31,14 +31,23 @@
     if (!isset($vb_pode_exibir))
         $vb_pode_exibir = true;
 
-    if ( isset($pa_parametros_campo["valor_padrao"]) && (!$vs_valor_campo) )
-        $vs_valor_campo = $pa_parametros_campo["valor_padrao"];
-
     $va_valores_codigos = array();
-    foreach($va_valor_campo as $vn_valor_codigo)
+
+    if (is_array($va_valor_campo))
     {
-        $va_valores_codigos[] = $vn_valor_codigo[$vs_nome_campo][$pa_parametros_campo["atributos"][0]];
+        foreach($va_valor_campo as $vn_valor_codigo)
+        {
+            if (is_array($vn_valor_codigo))
+                $va_valores_codigos[] = $vn_valor_codigo[$vs_nome_campo][$pa_parametros_campo["atributos"][0]];
+            else
+                $va_valores_codigos[] = $vn_valor_codigo;
+        }
     }
+    else
+        $va_valores_codigos[] = $va_valor_campo;
+
+   // if ( isset($pa_parametros_campo["valor_padrao"]) && (!count($va_valores_codigos)) )
+        //$va_valores_codigos[] = $pa_parametros_campo["valor_padrao"];
 ?>
 
 <div class="mb-3" id="div_<?php print $vs_nome_campo ?>"
