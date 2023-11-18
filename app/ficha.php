@@ -9,6 +9,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 <html lang="pt-br">
 
 <?php require_once dirname(__FILE__) . "/components/header_html.php"; ?>
+<?php require_once dirname(__FILE__) . "/components/modal_progresso.php"; ?>
 
 <body>
 
@@ -91,7 +92,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             }
                                             ?>
                                             
-                                            <button class="btn btn-outline-primary" type="button" id="btn_imprimir">Imprimir</button>
+                                            <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
                                             <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
                                             <button class="btn btn-outline-primary" type="button" id="btn_voltar_lista" onClick="history.back(-1);">Voltar</button>
                                         </div>                           
@@ -131,18 +132,6 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                         ?>
 
                                         window.location.href= vs_url_editar;
-                                    });
-
-                                    $(document).on('click', "#btn_imprimir", function()
-                                    {
-                                        $("#form_lista").attr('action', 'imprimir.php');
-                                        $("#form_lista").attr('method', 'post');
-                                        $("#form_lista").attr('target', '_blank');
-                                        $("#form_lista").submit();
-
-                                        $("#form_lista").attr('action', 'ficha.php');
-                                        $("#form_lista").attr('method', 'get');
-                                        $("#form_lista").attr('target', '');
                                     });
 
                                     $(document).on('click', "#btn_exportar", function()
@@ -226,10 +215,41 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
         </div>
     </form>
 
+    <div id="modal-imprimir" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="btn-group" role="group" aria-label="First group">
+                        <button class="btn btn-tab-rel btn-outline-primary active" id="tab_lista" type="button">Ficha</button>
+                    </div>
+                    <button class="btn-close" data-modal-id="imprimir"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="tab" id="div_tab_lista">
+                        <?php require_once dirname(__FILE__)."/components/barra_opcoes_lista.php"; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
 
 <script>
+
+$(document).on('click', ".btn-modal", function () {
+    const modalId = $(this).data('button-id');
+    $("#modal-" + modalId).modal('show');
+    return false;
+});
+
+$(document).on('click', ".btn-close", function () {
+    const modalId = $(this).data('modal-id');
+    $("#modal-" + modalId).modal('hide');
+    return false;
+});
 
 $(document).on('click', ".botao_adicionar", function()
 {
