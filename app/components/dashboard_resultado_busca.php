@@ -10,6 +10,9 @@ $vb_houve_resultado = false;
 
 foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
 {
+    if (!$vb_busca_id)
+        $va_parametros_filtros_consulta[$vo_dashboard->get_filtro_busca_geral($vs_id_objeto_tela)] = [$vs_termo_busca, "LIKE"];
+
     $vs_formato_listagem = "default";
     require dirname(__FILE__) . "/../functions/montar_listagem.php";
 

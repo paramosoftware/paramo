@@ -28,7 +28,7 @@
             } else {
                 const spanButton = document.getElementById('google-drive-button');
                 const campoTipo = spanButton.getAttribute('data-campo-tipo');
-                spanButton.innerHTML = '<button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" ' +
+                spanButton.innerHTML = '<button class="btn btn-outline-primary px-4" type="button" ' +
                     'onclick="createPicker' + campoTipo +  '()">Adicionar do Google Drive</button>';
             }
         }

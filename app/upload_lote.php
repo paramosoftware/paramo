@@ -187,10 +187,10 @@ $vn_espaco_usado = (int)($vn_espaco_usado / 1024 / 1024 / 1024);
                                         <?php if (config::get(["f_integracao_google_drive"]) ?? false) : ?>
                                             <span id="google-drive-button" data-campo-tipo="<?= $pa_parametros_campo["tipo"] ?? 1 ?>">
                                                 <?php if (!empty($authUrl)) : ?>
-                                                    <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button"
+                                                    <button class="btn btn-outline-primary px-4" type="button"
                                                             onclick="openOAuthPopup('<?= $authUrl ?>')">Conectar ao Google Drive</button>
                                                 <?php else : ?>
-                                                    <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button"
+                                                    <button class="btn btn-outline-primary px-4" type="button"
                                                             onclick="openGoogleDriveModal<?= $pa_parametros_campo["tipo"] ?? 1 ?>()">Adicionar do Google Drive</button>
                                                 <?php endif; ?>
                                             </span>
@@ -522,17 +522,10 @@ $(document).on('focus', "#largura_paginacao", function()
 });
 
 $(document).on('click', ".btn-tab", function() {
+    $('.btn-tab').removeClass('active');
     $('.tab').hide();
     $('#tab_'+$(this).attr('id')).show();
-
-    $('.btn-tab').each(function(i, el)
-    {    
-        $(el).css("color", "#fc6c21");
-        $(el).css("background-color", "transparent");    
-    })
-
-    $(this).css("color", "rgba(255, 255, 255, 0.87)");
-    $(this).css("background-color", "#fc6c21");   
+    $(this).addClass('active');
 });
 
 </script>

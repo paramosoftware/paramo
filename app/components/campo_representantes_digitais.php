@@ -73,21 +73,21 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                 {
                 ?>
                     <div class="mb-3">
-                        <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" id="btn_adicionar_campo_<?php print $vs_nome_campo; ?>">Adicionar</button>
+                        <button class="btn btn-outline-primary px-4" type="button" id="btn_adicionar_campo_<?php print $vs_nome_campo; ?>">Adicionar</button>
 
                         <?php if ($vb_integracao_google_drive) : ?>
                             <span id="google-drive-button" data-campo-tipo="<?= $pa_parametros_campo["tipo"] ?>">
                             <?php if (!empty($authUrl)) : ?>
-                                <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" onclick="openOAuthPopup('<?= $authUrl ?>')">Conectar ao Google Drive</button>
+                                <button class="btn btn-outline-primary px-4" type="button" onclick="openOAuthPopup('<?= $authUrl ?>')">Conectar ao Google Drive</button>
                             <?php else : ?>
-                                <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" onclick="createPicker<?= $pa_parametros_campo["tipo"] ?>()">Adicionar do Google Drive</button>
+                                <button class="btn btn-outline-primary px-4" type="button" onclick="createPicker<?= $pa_parametros_campo["tipo"] ?>()">Adicionar do Google Drive</button>
                              <?php endif; ?>
                             </span>
                         <?php endif; ?>
 
 
                         <?php if (isset($va_valor_campo) && (count($va_valor_campo) > 0)) : ?>
-                            <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" id="btn_remover_todos_<?php print $vs_nome_campo; ?>">Remover todos</button>
+                            <button class="btn btn-outline-primary px-4" type="button" id="btn_remover_todos_<?php print $vs_nome_campo; ?>">Remover todos</button>
                             
                             <?php 
                             $vb_todos_publicados_online = true;
@@ -104,7 +104,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                             }
                             ?>
 
-                                <input type="checkbox" id="chk_publicar_todos_online"<?= ($vb_todos_publicados_online) ? " checked" : "" ?>
+                                <input type="checkbox" class="form-check-input" id="chk_publicar_todos_online"<?= ($vb_todos_publicados_online) ? " checked" : "" ?>
                                 > Publicar todos online
                         <?php endif; ?>
 
@@ -188,7 +188,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                                     </div>
 
                                                     <div style="margin-bottom:10px">
-                                                    <input type="checkbox" class="chk-publicar-online" id="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>" name="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>"
+                                                    <input type="checkbox" class="chk-publicar-online form-check-input" id="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>" name="representante_digital_publicado_online_<?php print $vn_linha_codigo; ?>"
                                                     <?php
                                                         if ($va_valores_linha['representante_digital_publicado_online'])
                                                             print " checked";
@@ -302,8 +302,8 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                    ?>
                         ">
                             <div class="modal-footer">
-                                <button id='btn_upload_<?php print $vs_nome_campo ?>' type="button" class="btn btn-outline-primary px-4 bg-cor-branca">Upload</button>
-                                <button id='closeModal_<?php print $vs_nome_campo ?>' type="button" class="btn btn-outline-primary px-4 bg-cor-branca" data-bs-dismiss="modal">Voltar</button>
+                                <button id='btn_upload_<?php print $vs_nome_campo ?>' type="button" class="btn btn-outline-primary px-4">Upload</button>
+                                <button id='closeModal_<?php print $vs_nome_campo ?>' type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal">Voltar</button>
                             </div>
                         </div>
                         <?php if ($vb_campo_representante_digital) require 'campo_link_externo.php'; ?>

@@ -553,17 +553,10 @@ $(document).ready(function()
 });
 
 $(document).on('click', ".btn-tab", function() {
+    $('.btn-tab').removeClass('active');
     $('.tab').hide();
     $('#tab_'+$(this).attr('id')).show();
-
-    $('.btn-tab').each(function(i, el)
-    {    
-        $(el).css("color", "#fc6c21");
-        $(el).css("background-color", "transparent");    
-    })
-
-    $(this).css("color", "rgba(255, 255, 255, 0.87)");
-    $(this).css("background-color", "#fc6c21");   
+    $(this).addClass('active');
 });
 
 $(document).on('click', ".btn-salvar-duplicar", function() {

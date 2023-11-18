@@ -43,7 +43,7 @@
             ?>
             </div>
 
-            <?php if ( ($vb_pode_editar_lote || $vb_pode_excluir_lote) && !isset($_SESSION["instituicao_visualizar_como"]))
+            <?php if ( ($vb_pode_editar_lote || $vb_pode_excluir_lote) && config::get(["f_operacoes_lote"]) && !isset($_SESSION["instituicao_visualizar_como"]))
             {
             ?>
             <div style="float:right">

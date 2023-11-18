@@ -5,138 +5,154 @@
     if (!isset($va_parametros_filtros))
         $va_parametros_filtros = array();
 
+    $va_contador_filtros_busca = array();
+
     $va_objeto = $va_parametros_filtros_form;
-?>
 
-<div class="row filtro no-margin-side hidden" id="filtro_combinado"
-<?php
-if (!$vb_busca_combinada)
-    print ' style="display:none"; ';
-?>
->
-    <div class="col-2"></div>
+    $vs_modo = "listagem";
+    require dirname(__FILE__) . "/../functions/configurar_campos_tela.php";
 
-    <div class="col-8" id="filtros_combinados">
-        <div class="row">
-        <div class="col-11">
-            <?php
-                $vs_modo = "listagem";
-                require dirname(__FILE__) . "/../functions/configurar_campos_tela.php";
+    foreach ($va_campos as $vs_campo_key => $va_campo_filtro)
+    {
+        $va_filtros_navegacao[$vs_campo_key] = $va_campo_filtro["label"];
+    }
 
-                foreach ($va_campos as $vs_campo_key => $va_campo_filtro)
-                {
-                    $va_filtros_navegacao[$vs_campo_key] = $va_campo_filtro["label"];
-                }
-                
-                $va_parametros_campo = [
-                    "html_combo_input", 
-                    "nome" => "campo_sistema_nome",
-                    "label" => "Adicionar filtro",
-                    "sem_valor" => false,
-                    "valores" => $va_filtros_navegacao
-                ];
-            
-                $vo_combo_campos_busca = new html_combo_input($vs_id_objeto_tela, "campo_sistema_nome");
-                $vo_combo_campos_busca->build($va_parametros_filtros_form, $va_parametros_campo);
-            ?>
-        </div>
+    if (isset($va_filtros_navegacao))
+    {
+    ?>
 
-        <div class="col-1" style="margin-top:32px">
-            <button class="btn btn-primary" type="button" onclick="adicionar_filtro_busca()">
-                <svg class="icon">
-                    <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
-                </svg>
-            </button>
-        </div>
-        </div>
+    <div class="row filtro no-margin-side hidden" id="filtro_combinado"
+    <?php
+    if (!$vb_busca_combinada)
+        print ' style="display:none"; ';
+    ?>
+    >
+        <div class="col-2"></div>
 
-        <div id="filtros_disponiveis">
-        <?php
-            $vb_multiplas_instancias_campo = true;
-            $va_contador_filtros_busca = array();
+        <div class="col-8" id="filtros_combinados">
+            <div class="row">
+            <div class="col-11">
+                <?php
+                    $va_parametros_campo = [
+                        "html_combo_input",
+                        "nome" => "campo_sistema_nome",
+                        "label" => "Adicionar filtro",
+                        "sem_valor" => false,
+                        "valores" => $va_filtros_navegacao
+                    ];
 
-            $vn_contador = 0;
-            $vn_contador_filtros_adicionados = 0;
-
-            foreach ($va_parametros_filtros_form as $vs_id_campo => $va_filtro)
-            {
-                $va_objeto[$vs_id_campo] = $va_filtro;
-
-                $vs_novo_id_campo = $vs_id_campo;
-
-                if (preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo))
-                    $vs_novo_id_campo = str_replace("_com_valor", "", $vs_id_campo);
-                elseif (preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
-                    $vs_novo_id_campo = str_replace("_sem_valor", "", $vs_id_campo);
-
-                if ( preg_match('/\w+(_F_\d+)$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
-                    $vs_id_campo = substr($vs_id_campo, 0, strpos($vs_id_campo, "_F_"));
-
-                if (!is_array($va_filtro))
-                    $va_filtro = array($va_filtro);
-
-                if ($vs_id_campo != $vs_novo_id_campo)
-                {
-                    foreach ($va_filtro as $vs_filtro)
-                    {
-                        unset($va_campos);
-
-                        if (!in_array($vs_id_campo, array_keys($va_contador_filtros_busca)))
-                            $va_contador_filtros_busca[$vs_id_campo] = 1;
-                        else
-                            $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
-        
-                        if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
-                        {
-                            $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
-
-                            // TODO: falta pensar melhor na extensão deste controle de acesso
-                            /////////////////////////////////////////////////////////////////
-
-                            if (in_array($vs_id_campo, $vo_objeto->controlador_acesso))
-                            {
-                                $vs_key_controlador = array_search($vs_id_campo, $vo_objeto->controlador_acesso);
-
-                                if (isset($va_parametros_controle_acesso[$vs_key_controlador]) && $va_parametros_controle_acesso[$vs_key_controlador] != "")
-                                {
-                                    if (!isset($va_parametros_filtros_consulta[$vs_novo_id_campo]))
-                                    {
-                                        $va_parametros_filtros_consulta[$vs_novo_id_campo] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
-                                    }
-                                    elseif ( 
-                                        isset($va_parametros_filtros_consulta[$vs_novo_id_campo][0])
-                                        &&
-                                        !in_array($va_parametros_filtros_consulta[$vs_novo_id_campo][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
-                                    )
-                                    {
-                                        $vb_pode_editar = false;
-                                    }
-                                }
-                            }
-
-                            require dirname(__FILE__)."/../functions/montar_filtro_combinado.php";
-
-                            $vn_contador_filtros_adicionados++;
-                        }
-
-                        $vn_contador++;
-                    }
-                }
-            }
-        ?>
-        </div>
-
-        <div class="row">
-            <div class="col-6 text-right">
-                <button class="btn btn-primary px-4" type="button" id="btn_buscar_combinado">Buscar</button>
+                    $vo_combo_campos_busca = new html_combo_input($vs_id_objeto_tela, "campo_sistema_nome");
+                    $vo_combo_campos_busca->build($va_parametros_filtros_form, $va_parametros_campo);
+                ?>
             </div>
 
-            <div class="col-6 text-left">
-                <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" id="btn_limpar">Limpar</button>
+            <div class="col-1" style="margin-top:32px">
+                <button class="btn btn-primary" type="button" onclick="adicionar_filtro_busca()">
+                    <svg class="icon">
+                        <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
+                    </svg>
+                </button>
+            </div>
+            </div>
+
+            <div id="filtros_disponiveis">
+            <?php
+                $vb_multiplas_instancias_campo = true;
+                $va_contador_filtros_busca = array();
+
+                $vn_contador = 0;
+                $vn_contador_filtros_adicionados = 0;
+
+                foreach ($va_parametros_filtros_form as $vs_id_campo => $va_filtro)
+                {
+                    $va_objeto[$vs_id_campo] = $va_filtro;
+
+                    $vs_novo_id_campo = $vs_id_campo;
+
+                    if (preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo))
+                        $vs_novo_id_campo = str_replace("_com_valor", "", $vs_id_campo);
+                    elseif (preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
+                        $vs_novo_id_campo = str_replace("_sem_valor", "", $vs_id_campo);
+
+                    if ( preg_match('/\w+(_F_\d+)$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_id_campo) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_id_campo))
+                        $vs_id_campo = substr($vs_id_campo, 0, strpos($vs_id_campo, "_F_"));
+
+                    if (!is_array($va_filtro))
+                        $va_filtro = array($va_filtro);
+
+                    if ($vs_id_campo != $vs_novo_id_campo)
+                    {
+                        foreach ($va_filtro as $vs_filtro)
+                        {
+                            unset($va_campos);
+
+                            if (!in_array($vs_id_campo, array_keys($va_contador_filtros_busca)))
+                                $va_contador_filtros_busca[$vs_id_campo] = 1;
+                            else
+                                $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
+
+                            if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
+                            {
+                                $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
+
+                                // TODO: falta pensar melhor na extensão deste controle de acesso
+                                /////////////////////////////////////////////////////////////////
+
+                                if (in_array($vs_id_campo, $vo_objeto->controlador_acesso))
+                                {
+                                    $vs_key_controlador = array_search($vs_id_campo, $vo_objeto->controlador_acesso);
+
+                                    if (isset($va_parametros_controle_acesso[$vs_key_controlador]) && $va_parametros_controle_acesso[$vs_key_controlador] != "")
+                                    {
+                                        if (!isset($va_parametros_filtros_consulta[$vs_novo_id_campo]))
+                                        {
+                                            $va_parametros_filtros_consulta[$vs_novo_id_campo] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
+                                        }
+                                        elseif (
+                                            isset($va_parametros_filtros_consulta[$vs_novo_id_campo][0])
+                                            &&
+                                            !in_array($va_parametros_filtros_consulta[$vs_novo_id_campo][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
+                                        )
+                                        {
+                                            $vb_pode_editar = false;
+                                        }
+                                    }
+                                }
+
+                                require dirname(__FILE__)."/../functions/montar_filtro_combinado.php";
+
+                                $vn_contador_filtros_adicionados++;
+                            }
+
+                            $vn_contador++;
+                        }
+                    }
+                }
+            ?>
+            </div>
+
+            <div class="row">
+                <div class="col-6 text-right">
+                    <button class="btn btn-primary px-4" type="button" id="btn_buscar_combinado">Buscar</button>
+                </div>
+
+                <div class="col-6 text-left">
+                <button class="btn btn-outline-primary px-4" type="button" id="btn_limpar">Limpar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <?php
+    }
+    else
+    {
+    ?>
+        <div class="row filtro no-margin-side hidden" id="filtro_combinado" style="display:none">
+            <span style="margin-left:10px">Nenhum filtro configurado.</span>
+        </div>
+    <?php
+    }
+    ?>
 
 <script>
 
