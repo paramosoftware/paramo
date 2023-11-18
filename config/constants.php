@@ -18,45 +18,55 @@ return [
 
     # ================================================ ASSETS E MÍDIA  ================================================ #
 
-    # É possível personalizar o logo do sistema pela parte administrativa.
-    # Caso não seja definido um logo personalizado, o logo padrão será utilizado.
-    "logo" => file_exists(dirname(__FILE__) . "/../app/assets/img/custom-logo.png") ?
-        "assets/img/custom-logo.png" :
-        "assets/img/logo.png" ?? "",
+    $vs_pasta_app = dirname(__FILE__) . "/../app/",
+    $vs_pasta_assets = $vs_pasta_app . "assets/",
+    $vs_pasta_custom = $vs_pasta_assets . "custom/",
+    $vs_pasta_media = $vs_pasta_app . "media/",
+    $vs_pasta_images = $vs_pasta_media . "images/",
 
-    # Caso queira utilizar um rodapé personalizado nos e-mails enviados pelo sistema, adicione o caminho para a imagem aqui.
-    "smtp_email_footer" => file_exists(dirname(__FILE__) . "/../app/assets/img/custom-email-footer.png") ?
-        dirname(__FILE__) . "/../app/assets/img/custom-email-footer.png" :
-        "",
-
-    # Caso queira utilizar um favicon personalizado, adicione um arquivo com o nome custom-favicon.png na pasta assets/img
-    "favicon" => (file_exists(dirname(__FILE__) . "/../app/assets/img/custom-favicon.png") ?
-        "assets/img/custom-favicon.png" : file_exists(dirname(__FILE__) . "/../app/assets/img/custom-logo.png")) ?
-        "assets/img/custom-logo.png" : "assets/img/favicon.png",
+    "pasta_app" => "$vs_pasta_app",
+    "pasta_vendors" => dirname(__FILE__) . "/../src/vendors/",
+    "pasta_lib" => dirname(__FILE__) . "/../src/lib/",
 
     "pasta_assets" => [
-        "images" => dirname(__FILE__) . "/../app/assets/img/",
-        "css" => dirname(__FILE__) . "/../app/assets/css/",
-        "custom" => dirname(__FILE__) . "/../app/assets/custom/",
+        "images" => $vs_pasta_assets . "img/",
+        "css" => $vs_pasta_assets . "css/",
+        "js" => $vs_pasta_assets . "js/",
+        "custom" => [
+            "images" => $vs_pasta_custom . "img/",
+            "css" => $vs_pasta_custom . "css/",
+            "js" => $vs_pasta_custom . "js/",
+        ]
     ],
-
-    "pasta_app" => dirname(__FILE__) . "/../app/",
-    "pasta_business" => dirname(__FILE__) . "/../src/lib/business/",
-    "pasta_vendors" => dirname(__FILE__) . "/../src/vendors/",
 
     "pasta_media" => [
-        "documents" => dirname(__FILE__) . "/../app/media/documents/",
-        "downloads" => dirname(__FILE__) . "/../app/media/downloads/",
-        "videos" => dirname(__FILE__) . "/../app/media/videos/",
-        "audios" => dirname(__FILE__) . "/../app/media/audios/",
+        "documents" => $vs_pasta_media . "documents/",
+        "downloads" => $vs_pasta_media . "downloads/",
+        "videos" => $vs_pasta_media . "videos/",
+        "audios" => $vs_pasta_media . "audios/",
         "images" => [
-            "large" => dirname(__FILE__) . "/../app/media/images/large/",
-            "medium" => dirname(__FILE__) . "/../app/media/images/medium/",
-            "thumb" => dirname(__FILE__) . "/../app/media/images/thumb/",
-            "original" => dirname(__FILE__) . "/../app/media/images/original/",
+            "large" => $vs_pasta_images . "large/",
+            "medium" => $vs_pasta_images . "medium/",
+            "thumb" => $vs_pasta_images . "thumb/",
+            "original" => $vs_pasta_images . "original/",
         ],
-        "temp" => dirname(__FILE__) . "/../app/media/temp/",
+        "temp" => $vs_pasta_media . "temp/",
     ],
+
+
+    # É possível personalizar o logo do sistema pela parte administrativa.
+    # Caso não seja definido um logo personalizado, o logo padrão será utilizado.
+    "logo" => file_exists($vs_pasta_custom . "img/logo.png") ?
+        "assets/custom/img/logo.png" : "assets/img/logo.png",
+
+    # Caso queira utilizar um rodapé personalizado nos e-mails enviados pelo sistema, adicione o caminho para a imagem aqui.
+    "smtp_email_footer" => file_exists($vs_pasta_custom . "img/custom-email-footer.png") ?
+        $vs_pasta_custom . "img/custom-email-footer.png" : "",
+
+    # Caso queira utilizar um favicon personalizado, adicione um arquivo com o nome favicon.png na pasta assets/custom/img
+    "favicon" => (file_exists($vs_pasta_custom . "img/favicon.png") ?
+        "assets/custom/img/favicon.png" : file_exists($vs_pasta_custom . "img/logo.png")) ?
+        "assets/custom/img/logo.png" : "assets/img/favicon.png",
 
     "media_types" => [
         "image/jpeg" => [
