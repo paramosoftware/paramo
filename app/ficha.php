@@ -136,12 +136,16 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
                                     $(document).on('click', "#btn_exportar", function()
                                     {
-                                        $("#form_lista").attr('action', 'exportar.php');
-                                        $("#form_lista").attr('method', 'post');
-                                        $("#form_lista").submit();
-
-                                        $("#form_lista").attr('action', 'ficha.php');
-                                        $("#form_lista").attr('method', 'get');
+                                        const form = $("#form_lista");
+                                        $.ajax({
+                                            url: 'functions/exportar.php',
+                                            type: "POST",
+                                            data: form.serialize(),
+                                            processData: false,
+                                            success: function (data) {
+                                                getProgress(data, true);
+                                            }
+                                        });
                                     });
                                 </script>
 
