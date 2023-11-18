@@ -85,6 +85,8 @@ return [
     "f_logado_como" => false,
     # Habilita abertura do campo representantes digitais por padrão na ficha de cadastro
     "f_abrir_campo_representantes_digitais" => false,
+    # Habilita operações em lote de edição e exclusão de registros
+    "f_operacoes_lote" => false,
 
 
     # ============================================== CONTROLE DE ACESSO ============================================== #

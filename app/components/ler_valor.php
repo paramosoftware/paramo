@@ -267,16 +267,23 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
 }
 
 function ler_parte_expressao($ps_parte_expressao, $pa_atributo, $pb_data=false)
-{
+{   
     $va_campo_nome = explode("_0_", $ps_parte_expressao);
     $vs_valor_parte_expressao = $pa_atributo;
 
     foreach ($va_campo_nome as $vs_campo_nome)
     {
         if (isset($vs_valor_parte_expressao[$vs_campo_nome]))
+        {
             $vs_valor_parte_expressao = $vs_valor_parte_expressao[$vs_campo_nome];
+
+            if (isset($vs_valor_parte_expressao[0][$vs_campo_nome]))
+                $vs_valor_parte_expressao = $vs_valor_parte_expressao[0][$vs_campo_nome];
+        }
         elseif (isset($vs_valor_parte_expressao[0]))
+        {
             $vs_valor_parte_expressao = $vs_valor_parte_expressao[0][$vs_campo_nome];
+        }
         else
         {
             $vs_valor_parte_expressao = "";
