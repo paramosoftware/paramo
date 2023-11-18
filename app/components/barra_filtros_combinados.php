@@ -16,7 +16,7 @@
     {
         $va_filtros_navegacao[$vs_campo_key] = $va_campo_filtro["label"];
     }
-    
+
     if (isset($va_filtros_navegacao))
     {
     ?>
@@ -34,13 +34,13 @@
             <div class="col-11">
                 <?php
                     $va_parametros_campo = [
-                        "html_combo_input", 
+                        "html_combo_input",
                         "nome" => "campo_sistema_nome",
                         "label" => "Adicionar filtro",
                         "sem_valor" => false,
                         "valores" => $va_filtros_navegacao
                     ];
-                
+
                     $vo_combo_campos_busca = new html_combo_input($vs_id_objeto_tela, "campo_sistema_nome");
                     $vo_combo_campos_busca->build($va_parametros_filtros_form, $va_parametros_campo);
                 ?>
@@ -90,7 +90,7 @@
                                 $va_contador_filtros_busca[$vs_id_campo] = 1;
                             else
                                 $va_contador_filtros_busca[$vs_id_campo] = $va_contador_filtros_busca[$vs_id_campo] + 1;
-            
+
                             if (isset($va_parametros_filtros_consulta["concatenadores"][$vn_contador]))
                             {
                                 $vs_valor_concatenador = $va_parametros_filtros_consulta["concatenadores"][$vn_contador];
@@ -108,7 +108,7 @@
                                         {
                                             $va_parametros_filtros_consulta[$vs_novo_id_campo] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
                                         }
-                                        elseif ( 
+                                        elseif (
                                             isset($va_parametros_filtros_consulta[$vs_novo_id_campo][0])
                                             &&
                                             !in_array($va_parametros_filtros_consulta[$vs_novo_id_campo][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
@@ -137,7 +137,7 @@
                 </div>
 
                 <div class="col-6 text-left">
-                    <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" id="btn_limpar">Limpar</button>
+                <button class="btn btn-outline-primary px-4" type="button" id="btn_limpar">Limpar</button>
                 </div>
             </div>
         </div>

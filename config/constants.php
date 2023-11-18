@@ -36,6 +36,8 @@ return [
 
     "pasta_assets" => [
         "images" => dirname(__FILE__) . "/../app/assets/img/",
+        "css" => dirname(__FILE__) . "/../app/assets/css/",
+        "custom" => dirname(__FILE__) . "/../app/assets/custom/",
     ],
 
     "pasta_app" => dirname(__FILE__) . "/../app/",

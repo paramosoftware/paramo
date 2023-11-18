@@ -125,9 +125,9 @@
                 foreach ($va_abas_form as $vs_key_aba => $va_aba)
                 {
                 ?>
-                    <button style="font-size: 14px" class="btn btn-tab <?php
+                    <button class="btn btn-tab <?php
                         if ($contador_abas == 1)
-                            print "btn-primary";
+                            print "btn-outline-primary active";
                         else
                             print "btn-outline-primary";
                     ?>"
