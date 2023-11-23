@@ -182,7 +182,7 @@ class objeto_base
         $this->visualizacoes["ficha"]["campos"] = $va_campos_visualizacao;
     }
 
-    public function get_attribute_value($ps_attribute_id, $pa_object_values=null, $pb_get_main_value=false)
+    public function get_attribute_value($ps_attribute_id, $pa_object_values = null, $pb_get_main_value = false, $ps_visualizacao = "")
     {
         if (!isset($pa_object_values))
             $va_object_values = $this->values;
@@ -196,9 +196,9 @@ class objeto_base
 
         $va_attribute_value = array();
 
-        foreach ($va_attributes_ids as $ps_attribute_id)
+        foreach ($va_attributes_ids as $vs_attribute_id)
         {
-            $va_attribute_parts = explode("_0_", $ps_attribute_id);
+            $va_attribute_parts = explode("_0_", $vs_attribute_id);
             
             $vn_part_counter = 0;
             $va_attribute_parts_temp = $va_attribute_parts;
@@ -249,14 +249,14 @@ class objeto_base
                         // Tenta adivinhar qual é o valor a partir do objeto filho
                         //////////////////////////////////////////////////////////
 
-                        if (class_exists($va_object_values[$ps_attribute_id]["_objeto"]))
-                            $vo_related_object = new $va_object_values[$ps_attribute_id]["_objeto"]('');
+                        if (class_exists($va_object_values[$vs_attribute_id]["_objeto"]))
+                            $vo_related_object = new $va_object_values[$vs_attribute_id]["_objeto"]('');
                         else
-                            $vo_related_object = new base_class($va_object_values[$ps_attribute_id]["_objeto"]);
+                            $vo_related_object = new base_class($va_object_values[$vs_attribute_id]["_objeto"]);
 
-                        if (!$pb_get_main_value && isset($va_object_values[$ps_attribute_id][$ps_attribute_id]))
+                        if (!$pb_get_main_value && isset($va_object_values[$vs_attribute_id][$vs_attribute_id]))
                         {
-                            $va_subattribute_value[] = $va_object_values[$ps_attribute_id][$ps_attribute_id];
+                            $va_subattribute_value[] = $va_object_values[$vs_attribute_id][$vs_attribute_id];
                         }
                         else
                         {
@@ -272,11 +272,11 @@ class objeto_base
                                 /////////////////////////////////////////////
                                 
                                 if (isset($va_field["main_field"]))
-                                    $va_subattribute_value[] = $this->get_attribute_value($vs_id_field, $va_object_values[$ps_attribute_id]);
+                                    $va_subattribute_value[] = $this->get_attribute_value($vs_id_field, $va_object_values[$vs_attribute_id]);
 
                                 //if (isset($vo_view_field->main_attribute))
                                 {
-                                    //$va_subattribute_value[] = $this->get_main_attribute_value($vo_view_field->main_attribute, $va_object_values[$ps_attribute_id]);
+                                    //$va_subattribute_value[] = $this->get_main_attribute_value($vo_view_field->main_attribute, $va_object_values[$vs_attribute_id]);
                                 }
                             }
                         }                    
@@ -1003,6 +1003,10 @@ class objeto_base
         if (count($va_resultado)) {
             $va_resultado = $va_resultado[0];
             $this->codigo = $pn_codigo;
+
+            $this->code = $pn_codigo;
+            $this->label = $this->get_main_attribute_value('', $va_resultado);
+            $this->values = $va_resultado;
         }
 
         return $va_resultado;
