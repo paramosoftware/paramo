@@ -3,6 +3,62 @@
 class recurso_sistema extends objeto_base
 {
 
+    private $id;
+    private $name_singular = "";
+    private $name_plural = "";
+    private $gender = 1;
+    private $is_base_class = false;
+
+    public function get_id()
+    {
+        return $this->id;
+    }
+
+    public function set_id($ps_id)
+    {
+        $this->id = $ps_id;
+    }
+
+    public function get_name_singular()
+    {
+        return $this->name_singular;
+    }
+
+    public function set_name_singular($ps_name_singular)
+    {
+        $this->name_singular = $ps_name_singular;
+    }
+
+    public function get_name_plural()
+    {
+        return $this->name_plural;
+    }
+
+    public function set_name_plural($ps_name_plural)
+    {
+        $this->name_plural = $ps_name_plural;
+    }
+
+    public function get_gender()
+    {
+        return $this->gender;
+    }
+
+    public function set_gender($pn_gender)
+    {
+        $this->gender = $pn_gender;
+    }
+
+    public function get_is_base_class()
+    {
+        return $this->is_base_class;
+    }
+
+    public function set_is_base_class($pb_is_base_class)
+    {
+        $this->is_base_class = $pb_is_base_class;
+    }
+    
     function __construct()
     {
         $this->tabela_banco = $this->inicializar_tabela_banco();

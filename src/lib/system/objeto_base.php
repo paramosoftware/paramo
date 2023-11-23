@@ -2,6 +2,12 @@
 
 class objeto_base
 {
+    public $view_fields = array();
+
+    public $values = array();
+    public $list = array();
+    public $codes_list = array();
+    public $number_of_records = 0;
 
     protected $recurso_sistema_codigo = "";
     
@@ -16,7 +22,7 @@ class objeto_base
     protected $campo_relacionamento_pai = "";
     protected $excluir_objeto_pai = false;
 
-    protected $hierarquico = false;
+    public $hierarquico = false;
     protected $campo_hierarquico = "";
     public $exibir_lista_hierarquica = true;
 
@@ -174,6 +180,245 @@ class objeto_base
         //$va_campos_visualizacao["item_selecao_codigo"] = ["nome" => "item_selecao_codigo"];
 
         $this->visualizacoes["ficha"]["campos"] = $va_campos_visualizacao;
+    }
+
+    public function get_attribute_value($ps_attribute_id, $pa_object_values=null, $pb_get_main_value=false)
+    {
+        if (!isset($pa_object_values))
+            $va_object_values = $this->values;
+        else
+            $va_object_values = $pa_object_values;
+
+        if (!is_array($ps_attribute_id))
+            $va_attributes_ids = array($ps_attribute_id);
+        else
+            $va_attributes_ids = $ps_attribute_id;
+
+        $va_attribute_value = array();
+
+        foreach ($va_attributes_ids as $ps_attribute_id)
+        {
+            $va_attribute_parts = explode("_0_", $ps_attribute_id);
+            
+            $vn_part_counter = 0;
+            $va_attribute_parts_temp = $va_attribute_parts;
+
+            $va_subattribute_value = array();
+
+            if (count($va_attribute_parts))
+            {
+                $vs_attribute_part = $va_attribute_parts[0];
+
+                $vb_value_found = false;
+                array_shift($va_attribute_parts_temp);
+
+                // Caso 1: atributo é valor escalar (campo da própria tabela base)
+                // Retorna direto o valor
+                //////////////////////////////////////////////////////////////////
+
+                if (isset($va_object_values[$vs_attribute_part]) && !is_array($va_object_values[$vs_attribute_part]))
+                {
+                    $va_subattribute_value[] = $va_object_values[$vs_attribute_part];
+                    $vb_value_found = true;
+                }
+
+                // Caso 2: atributo é um campo de um objeto relacionado
+                // Importação de chave estrangeira
+                //////////////////////////////////////////////////////////////////
+
+                if (!$vb_value_found
+                    &&
+                    isset($va_object_values[$vs_attribute_part]) 
+                    && 
+                    is_array($va_object_values[$vs_attribute_part])
+                    && 
+                    count($va_object_values[$vs_attribute_part])
+                    && 
+                    isset($va_object_values[$vs_attribute_part]["_objeto"])
+                )
+                {
+                    if (count($va_attribute_parts_temp))
+                    {
+                        // Se está especificado mais um nível do atributo, faz todo o procedimento novamente
+                        ////////////////////////////////////////////////////////////////////////////////////
+
+                        $va_subattribute_value[] = $this->get_attribute_value(implode("_0_", $va_attribute_parts_temp), $va_object_values[$vs_attribute_part]);
+                    }
+                    else
+                    {
+                        // Tenta adivinhar qual é o valor a partir do objeto filho
+                        //////////////////////////////////////////////////////////
+
+                        if (class_exists($va_object_values[$ps_attribute_id]["_objeto"]))
+                            $vo_related_object = new $va_object_values[$ps_attribute_id]["_objeto"]('');
+                        else
+                            $vo_related_object = new base_class($va_object_values[$ps_attribute_id]["_objeto"]);
+
+                        if (!$pb_get_main_value && isset($va_object_values[$ps_attribute_id][$ps_attribute_id]))
+                        {
+                            $va_subattribute_value[] = $va_object_values[$ps_attribute_id][$ps_attribute_id];
+                        }
+                        else
+                        {
+                            // Rollback provisório para leitura da visualização no array
+                            ////////////////////////////////////////////////////////////
+
+                            $va_view_fields = $vo_related_object->get_visualizacao("navegacao");
+                            
+                            foreach ($va_view_fields["ordem_campos"] as $vs_id_field => $va_field)
+                            //foreach ($vo_related_object->view_fields as $vo_view_field)
+                            {
+                                // Retorno o valor principal do objeto (label)
+                                /////////////////////////////////////////////
+                                
+                                if (isset($va_field["main_field"]))
+                                    $va_subattribute_value[] = $this->get_attribute_value($vs_id_field, $va_object_values[$ps_attribute_id]);
+
+                                //if (isset($vo_view_field->main_attribute))
+                                {
+                                    //$va_subattribute_value[] = $this->get_main_attribute_value($vo_view_field->main_attribute, $va_object_values[$ps_attribute_id]);
+                                }
+                            }
+                        }                    
+                    }
+
+                    $vb_value_found = true;
+                }
+
+                // Caso 3: atributo é um campo de objeto relacionado nxn ou descritor textual multilíngue
+                ////////////////////////////////////////////////////////////////////////////////////////
+
+                if (!$vb_value_found
+                    &&
+                    isset($va_object_values[$vs_attribute_part]) 
+                    && 
+                    is_array($va_object_values[$vs_attribute_part])
+                    && 
+                    count($va_object_values[$vs_attribute_part])
+                    && 
+                    !isset($va_object_values[$vs_attribute_part]["_objeto"])
+                )
+                {
+                    $vs_main_attribute_id = "";
+
+                    if (count($va_attribute_parts_temp))
+                    {
+                        // Se está especificado mais um nível do atributo, tem que passar o resto do caminho
+                        ////////////////////////////////////////////////////////////////////////////////////
+
+                        $vs_main_attribute_id = implode("_0_", $va_attribute_parts_temp);                    
+                    }
+                    else
+                    {
+                        if (isset($va_object_values[$vs_attribute_part][0][$vs_attribute_part]["_objeto"]))
+                        {
+                            if (class_exists($va_object_values[$vs_attribute_part][0][$vs_attribute_part]["_objeto"]))
+                                $vo_related_object = new $va_object_values[$vs_attribute_part][0][$vs_attribute_part]["_objeto"];
+                            else
+                                $vo_related_object = new base_class($va_object_values[$vs_attribute_part][0][$vs_attribute_part]["_objeto"]);
+
+                            $va_view_fields = $vo_related_object->get_visualizacao("navegacao");
+                        
+                            foreach ($va_view_fields["ordem_campos"] as $vs_id_field => $va_field)
+                            {
+                                if (isset($va_field["main_field"]))
+                                    $vs_main_attribute_id = $vs_id_field;
+                            }
+
+                            //$vs_main_attribute_id = $vo_related_object->get_main_attribute_id();
+                        }
+                    }
+                    
+                    if ($vs_main_attribute_id)
+                    {               
+                        $va_related_object_value = array();
+
+                        foreach ($va_object_values[$vs_attribute_part] as $va_related_object_values)
+                        {
+                            if (isset($va_related_object_values[$vs_attribute_part]))
+                                $va_related_object_value[] = $this->get_attribute_value($vs_main_attribute_id, $va_related_object_values[$vs_attribute_part]);
+                            else
+                                $va_related_object_value[] = $this->get_attribute_value($vs_main_attribute_id, $va_related_object_values);
+                        }
+
+                        $va_subattribute_value[] = implode(" | ", $va_related_object_value);
+                    }
+                    else
+                    {
+                        foreach ($va_object_values[$vs_attribute_part] as $va_related_object_values)
+                        {
+                            if (isset($va_related_object_values[$vs_attribute_part]))
+                                $va_related_object_values = $va_related_object_values[$vs_attribute_part];
+
+                            if (isset($va_related_object_values["_objeto"]))
+                            {
+                                if (class_exists($va_related_object_values["_objeto"]))
+                                    $vo_related_object = new $va_related_object_values["_objeto"];
+                                else
+                                    $vo_related_object = new base_class($va_related_object_values["_objeto"]);
+
+                                $va_related_object_value[] = $vo_related_object->get_main_attribute_value('', $va_related_object_values);
+                            }
+                            else
+                            {
+                                foreach ($va_related_object_values as $vs_related_object_values)
+                                {
+                                    $va_related_object_value[] = $vs_related_object_values;
+                                }
+                            }
+                        }
+
+                        $va_subattribute_value[] = implode(" | ", $va_related_object_value);
+                    }
+                }
+
+                $vn_part_counter++;
+            }
+
+            $va_attribute_value[] = implode(" ", $va_subattribute_value);
+        }
+
+        return implode(" ", $va_attribute_value);
+    }
+
+    public function get_main_attribute_value($ps_attribute_id = '', $pa_object_values=null)
+    {
+        if (!$ps_attribute_id)
+            $ps_attribute_id = $this->get_main_attribute_id();
+
+        return $this->get_attribute_value($ps_attribute_id, $pa_object_values, true);
+    }
+
+    public function get_main_attribute_id()
+    {
+        if (!count($this->view_fields) && (isset($this->visualizacoes["lista"]["campos"])))
+        {
+            if (count($this->visualizacoes["lista"]["campos"]));
+            {
+                foreach($this->visualizacoes["lista"]["campos"] as $va_field)
+                {
+                    if (isset($va_field["main_field"]) && $va_field["main_field"])
+                        return $va_field["nome"];
+                }
+            }
+        }
+        
+        foreach ($this->view_fields as $vo_view_field)
+        {
+            if (isset($vo_view_field->main_attribute))
+            {
+                return $vo_view_field->main_attribute;
+                break;
+            }
+        }
+
+        if (count($this->view_fields))
+        {
+            $vo_view_field = reset($this->view_fields);
+            return $vo_view_field->id;
+        }
+        else
+            return "";
     }
 
     public function get_campo_autocomplete($ps_campo_nome, $ps_campo_codigo='')
@@ -745,6 +990,8 @@ class objeto_base
             if (count($va_resultados_objeto))
                 $this->numero_registros_por_objeto[$vs_objeto] = count($va_resultados_objeto);
         }
+
+        $this->number_of_records = count($va_resultado);
 
         return count($va_resultado);
     }
@@ -2091,6 +2338,8 @@ class objeto_base
                 }
             }
         }
+
+        $this->list = $va_resultado;
 
         return $va_resultado;
     }
