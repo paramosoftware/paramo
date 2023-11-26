@@ -33,6 +33,12 @@ class menu extends objeto_base
     {
         $va_atributos = array();
 
+        $va_atributos['menu_url'] = [
+            'menu_url',
+            'coluna_tabela' => 'url',
+            'tipo_dado' => 's'
+        ];
+
         return $va_atributos;
     }
 
@@ -68,6 +74,13 @@ class menu extends objeto_base
             "foco" => true
         ];
 
+        $va_campos_edicao["menu_url"] = [
+            "html_text_input",
+            "nome" => "menu_url",
+            "label" => "URL",
+            "foco" => true
+        ];
+
         return $va_campos_edicao;
     }
 
@@ -80,6 +93,10 @@ class menu extends objeto_base
         
         $va_campos_visualizacao["menu_dados_textuais"] = [
             "nome" => "menu_dados_textuais"
+        ];
+
+        $va_campos_visualizacao["menu_url"] = [
+            "nome" => "menu_url"
         ];
 
         $this->visualizacoes["lista"]["campos"] = $va_campos_visualizacao;
