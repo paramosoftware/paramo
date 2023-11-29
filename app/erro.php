@@ -50,7 +50,7 @@ if ($vs_ultima_linha)
 
     if (abs($vd_current_time - $vd_erro_timestamp) > 120)
     {
-        $vs_erro_mensagem = "Não foi possível a mensagem de erro.";
+        $vs_erro_mensagem = "Não foi possível recuperar a mensagem de erro.";
     }
 
 }
