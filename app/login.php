@@ -7,6 +7,7 @@
     require dirname(__FILE__) . "/components/debug.php";
 
     session::start_session();
+    session::set_redirect_url();
 
     if (session::get_logged_user())
     {

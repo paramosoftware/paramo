@@ -3,6 +3,7 @@
 
     require_once dirname(__FILE__) . "/components/entry_point.php";
 
+    session::set_redirect_url();
 
     if ($vs_id_objeto_tela != "")
     {

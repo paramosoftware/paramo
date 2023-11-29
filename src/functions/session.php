@@ -95,12 +95,12 @@ class session
         session::redirect("erro.php?codigo=" . $vs_codigo);
     }
 
+
+    /*
+     *  $ps_script - precisa ser um script dentro da pasta app
+     */
     public static function redirect($ps_script="index.php", $vb_absolute=false): void
     {
-
-        $vs_scheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
-        $vs_host = $_SERVER["HTTP_HOST"] ?? "";
-        $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
 
         $vs_redirect_url = "";
 
@@ -114,52 +114,15 @@ class session
             {
                 $vs_redirect_url = $va_url["path"] . (isset($va_url["query"]) ? "?" . $va_url["query"] : "");
             }
+
         }
-        elseif (isset($_SESSION["redirect_url"]))
+        elseif (!empty($_SESSION["redirect_url"]))
         {
             $vs_redirect_url = $_SESSION["redirect_url"] . $ps_script;
         }
         else
         {
-            $vs_redirect_url = $vs_scheme . "://" . $vs_host;
-
-            $va_path = explode("/", $vs_request_uri);
-
-            $i = 0;
-            foreach ($va_path as $vs_path)
-            {
-                if ($vs_path == "functions")
-                {
-                    if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
-                    {
-                        $vs_redirect_url .= $ps_script;
-                        break;
-                    }
-                }
-
-                if (strpos($vs_path, ".php") !== false)
-                {
-                    $vs_redirect_url .= $ps_script;
-                    break;
-                }
-                else
-                {
-                    $vs_redirect_url .= $vs_path . "/";
-                }
-
-                if ($vs_path == "app")
-                {
-                    $vs_redirect_url .= $ps_script;
-                    break;
-                }
-
-                $i++;
-            }
-        }
-
-        if (!$vb_absolute && !isset($_SESSION["redirect_url"]))
-        {
-            $_SESSION["redirect_url"] = str_replace($ps_script, "", $vs_redirect_url);
+            $vs_redirect_url = self::recover_redirect_url($ps_script);
         }
 
         if (!headers_sent())
@@ -271,6 +234,80 @@ class session
         $vs_login = "login.php" . ($vb_redirect ? "?redirect=" . urlencode($_SERVER["REQUEST_URI"] ?? "") : "");
         session::redirect($vs_login);
         exit();
+    }
+
+    /*
+     *  Pode ser chamada num script na pasta app para definir a página de redirecionamento.
+     *  Útil para quando $_SERVER não está disponível
+     */
+    public static function set_redirect_url()
+    {
+        if (isset($_SERVER["REQUEST_URI"]))
+        {
+            $vs_base_url = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["HTTP_HOST"];
+
+            $va_redirect = explode("/", $_SERVER["REQUEST_URI"]);
+            array_pop($va_redirect);
+
+            $_SESSION["redirect_url"] = $vs_base_url . implode("/", $va_redirect) . "/";
+        }
+    }
+
+    public static function recover_redirect_url($ps_script): string
+    {
+        $vs_scheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
+        $vs_host = $_SERVER["HTTP_HOST"] ?? "";
+        $vs_request_uri = $_SERVER["REQUEST_URI"] ?? "";
+
+        if (empty($vs_host) || empty($vs_request_uri))
+        {
+            return $ps_script;
+        }
+
+        $vs_redirect_url = $vs_scheme . "://" . $vs_host . "/";
+
+        $va_path = explode("/", $vs_request_uri);
+        $va_redirect_path = [];
+
+        $i = 0;
+        foreach ($va_path as $vs_path)
+        {
+            if (empty($vs_path))
+            {
+                continue;
+            }
+
+            if ($vs_path == "functions")
+            {
+                if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                {
+                    $va_redirect_path[] = $ps_script;
+                    break;
+                }
+            }
+
+            if (strpos($vs_path, ".php") !== false)
+            {
+                $va_redirect_path[] = $ps_script;
+                break;
+            }
+            else
+            {
+                $va_redirect_path[] = $vs_path;
+            }
+
+            if ($vs_path == "app")
+            {
+                $va_redirect_path[] = $ps_script;
+                break;
+            }
+
+            $i++;
+        }
+
+        $vs_redirect_url .= implode("/", $va_redirect_path);
+
+        return $vs_redirect_url;
     }
 
 }
