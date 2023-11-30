@@ -12,6 +12,8 @@ class objeto_base
     protected $recurso_sistema_codigo = "";
     
     protected $codigo;
+    public $code;
+    public $label;
 
     protected $tabela_banco;
     protected $chave_primaria;
