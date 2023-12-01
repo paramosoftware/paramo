@@ -917,11 +917,15 @@ class objeto_base
         $vn_numero_registros = 0;
         $vo_banco = $this->get_banco();
 
-        foreach ($va_objetos as $vs_objeto) {
+        foreach ($va_objetos as $vs_objeto) 
+        {
             $contador = 0;
             $va_resultados_objeto = array();
 
-            while ($contador < $vn_numero_loops_filtros) {
+            while ($contador < $vn_numero_loops_filtros) 
+            {
+                $vb_existe_filtro_interditado = false;
+
                 if (isset($va_filtros_busca_union))
                     $va_filtros_busca = $va_filtros_busca_union[$contador];
 
@@ -939,8 +943,9 @@ class objeto_base
                 {
                     if (count(array_intersect(array_keys($va_filtros_busca), $vo_objeto->get_filtros_interditados())) > 0)
                     {
-                        $contador++;
-                        continue;
+                        //$contador++;
+                        $vb_existe_filtro_interditado = true;
+                        //continue;
                     }
                 }
 
@@ -960,7 +965,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
+                $vb_adicionou_filtro = $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
@@ -974,7 +979,7 @@ class objeto_base
                     "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
                 ];
 
-                if (count($va_selects))
+                if (!($vb_existe_filtro_interditado && !$vb_adicionou_filtro) && count($va_selects))
                 {
                     $va_resultado_temp = $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, null, false);
 
@@ -1135,6 +1140,8 @@ class objeto_base
 
     private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array())
     {
+        $vb_adicionou_filtro = false;
+
         if (isset($pa_filtros_busca)) 
         {
             // Para cada um dos filtros...
@@ -1293,16 +1300,20 @@ class objeto_base
                             // O terceiro parâmetro vazio quer dizer que ainda não foi feito nenhum join para este filtro
                             /////////////////////////////////////////////////////////////////////////////////////////////
                             
-                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico);
+                            $vb_adicionou_filtro = $vb_adicionou_filtro || $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico);
                         }
                     }
                 }
             }
         }
+
+        return $vb_adicionou_filtro;
     }
 
     private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND')
     {
+        $vb_adicionou_filtro = false;
+
         // A partir daqui, vamos procurar o campo/atributo ao qual o filtro se refere
         ////////////////////////////////////////////////////////////////////////////
 
@@ -1641,7 +1652,8 @@ class objeto_base
                 }
             }
 
-            if ($po_objeto->chave_primaria[0] == $va_filtro[0]) {
+            if ($po_objeto->chave_primaria[0] == $va_filtro[0]) 
+            {
                 $vs_tabela_banco = $po_objeto->tabela_banco;
 
                 if ($ps_ultima_tabela_filtro)
@@ -1651,6 +1663,8 @@ class objeto_base
 
                 $vs_campo_tabela = "codigo";
                 $vs_tipo_dado_campo = "i";
+
+                $vb_adicionou_filtro = true;
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]) || $vb_is_attribute) 
             {
@@ -1789,6 +1803,8 @@ class objeto_base
                     $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
             }
         }
+
+        return $vb_adicionou_filtro;
     }
 
     private function montar_parametros_log($pa_log_info, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array())
@@ -1910,6 +1926,8 @@ class objeto_base
 
             while ($contador < $vn_numero_loops_filtros) 
             {
+                $vb_existe_filtro_interditado = false;
+
                 if (isset($va_filtros_busca_union))
                     $va_filtros_busca = $va_filtros_busca_union[$contador];
 
@@ -1920,8 +1938,9 @@ class objeto_base
                 {
                     if (count(array_intersect(array_keys($va_filtros_busca), $vo_objeto->get_filtros_interditados())) > 0)
                     {
-                        $contador++;
-                        continue;
+                        $vb_existe_filtro_interditado = true;
+                        //$contador++;
+                        //continue;
                     }
                 }
 
@@ -2073,7 +2092,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas);
+                $vb_adicionou_filtro = $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
@@ -2081,13 +2100,16 @@ class objeto_base
 
                 $va_order_by = $this->montar_ordenacao($vo_objeto, $pa_order_by, $va_campos_select, $va_joins_select, $ps_order, $va_tabelas_adicionadas);
 
-                $va_selects[] = [
-                    "tabela" => $vo_objeto->tabela_banco,
-                    "campos" => $va_campos_select,
-                    "joins" => $va_joins_select,
-                    "wheres" => $va_wheres_select,
-                    "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
-                ];
+                if (!($vb_existe_filtro_interditado && !$vb_adicionou_filtro))
+                {
+                    $va_selects[] = [
+                        "tabela" => $vo_objeto->tabela_banco,
+                        "campos" => $va_campos_select,
+                        "joins" => $va_joins_select,
+                        "wheres" => $va_wheres_select,
+                        "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
+                    ];
+                }
 
                 $contador++;
             }
