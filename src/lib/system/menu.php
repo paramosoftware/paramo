@@ -39,6 +39,13 @@ class menu extends objeto_base
             'tipo_dado' => 's'
         ];
 
+        $va_atributos['menu_pagina_site_codigo'] = [
+            'menu_pagina_site_codigo',
+            'coluna_tabela' => 'pagina_site_codigo',
+            'tipo_dado' => 'i',
+            'objeto' => 'pagina_site'
+        ];
+
         return $va_atributos;
     }
 
@@ -97,6 +104,10 @@ class menu extends objeto_base
 
         $va_campos_visualizacao["menu_url"] = [
             "nome" => "menu_url"
+        ];
+
+        $va_campos_visualizacao["menu_pagina_site_codigo"] = [
+            "nome" => "menu_pagina_site_codigo"
         ];
 
         $this->visualizacoes["lista"]["campos"] = $va_campos_visualizacao;
