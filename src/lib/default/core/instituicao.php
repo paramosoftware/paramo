@@ -1,5 +1,5 @@
 <?php
-class instituicao extends entidade
+class instituicao extends instituicao_base
 {
     function __construct()
     {
