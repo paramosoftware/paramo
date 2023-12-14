@@ -92,7 +92,7 @@ if (!$vb_pode_exibir)
             <?php if ($vs_modo == "lote")
             {
             ?>
-                <input type="checkbox" class="check-campo" id="chk_<?php print $vs_id_campo; ?>">
+                <input type="checkbox" class="check-campo form-check-input" id="chk_<?php print $vs_id_campo; ?>">
             <?php
             }
             ?>

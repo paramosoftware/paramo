@@ -264,12 +264,16 @@ $(document).on('click', "#btn_atualizar", function () {
 
 $(document).on('click', "#btn_exportar", function()
 {
-    $("#form_lista").attr('action', 'exportar.php');
-    $("#form_lista").attr('method', 'post');
-    $("#form_lista").submit();
-
-    $("#form_lista").attr('action', 'listar.php');
-    $("#form_lista").attr('method', 'get');
+    const form = $("#form_lista");
+    $.ajax({
+        url: 'functions/exportar.php',
+        type: "POST",
+        data: form.serialize(),
+        processData: false,
+        success: function (data) {
+            getProgress(data, true);
+        }
+    });
 });
 
 $(document).on('click', "#btn_upload", function()

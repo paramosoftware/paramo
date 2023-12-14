@@ -64,7 +64,7 @@ else
             <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
             {
             ?>
-                <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>">
+                <input type="checkbox" class="check-campo form-check-input" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>">
             <?php
             }
             ?>
@@ -79,7 +79,7 @@ else
     
     <div class="input_campo_formulario">
         
-        <input type="checkbox" class="" name="<?php print $vs_nome_campo ?>_chk" id="<?php print $vs_nome_campo ?>_chk" value="1"
+        <input type="checkbox" class="form-check-input" name="<?php print $vs_nome_campo ?>_chk" id="<?php print $vs_nome_campo ?>_chk" value="1"
         <?php 
         if ($vb_valor_campo)
             print " checked";
@@ -102,7 +102,7 @@ else
         }
         ?>
 
-        <input type="hidden" class="checkbox" name="<?php print $vs_nome_campo ?>" id="<?php print $vs_nome_campo ?>" value="<?php print $vb_valor_campo ?>"
+        <input type="hidden" class="checkbox form-check-input" name="<?php print $vs_nome_campo ?>" id="<?php print $vs_nome_campo ?>" value="<?php print $vb_valor_campo ?>"
         <?php
             if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                 print ' disabled';

@@ -12,7 +12,7 @@ function hideLoadingSpinner() {
 }
 
 
-function getProgress(file) {
+function getProgress(file, download = false) {
     $.ajax({
         url: 'functions/progress.php',
         type: "POST",
@@ -26,11 +26,11 @@ function getProgress(file) {
                 addErrorMessage("Ocorreu um erro ao processar o arquivo: " + data);
             } else if (data < 100) {
                 setTimeout(function () {
-                    getProgress(file);
+                    getProgress(file, download);
                     updateModalProgress(data);
                 }, 500);
             } else {
-                completeProgress(file);
+                completeProgress(file, download);
             }
         }
     });
@@ -64,13 +64,13 @@ function updateModalProgress(progress) {
     $("#barra-progresso .progress-bar").text(Math.floor(progress) + "%");
 }
 
-function completeProgress(file) {
+function completeProgress(file, download = false) {
     updateModalProgress(100);
     $("#modal-progresso-cancel").text("Fechar");
     $("#modal-progresso-cancel").attr("onclick", "closeModalProgress();");
     $("#modal-progresso-title").text("Concluído");
     $("#barra-progresso").hide();
-    $("#modal-progresso-status").html("<a href='functions/serve_file.php?folder=temp&file=" + file + "' target='_blank'>Clique aqui</a> para acessar o arquivo.");
+    $("#modal-progresso-status").html("<a target='_blank' href='functions/serve_file.php?folder=temp" + (download ? "&download=true" : "") + "&file=" + file + "'>Clique aqui</a> para acessar o arquivo");
 }
 
 function closeModalProgress() {

@@ -129,7 +129,7 @@ const MESSAGES = [
 ];
 
 define("DATABASE_PATH", dirname(__FILE__) . "/paramo.sql");
-define("ASSETS_FOLDER", dirname(__FILE__) . "/../app/assets/img");
+define("ASSETS_FOLDER", dirname(__FILE__) . "/../app/assets/custom/");
 define("MEDIA_FOLDER", dirname(__FILE__) . "/../app/media/");
 define("CONFIG_FOLDER", dirname(__FILE__) . "/../config/");
 define("LOG_FOLDER", dirname(__FILE__) . "/../src/logs/");
@@ -402,11 +402,6 @@ function get_html_step_3(string $error = ""): string
     {
         $html .= get_alert($error, "danger");
         $html .= get_alert(MESSAGES["TUTORIALS"]["WRITING_PERMISSIONS"], "info", true);
-    }
-
-    if (strpos($error, "permissões") > 0)
-    {
-
     }
 
     $fields_parameters = get_input_field_parameters();
@@ -1057,10 +1052,10 @@ function create_custom_config(): bool
     $post_values = handle_post();
 
     $envs_example_file = file_get_contents(CONFIG_FOLDER . "/envs_example.php");
-    $envs_example_file = str_replace("REPLACE_HOST", $post_values["db_host"], $envs_example_file);
-    $envs_example_file = str_replace("REPLACE_NAME", $post_values["db_name"], $envs_example_file);
-    $envs_example_file = str_replace("REPLACE_USER", $post_values["db_user"], $envs_example_file);
-    $envs_example_file = str_replace("REPLACE_PASSWORD", $post_values["db_password"], $envs_example_file);
+    $envs_example_file = str_replace("REPLACE_HOST", escape_chars($post_values["db_host"]), $envs_example_file);
+    $envs_example_file = str_replace("REPLACE_NAME", escape_chars($post_values["db_name"]), $envs_example_file);
+    $envs_example_file = str_replace("REPLACE_USER", escape_chars($post_values["db_user"]), $envs_example_file);
+    $envs_example_file = str_replace("REPLACE_PASSWORD", escape_chars($post_values["db_password"]), $envs_example_file);
     $envs_file_path = CONFIG_FOLDER . "/custom/envs.php";
 
     if (!file_exists($envs_file_path))
@@ -1076,7 +1071,7 @@ function create_custom_config(): bool
 
     $settings_content = '<?php
         return [   
-            "nome_instituicao" => "' . $post_values["institution_name"] . '" 
+            "nome_instituicao" => "' . escape_chars($post_values["institution_name"]) . '" 
         ];
     ';
 
@@ -1094,6 +1089,13 @@ function create_custom_config(): bool
     }
 
     return true;
+}
+
+
+function escape_chars(string $string): string
+{
+    $string = addslashes($string);
+    return str_replace('$', '\$', $string);
 }
 
 function get_input_field_parameters(): array

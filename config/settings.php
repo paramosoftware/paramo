@@ -14,7 +14,7 @@ return [
     # ================================================ CLASSES ================================================ #
 
     # Nome da pasta onde estão as classes de negócio do sistema, dentro do caminho src/lib
-    "classes" => "default",
+    "pasta_business" => "default",
 
     # ================================================ DEPURAÇÃO ================================================ #
 

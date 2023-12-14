@@ -34,12 +34,15 @@ try {
 
 $vs_acervo = $vs_recurso_sistema_nome ?? $vs_recurso_sistema_nome_plural ?? "não informado";
 
-$vo_label->vs_title = "Lista";
+$vo_label->vs_title = $vs_modo == "ficha" ? "Ficha" : "Lista";
 $vo_label->vb_include_image = $_POST["incluir_representante_digital"] ?? true;
 $vo_label->vs_image_position = $_POST["posicao_representante_digital"] ?? 'left_side';
 $vo_label->vb_break_row =  $_POST["quebrar_linha"] ?? false;
 $vo_label->va_subheadings[] = ["label" => "Acervo", "value" => $vs_acervo];
-$vo_label->va_subheadings[] = ["label" => "Número de registros", "value" => $vn_numero_registros ?? 0];
+if ($vs_modo != "ficha")
+{
+    $vo_label->va_subheadings[] = ["label" => "Número de registros", "value" => $vn_numero_registros ?? 0];
+}
 $vo_label->va_itens = $va_itens_listagem ?? [];
 $vo_label->process();
 

@@ -17,7 +17,7 @@
         $va_extensoes = config::get(["extensoes_permitidas"]);
         $va_mimes = array_values($va_extensoes);
 
-        $vs_assets_folder = config::get(["pasta_assets", "images"]);
+        $vs_assets_folder = config::get(["pasta_assets", "custom", "images"]);
 
         $file = $_FILES["logo"] ?? null;
 
@@ -43,7 +43,7 @@
 
         $image = imagecreatefromstring(file_get_contents($file["tmp_name"]));
 
-        $file_path = $vs_assets_folder . "custom-logo.png";
+        $file_path = $vs_assets_folder . "logo.png";
 
         if (file_exists($file_path)) {
             unlink($file_path);

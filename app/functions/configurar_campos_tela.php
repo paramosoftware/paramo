@@ -65,7 +65,7 @@
                 $va_campos[$va_campo_sistema["campo_sistema_nome"]]["descricao"] = $va_campo_sistema["campo_sistema_descricao"];
             }
         }
-
+        
         // Adicionando aqui a parametrização por formato de ficha/formulário
         ////////////////////////////////////////////////////////////////////
 
@@ -208,7 +208,7 @@
     
     if ($vs_id_campo)
     {
-        if (isset($va_campos[$vs_id_campo]))
+        //if (isset($va_campos[$vs_id_campo]))
         {
             $va_campos = array();
 
@@ -234,8 +234,8 @@
 
             $va_campos[$vs_id_campo]["atualizacao"] = $vb_atualizacao_campo;
         }
-        else
-            $va_campos = array();
+        //else
+            //$va_campos = array();
     }
     else
         $va_campos = $va_telas[$vs_modo][$vs_id_objeto_tela];

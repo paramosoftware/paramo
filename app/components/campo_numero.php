@@ -80,7 +80,7 @@ else
                 <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                 {
                 ?>
-                    <input type="checkbox" class="check-campo" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>">
+                    <input type="checkbox" class="check-campo form-check-input" id="chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>">
                 <?php
                 }
                 ?>

@@ -65,7 +65,7 @@ if (!$vb_exibir_filtro)
             </div>
 
             <div class="col-6 text-left">
-                <button class="btn btn-outline-primary px-4 bg-cor-branca" type="button" id="btn_limpar">Limpar</button>
+                <button class="btn btn-outline-primary px-4" type="button" id="btn_limpar">Limpar</button>
             </div>
         </div>
     </div>
