@@ -764,6 +764,30 @@ class livro extends item_acervo
             "item_acervo_dados_textuais_0_item_acervo_descricao" => "Descrição",
         ];
 
+        ///////////////////////////////////
+        // Visualizações para new public //
+        ///////////////////////////////////
+
+        $va_campos_visualizacao_ficha = $this->visualizacoes["ficha"]["campos"];
+
+        $this->visualizacoes["public-browse"]["campos"]["livro_codigo"] = ["nome" => "livro_codigo"];
+        $this->visualizacoes["public-browse"]["campos"]["item_acervo_codigo"] = ["nome" => "item_acervo_codigo"];
+        $this->visualizacoes["public-browse"]["campos"]["item_acervo_identificador"] = ["nome" => "item_acervo_identificador"];
+        $this->visualizacoes["public-browse"]["campos"]["item_acervo_acervo_codigo"] = $va_campos_visualizacao_ficha["item_acervo_acervo_codigo"];
+        $this->visualizacoes["public-browse"]["campos"]["item_acervo_dados_textuais"] = $va_campos_visualizacao_ficha["item_acervo_dados_textuais"];
+        $this->visualizacoes["public-browse"]["campos"]["item_acervo_data"] = $va_campos_visualizacao_ficha["item_acervo_data"];
+        $this->visualizacoes["public-browse"]["campos"]["representante_digital_codigo"] = ["nome" => "representante_digital_codigo"];
+
+        $this->visualizacoes["public-browse"]["ordem_campos"] =
+        [
+            "item_acervo_dados_textuais_0_item_acervo_titulo" => ["label" => "Título"],
+            //"item_acervo_identificador" => ["label" => "Identificador", "id_field" => true],
+            "item_acervo_identificador" => ["label" => "Identificador"],
+            "item_acervo_acervo_codigo_0_acervo_nome" => ["label" => "Biblioteca"],
+            "item_acervo_data" => ["label" => "Data"],
+        ];
+
+        $this->visualizacoes["public-summary"] = $this->visualizacoes["public-browse"];
     }
 
 }
