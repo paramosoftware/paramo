@@ -144,7 +144,7 @@
     {
         $vn_usuario_logado_instituicao_codigo = $va_usuario["usuario_instituicao_codigo"]["instituicao_codigo"];
         $vs_usuario_logado_instituicao_nome = $va_usuario["usuario_instituicao_codigo"]["instituicao_nome"];
-        $vb_usuario_logado_instituicao_admin = $va_usuario["usuario_instituicao_codigo"]["instituicao_admin"];
+        $vb_usuario_logado_instituicao_admin = $va_usuario["usuario_instituicao_codigo"]["instituicao_admin"] ?? 0;
     }
 
     // O código do usuário admin é hardcoded até segunda ordem

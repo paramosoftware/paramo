@@ -104,7 +104,7 @@
     }
     else
     {
-        if (trim($_POST[$vs_chave_primaria_objeto] == "") && !$vb_pode_inserir)
+        if (empty($_POST[$vs_chave_primaria_objeto]) && !$vb_pode_inserir)
         {
             utils::log(
                 "Tentativa de inserção sem permissão: ",
@@ -117,7 +117,7 @@
         {
             $vb_acesso_registro = true;
 
-            if (trim($_POST[$vs_chave_primaria_objeto]) != "")
+            if (!empty($_POST[$vs_chave_primaria_objeto]))
             {
                 $vb_acesso_registro = $vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso);
             }
