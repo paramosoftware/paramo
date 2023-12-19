@@ -71,7 +71,7 @@ class report extends exFPDF
 
         $table->easyCell($vs_cell, 'align:L; valign:M; line-height:1.2;');
 
-        $vs_logo_path = config::get(["pasta_assets", "images"]) . explode('/', config::get(["logo"]))[2];
+        $vs_logo_path = config::get(["pasta_assets", "custom", "images"]) . 'logo.png';
         $table->easyCell('', 'img:' . $vs_logo_path . ', h20; align:R; valign:M;');
 
         $table->printRow();

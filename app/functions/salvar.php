@@ -16,6 +16,8 @@
     {
         if (isset($_POST["usuario_codigo"]) && ($_POST["usuario_codigo"] != $vn_usuario_logado_codigo))
         {
+            unset($_POST["usuario_senha"]);
+            unset($_POST["repetir_senha"]);
             utils::log(
                 "Tentativa de alteração de senha de outro usuário: ",
                 __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
@@ -104,7 +106,7 @@
     }
     else
     {
-        if (trim($_POST[$vs_chave_primaria_objeto] == "") && !$vb_pode_inserir)
+        if (empty($_POST[$vs_chave_primaria_objeto]) && !$vb_pode_inserir)
         {
             utils::log(
                 "Tentativa de inserção sem permissão: ",
@@ -117,7 +119,7 @@
         {
             $vb_acesso_registro = true;
 
-            if (trim($_POST[$vs_chave_primaria_objeto]) != "")
+            if (!empty($_POST[$vs_chave_primaria_objeto]))
             {
                 $vb_acesso_registro = $vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso);
             }

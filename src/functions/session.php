@@ -87,6 +87,11 @@ class session
 
         if ($pb_append_http_variables)
         {
+
+            unset($_POST["usuario_senha"]);
+            unset($_POST["repetir_senha"]);
+            unset($_POST["usuario_senha_provisoria"]);
+
             $stacktrace .= " - \$_GET: " . var_export($_GET, true);
             $stacktrace .= " - \$_POST: " . var_export($_POST, true);
         }
