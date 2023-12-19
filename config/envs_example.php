@@ -31,7 +31,7 @@ return [
     "drive_client_id" => "",
     "drive_client_secret" => "",
     "drive_scopes" => "",
-    "drive_redirect_uri" => $_SESSION["redirect_url"]  .  "functions/redirect.php",
+    "drive_redirect_uri" => ($_SESSION["redirect_url"] ?? ($_SERVER['HTTP_HOST'] . '/paramo/app/')) .  "functions/redirect.php",
     "drive_api_key" => "",
 
 ];
