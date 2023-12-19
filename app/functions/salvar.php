@@ -16,6 +16,8 @@
     {
         if (isset($_POST["usuario_codigo"]) && ($_POST["usuario_codigo"] != $vn_usuario_logado_codigo))
         {
+            unset($_POST["usuario_senha"]);
+            unset($_POST["repetir_senha"]);
             utils::log(
                 "Tentativa de alteração de senha de outro usuário: ",
                 __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
