@@ -2588,6 +2588,11 @@ class objeto_base
 
                 $vs_campo_order_by = $vs_order_by;
             }
+            elseif ($vs_order_by == $po_objeto->chave_primaria[0])
+            {
+                $pa_campos_select["ord"] = $vs_tabela_objeto . "." . $vs_coluna_chave_primaria . " as ord";
+                $vs_campo_order_by = $po_objeto->chave_primaria[0];
+            }
 
             if ($vs_campo_order_by && ($vs_campo_order_by != "_rand_"))
             {
@@ -2595,7 +2600,8 @@ class objeto_base
                     $ps_order = "";
 
                 $va_order_by[$vs_campo_order_by] = " ord IS NULL " . $ps_order . ", ord " . $ps_order;
-            } else
+            }
+            else
             {
                 $va_order_by = "_rand_";
             }
