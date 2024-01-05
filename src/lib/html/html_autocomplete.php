@@ -11,6 +11,9 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $pa_
 
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
+    if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
+        $vb_pode_exibir = $vb_pode_exibir && ($va_valor_campo[$pa_parametros_campo["nome"][1]] != "") && $pa_parametros_campo["exibir_quando_preenchido"];
+
     $vb_pode_editar = 0;
     if (in_array("_all_", $pa_recursos_sistema_permissao_edicao) || (isset($pa_parametros_campo["objeto"]) && in_array($pa_parametros_campo["objeto"], $pa_recursos_sistema_permissao_edicao)))
         $vb_pode_editar = 1;

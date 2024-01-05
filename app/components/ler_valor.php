@@ -57,8 +57,9 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
         }
         else
         {
-            // Tem que tratar o relacionamento que pode dar origem a vários campo
-                $va_atributos[] = $pa_item;            
+            // Tem que tratar o relacionamento que pode dar origem a vários campos
+
+            $va_atributos[] = $pa_item;            
         }
     }
 
@@ -68,7 +69,11 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
     if (isset($pa_opcoes_campo["formato"]["expressao"]))
         $va_expressao_campo = $pa_opcoes_campo["formato"]["expressao"];
     elseif (isset($pa_opcoes_campo["formato"]["campo"]))
+    {
+        if (!isset($pa_item[$ps_atributo])) return "";
+        
         $va_expressao_campo[] = $pa_opcoes_campo["formato"]["campo"];
+    }
     else
         $va_expressao_campo[] = $ps_atributo;
     

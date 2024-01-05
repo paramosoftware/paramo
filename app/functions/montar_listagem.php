@@ -117,7 +117,7 @@
 
             if ($vo_objeto->get_campo_hierarquico() && $vo_objeto->exibir_lista_hierarquica)
             {
-                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && (!$vb_tem_filtros_consulta))
+                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && (!$vb_tem_filtros_consulta || $vo_objeto->hierarquia_subordinada))
                     $va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()] = [null, "<=>"];
             }
 
@@ -225,7 +225,6 @@
 
                     if (is_array($vs_label_campo_visualizacao))
                     {
-
                         if (isset($vs_label_campo_visualizacao["controlado_por"]))
                         {
                             $vs_controlado_por = $vs_label_campo_visualizacao["controlado_por"];

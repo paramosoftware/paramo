@@ -84,6 +84,17 @@
 
             $va_campos = $va_campos_temp;
         }
+        elseif ($vo_objeto->hierarquia_subordinada && isset($va_objeto[$vo_objeto->get_campo_hierarquico()]))
+        {
+            $va_campos_temp = array();
+
+            foreach (array_keys($vo_objeto->get_visualizacao("hierarquia_subordinada")["ordem_campos"]) as $vs_key_campo)
+            {
+                $va_campos_temp[$vs_key_campo] = $va_campos[$vs_key_campo];
+            }
+
+            $va_campos = $va_campos_temp;
+        }
 
         //////////////////////////////////////////////////////////////////////////////
         
