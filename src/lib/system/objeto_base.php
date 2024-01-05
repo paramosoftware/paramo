@@ -1496,7 +1496,44 @@ class objeto_base
                 $vs_tipo_dado_campo = reset($po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"]);
             }
 
-            if (($vs_campo_tabela) && ($ps_operador != "_EXISTS_")) 
+            if (isset($vs_tipo_dado_campo) && $vs_tipo_dado_campo == "dt")
+            {
+                $campo_data_inicial = $vs_tabela_banco . "." . $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[0]]["data_inicial"] ?? null;
+                $campo_data_final = $vs_tabela_banco . "." . $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[0]]["data_final"] ?? null;
+
+                if ($ps_operador == "_EXISTS_")
+                {
+                    $vb_valor_busca = reset($pa_valores_busca);
+                    $condition = $vb_valor_busca ? " IS NOT NULL " : " IS NULL ";
+                    $pa_wheres_select[] = $campo_data_inicial . $condition;
+                }
+                elseif ($pa_valores_busca[0] == "_sem_data_")
+                {
+                    $pa_wheres_select[] = $campo_data_inicial . " IS NULL ";
+                }
+                elseif (isset($campo_data_final) || isset($pa_valores_busca[1]))
+                {
+                    $vs_where = $campo_data_inicial . " >= (?) ";
+                    $vs_where .= isset($campo_data_final) ? " AND " . $campo_data_final . " <= (?) " : " AND " . $campo_data_inicial . " <= (?) ";
+                    $pa_wheres_select[] = $vs_where;
+
+                    $pa_tipos_parametros_select[] = "s";
+                    $pa_parametros_select[] = $pa_valores_busca[0];
+
+                    if (isset($campo_data_final) || isset($pa_valores_busca[1]))
+                    {
+                        $pa_tipos_parametros_select[] = "s";
+                        $pa_parametros_select[] = $pa_valores_busca[1];
+                    }
+                }
+                else
+                {
+                    $pa_wheres_select[] = $campo_data_inicial . " = (?) ";
+                    $pa_tipos_parametros_select[] = "s";
+                    $pa_parametros_select[] = $pa_valores_busca[0];
+                }
+            }
+            elseif (($vs_campo_tabela) && ($ps_operador != "_EXISTS_"))
             {
                 if ($ps_operador == "NOT")
                     $pa_wheres_select[] = $ps_operador . " " . $vs_tabela_banco . "." . $vs_campo_tabela . "<=>" . $ps_interrogacoes;
@@ -2551,6 +2588,11 @@ class objeto_base
 
                 $vs_campo_order_by = $vs_order_by;
             }
+            elseif ($vs_order_by == $po_objeto->chave_primaria[0])
+            {
+                $pa_campos_select["ord"] = $vs_tabela_objeto . "." . $vs_coluna_chave_primaria . " as ord";
+                $vs_campo_order_by = $po_objeto->chave_primaria[0];
+            }
 
             if ($vs_campo_order_by && ($vs_campo_order_by != "_rand_"))
             {
@@ -2558,7 +2600,8 @@ class objeto_base
                     $ps_order = "";
 
                 $va_order_by[$vs_campo_order_by] = " ord IS NULL " . $ps_order . ", ord " . $ps_order;
-            } else
+            }
+            else
             {
                 $va_order_by = "_rand_";
             }
