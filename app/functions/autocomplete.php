@@ -2,7 +2,7 @@
 
     require_once dirname(__FILE__) . "/autenticar_usuario.php";
     require_once dirname(__FILE__) . "/../components/ler_valor.php";
-    
+
     // As listas de sugestões vão ser especificadas aqui, por enquanto,
     // e não criadas automaticamente
     
@@ -364,7 +364,13 @@
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
     
     $vo_objeto = new $vs_id_objeto_campo('');
-    $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo);
+
+    $va_campos_edicao = $vo_objeto->get_campos_edicao();
+
+    if (isset($va_campos_edicao[$vs_campo_codigos]))
+        $va_parametros_campo_pai = $va_campos_edicao[$vs_campo_codigos];
+
+    $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo, $va_parametros_campo_pai['modo'] ?? "");
 
     if (!count($va_parametros_campo))
     {
@@ -395,13 +401,12 @@
 
     if ($vn_item_excluir)
     {
-        $va_parametros_campo["filtro"] = [
+        $va_parametros_campo["filtro"][] =
             [
                 "valor" => $vn_item_excluir,
                 "atributo" => $vs_campo_codigo,
                 "operador" => "NOT IN"
-            ]
-        ];
+            ];
     }
 
     $vo_html_selection_list_input = new html_combo_input(null, $vs_campo, "autocomplete");
