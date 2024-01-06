@@ -26,7 +26,8 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $pa_
         {
             foreach($pa_parametros_campo["conectar"] as $v_conectar)
             {
-                $pa_valores_form[$v_conectar["atributo"]] = $vn_valor_campo_codigo;
+                if (!isset($pa_valores_form[$v_conectar["atributo"]]))
+                    $pa_valores_form[$v_conectar["atributo"]] = $vn_valor_campo_codigo;
             }
         }
 
