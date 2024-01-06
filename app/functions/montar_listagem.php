@@ -117,7 +117,7 @@
 
             if ($vo_objeto->get_campo_hierarquico() && $vo_objeto->exibir_lista_hierarquica)
             {
-                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && (!$vb_tem_filtros_consulta || $vo_objeto->hierarquia_subordinada))
+                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && ( (!$vb_tem_filtros_consulta && ($vo_objeto->tipo_hierarquia == "default")) || $vo_objeto->tipo_hierarquia == "subordinada"))
                     $va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()] = [null, "<=>"];
             }
 
