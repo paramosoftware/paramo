@@ -43,7 +43,11 @@ public function validar_valores($pa_valores_form=array(), $pa_parametros_campo=a
 
         if ( isset($pa_parametros_campo["obrigatorio"]) && $pa_parametros_campo["obrigatorio"] )
         {
-            if ( isset($pa_parametros_campo["sugerir_valores"]) && !$pa_parametros_campo["sugerir_valores"])
+            if ( 
+                (isset($pa_parametros_campo["sugerir_valores"]) && !$pa_parametros_campo["sugerir_valores"])
+                ||
+                (isset($pa_parametros_campo["permitir_entrada_avulsa"]) && $pa_parametros_campo["permitir_entrada_avulsa"])
+            )
             {
                 if (isset($pa_valores_form[$pa_parametros_campo["nome"][0]]))
                 {
@@ -55,7 +59,6 @@ public function validar_valores($pa_valores_form=array(), $pa_parametros_campo=a
             }
             elseif ($vs_valor_campo == "")
                 return 'O campo "' . $pa_parametros_campo["label"] . '" é de preenchimento obrigatório!';
-
         }
     }
 

@@ -189,6 +189,12 @@
                 }
             }
 
+            if (count($va_parametros_filtros_form))
+                $vb_tem_filtros_consulta = true;
+        }
+
+        foreach ($va_campos as $vs_campo => $va_campo_filtro)
+        {
             if (!isset($va_parametros_filtros_consulta[$vs_campo]) && isset($va_campo_filtro["valor_padrao"]))
             {
                 $vs_operador_filtro = "=";
@@ -197,9 +203,6 @@
 
                 $va_parametros_filtros_consulta[$vs_campo] = [$va_campo_filtro["valor_padrao"], $vs_operador_filtro];
             }
-
-            if (count($va_parametros_filtros_form))
-                $vb_tem_filtros_consulta = true;
         }
 
         if (isset($va_parametros_submit["concatenadores"]))

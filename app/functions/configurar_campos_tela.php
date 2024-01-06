@@ -86,7 +86,7 @@
 
             $va_campos = $va_campos_temp;
         }
-        elseif ($vo_objeto->tipo_hierarquia = "subordinada" && isset($va_objeto[$vo_objeto->get_campo_hierarquico()]))
+        elseif ($vo_objeto->tipo_hierarquia == "subordinada" && isset($va_objeto[$vo_objeto->get_campo_hierarquico()]))
         {
             $va_campos_temp = array();
 

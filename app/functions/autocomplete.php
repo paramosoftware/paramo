@@ -363,7 +363,7 @@
     $va_termo_busca[$vs_procurar_por] = [$vs_termo, "LIKE"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
     
-    $vo_objeto = new $vs_id_objeto_campo('');
+    $vo_objeto = new $vs_id_objeto_tela;
 
     $va_campos_edicao = $vo_objeto->get_campos_edicao();
 
@@ -398,6 +398,10 @@
         $va_parametros_campo["numero_maximo_itens"] = 50;
     }
 
+    if (isset($va_parametros_campo_pai["permitir_entrada_avulsa"]))
+    {
+        $va_parametros_campo["permitir_entrada_avulsa"] = $va_parametros_campo_pai["permitir_entrada_avulsa"];
+    }
 
     if ($vn_item_excluir)
     {
