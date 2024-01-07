@@ -274,8 +274,7 @@ class session
         $va_path = explode("/", $vs_request_uri);
         $va_redirect_path = [];
 
-        $i = 0;
-        foreach ($va_path as $vs_path)
+        foreach ($va_path as $vn_key => $vs_path)
         {
             if (empty($vs_path))
             {
@@ -284,7 +283,7 @@ class session
 
             if ($vs_path == "functions")
             {
-                if (isset($va_path[$i + 1]) && strpos($va_path[$i + 1], ".php") !== false)
+                if (isset($va_path[$vn_key + 1]) && strpos($va_path[$vn_key + 1], ".php") !== false)
                 {
                     $va_redirect_path[] = $ps_script;
                     break;
@@ -306,8 +305,6 @@ class session
                 $va_redirect_path[] = $ps_script;
                 break;
             }
-
-            $i++;
         }
 
         $vs_redirect_url .= implode("/", $va_redirect_path);
