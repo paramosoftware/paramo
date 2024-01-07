@@ -112,7 +112,7 @@
         $vn_valor_campo_codigo = "0";
         $vb_valor_nulo = true;
     }
-    
+
     if (!$vb_multiplos_valores && !$vb_valor_nulo)
     {
         if (isset($va_valor_campo[$vs_nome_campo_codigos]))
@@ -141,8 +141,13 @@
                     $vs_campo_item_lista_value = $pa_parametros_campo["atributos"][$va_keys_atributos[1]];
                 else
                 {
-                    $vs_campo_item_lista_value = $va_keys_atributos[1];
-                    $vs_campo_hierarquia = $pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"];
+                    if (isset($pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"]))
+                    {
+                        $vs_campo_item_lista_value = $va_keys_atributos[1];
+                        $vs_campo_hierarquia = $pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"];
+                    }
+                    else
+                        $vs_campo_item_lista_value = $pa_parametros_campo["atributos"][$va_keys_atributos[1]];
                 }
                 
                 // Temos que generalizar essa montagem numa função
