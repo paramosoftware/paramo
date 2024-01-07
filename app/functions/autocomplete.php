@@ -363,13 +363,14 @@
     $va_termo_busca[$vs_procurar_por] = [$vs_termo, "LIKE"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
     
-    $vo_objeto = new $vs_id_objeto_tela;
+    $vo_objeto_tela = new $vs_id_objeto_tela;
 
-    $va_campos_edicao = $vo_objeto->get_campos_edicao();
+    $va_campos_edicao = $vo_objeto_tela->get_campos_edicao();
 
     if (isset($va_campos_edicao[$vs_campo_codigos]))
         $va_parametros_campo_pai = $va_campos_edicao[$vs_campo_codigos];
 
+    $vo_objeto = new $vs_id_objeto_campo;
     $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo, $va_parametros_campo_pai['modo'] ?? "");
 
     if (!count($va_parametros_campo))
