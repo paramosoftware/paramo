@@ -54,7 +54,7 @@ class entrevista extends item_acervo
 
         $va_atributos['entrevista_tipo_entrevista_codigo'] = [
             'entrevista_tipo_entrevista_codigo',
-            'coluna_tabela' => 'tipo_codigo',
+            'coluna_tabela' => 'tipo_entrevista_codigo',
             'tipo_dado' => 'i',
             'objeto' => 'tipo_entrevista'
         ];

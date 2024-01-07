@@ -2,7 +2,7 @@
 
     require_once dirname(__FILE__) . "/autenticar_usuario.php";
     require_once dirname(__FILE__) . "/../components/ler_valor.php";
-    
+
     // As listas de sugestões vão ser especificadas aqui, por enquanto,
     // e não criadas automaticamente
     
@@ -363,8 +363,15 @@
     $va_termo_busca[$vs_procurar_por] = [$vs_termo, "LIKE"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
     
-    $vo_objeto = new $vs_id_objeto_campo('');
-    $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo);
+    $vo_objeto_tela = new $vs_id_objeto_tela;
+
+    $va_campos_edicao = $vo_objeto_tela->get_campos_edicao();
+
+    if (isset($va_campos_edicao[$vs_campo_codigos]))
+        $va_parametros_campo_pai = $va_campos_edicao[$vs_campo_codigos];
+
+    $vo_objeto = new $vs_id_objeto_campo;
+    $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo, $va_parametros_campo_pai['modo'] ?? "");
 
     if (!count($va_parametros_campo))
     {
@@ -392,16 +399,19 @@
         $va_parametros_campo["numero_maximo_itens"] = 50;
     }
 
+    if (isset($va_parametros_campo_pai["permitir_entrada_avulsa"]))
+    {
+        $va_parametros_campo["permitir_entrada_avulsa"] = $va_parametros_campo_pai["permitir_entrada_avulsa"];
+    }
 
     if ($vn_item_excluir)
     {
-        $va_parametros_campo["filtro"] = [
+        $va_parametros_campo["filtro"][] =
             [
                 "valor" => $vn_item_excluir,
                 "atributo" => $vs_campo_codigo,
                 "operador" => "NOT IN"
-            ]
-        ];
+            ];
     }
 
     $vo_html_selection_list_input = new html_combo_input(null, $vs_campo, "autocomplete");

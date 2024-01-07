@@ -19,6 +19,7 @@ class objeto_base
     protected $hierarquico = false;
     protected $campo_hierarquico = "";
     public $exibir_lista_hierarquica = true;
+    public $tipo_hierarquia = "default";
 
     protected $filtros_selecao = array();
 

@@ -235,7 +235,7 @@
     }
     ?>
 
-    <?php if ($vb_pode_remover)
+    <?php if ($vb_pode_remover && (!isset($va_parametros_campo["readonly"]) || !$va_parametros_campo["readonly"]))
     {
     ?>
         <button class="btn btn-primary float-end btn-trash" type="button" id="btn_rem_<?php print $vs_nome_campo_lookup . "_" . $vn_linha_codigo; ?>">

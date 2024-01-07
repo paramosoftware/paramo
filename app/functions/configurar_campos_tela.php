@@ -69,6 +69,8 @@
         // Adicionando aqui a parametrização por formato de ficha/formulário
         ////////////////////////////////////////////////////////////////////
 
+        $vb_habilitar_campo_representante_digital = true;
+
         if (isset($vn_formato_ficha_codigo) && $vn_formato_ficha_codigo)
         {
             $vo_visualizacao = new visualizacao;
@@ -84,13 +86,26 @@
 
             $va_campos = $va_campos_temp;
         }
+        elseif ($vo_objeto->tipo_hierarquia == "subordinada" && isset($va_objeto[$vo_objeto->get_campo_hierarquico()]))
+        {
+            $va_campos_temp = array();
+
+            foreach (array_keys($vo_objeto->get_visualizacao("hierarquia_subordinada")["ordem_campos"]) as $vs_key_campo)
+            {
+                $va_campos_temp[$vs_key_campo] = $va_campos[$vs_key_campo];
+            }
+
+            $va_campos = $va_campos_temp;
+
+            $vb_habilitar_campo_representante_digital = false;
+        }
 
         //////////////////////////////////////////////////////////////////////////////
         
         // Só adiciona o campo de representantes digitais para registros já existentes
         //////////////////////////////////////////////////////////////////////////////
 
-        if ($vo_objeto->get_recurso_sistema_codigo() && $pn_objeto_codigo && ($vs_modo != "lote"))
+        if ($vb_habilitar_campo_representante_digital && $vo_objeto->get_recurso_sistema_codigo() && $pn_objeto_codigo && ($vs_modo != "lote"))
         {
             $va_campo_representante_digital = array("representante_digital_codigo" => [
                 "html_representantes_digitais_input", 
@@ -135,7 +150,7 @@
             $va_campos = $va_campos + $va_campo_etapa_fluxo;
         }
 
-        if ($vo_objeto->get_recurso_sistema_codigo() && $pn_objeto_codigo && ($vs_modo != "lote"))
+        if ($vb_habilitar_campo_representante_digital && $vo_objeto->get_recurso_sistema_codigo() && $pn_objeto_codigo && ($vs_modo != "lote"))
             $va_campos = $va_campos + $va_campo_arquivo_download;
 
         // Por padrão, todos os campos de edição em lote só serão exibidos

@@ -11,6 +11,9 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $pa_
 
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
+    if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
+        $vb_pode_exibir = $vb_pode_exibir && (isset($va_valor_campo[$pa_parametros_campo["nome"][1]]) && $va_valor_campo[$pa_parametros_campo["nome"][1]] != "") && $pa_parametros_campo["exibir_quando_preenchido"];
+
     $vb_pode_editar = 0;
     if (in_array("_all_", $pa_recursos_sistema_permissao_edicao) || (isset($pa_parametros_campo["objeto"]) && in_array($pa_parametros_campo["objeto"], $pa_recursos_sistema_permissao_edicao)))
         $vb_pode_editar = 1;
@@ -23,7 +26,8 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $pa_
         {
             foreach($pa_parametros_campo["conectar"] as $v_conectar)
             {
-                $pa_valores_form[$v_conectar["atributo"]] = $vn_valor_campo_codigo;
+                if (!isset($pa_valores_form[$v_conectar["atributo"]]) || is_array($pa_valores_form[$v_conectar["atributo"]]))
+                    $pa_valores_form[$v_conectar["atributo"]] = $vn_valor_campo_codigo;
             }
         }
 
@@ -39,7 +43,11 @@ public function validar_valores($pa_valores_form=array(), $pa_parametros_campo=a
 
         if ( isset($pa_parametros_campo["obrigatorio"]) && $pa_parametros_campo["obrigatorio"] )
         {
-            if ( isset($pa_parametros_campo["sugerir_valores"]) && !$pa_parametros_campo["sugerir_valores"])
+            if ( 
+                (isset($pa_parametros_campo["sugerir_valores"]) && !$pa_parametros_campo["sugerir_valores"])
+                ||
+                (isset($pa_parametros_campo["permitir_entrada_avulsa"]) && $pa_parametros_campo["permitir_entrada_avulsa"])
+            )
             {
                 if (isset($pa_valores_form[$pa_parametros_campo["nome"][0]]))
                 {
@@ -51,7 +59,6 @@ public function validar_valores($pa_valores_form=array(), $pa_parametros_campo=a
             }
             elseif ($vs_valor_campo == "")
                 return 'O campo "' . $pa_parametros_campo["label"] . '" é de preenchimento obrigatório!';
-
         }
     }
 
