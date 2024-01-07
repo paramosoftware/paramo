@@ -249,8 +249,8 @@ class session
     {
         if (isset($_SERVER["REQUEST_URI"]))
         {
-            $vs_base_url = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["HTTP_HOST"];
-
+            $vs_sheme = $_SERVER["REQUEST_SCHEME"] ?? "https";
+            $vs_base_url = $vs_sheme . "://" . $_SERVER["HTTP_HOST"];
             $va_redirect = explode("/", $_SERVER["REQUEST_URI"]);
             array_pop($va_redirect);
 
