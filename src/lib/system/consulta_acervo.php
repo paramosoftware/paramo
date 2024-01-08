@@ -54,6 +54,26 @@ class consulta_acervo extends selecao
         return $va_campos_edicao;
     }
 
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["selecao_nome"] = [
+            "html_text_input",
+            "nome" => "selecao_nome",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE",
+            "foco" => true,
+            "filtro" => [
+                "atributo" => "selecao_tipo_codigo",
+                "operador_filtro" => "=",
+                "valor" => 2
+            ]
+        ];
+
+        return $va_filtros_navegacao;
+    }
+
 }
 
 ?>

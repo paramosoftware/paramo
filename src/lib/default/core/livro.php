@@ -591,14 +591,14 @@ class livro extends item_acervo
             "operador_filtro" => "LIKE"
         ];
 
-        $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_titulo"] = [
+        $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_titulo,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_subtitulo,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_descricao,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_observacoes"] = [
             "html_text_input",
             "nome" => "item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_titulo,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_subtitulo,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_descricao,item_acervo_codigo_0_item_acervo_dados_textuais_0_item_acervo_observacoes",
             "label" => "Título, subtítulo, descrição ou observações",
             "operador_filtro" => "LIKE"
         ];
 
-        $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome"] = [
+        $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome,item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_principal_codigo_0_entidade_nome"] = [
             "html_text_input",
             "nome" => "item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome,item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_principal_codigo_0_entidade_nome",
             "label" => "Autoria",

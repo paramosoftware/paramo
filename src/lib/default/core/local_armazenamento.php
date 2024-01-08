@@ -96,7 +96,11 @@ public function inicializar_campos_edicao()
         "foco" => true
     ];
 
-    $va_campos_edicao["local_armazenamento_nome"] = ["html_text_input", "nome" => "local_armazenamento_nome", "label" => "Nome"];
+    $va_campos_edicao["local_armazenamento_nome"] = [
+        "html_text_input",
+        "nome" => "local_armazenamento_nome",
+        "label" => "Nome"
+    ];
     
     $va_campos_edicao["local_armazenamento_descricao"] = [
         "html_text_input", 
@@ -106,6 +110,20 @@ public function inicializar_campos_edicao()
     ];
 
     return $va_campos_edicao;
+}
+
+public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+{
+    $va_filtros_navegacao = array();
+
+    $va_filtros_navegacao["local_armazenamento_nome"] = [
+        "html_text_input",
+        "nome" => "local_armazenamento_nome",
+        "label" => "Nome",
+        "operador_filtro" => "LIKE"
+    ];
+
+    return $va_filtros_navegacao;
 }
 
 public function inicializar_visualizacoes()

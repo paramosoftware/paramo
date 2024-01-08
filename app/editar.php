@@ -197,6 +197,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             if ($vo_objeto->get_objeto_pai())
                 $va_objeto[$vo_objeto->get_campo_relacionamento_pai()] = "";
 
+            $va_objeto[$vo_objeto->get_atributo_identificador()] = "";
             $va_objeto["representante_digital_codigo"] = "";
         }
 

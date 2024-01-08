@@ -90,6 +90,28 @@ class formato_entrevista extends objeto_base
         return $va_campos_edicao;
     }
 
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["formato_entrevista_nome"] = [
+            "html_text_input",
+            "nome" => "formato_entrevista_nome",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE"
+        ];
+
+        $va_filtros_navegacao["formato_entrevista_descricao"] = [
+            "html_text_input",
+            "nome" => "formato_entrevista_descricao",
+            "label" => "Descrição",
+            "operador_filtro" => "LIKE"
+        ];
+
+
+        return $va_filtros_navegacao;
+    }
+
     public function inicializar_visualizacoes()
     {
         $va_campos_visualizacao = array();

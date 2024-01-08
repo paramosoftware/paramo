@@ -81,9 +81,28 @@ class unidade_medida extends objeto_base
     {
         $va_campos_edicao = array();
 
-        $va_campos_edicao["unidade_medida_nome"] = ["html_text_input", "nome" => "unidade_medida_nome", "label" => "Nome", "foco" => true];
+        $va_campos_edicao["unidade_medida_nome"] = [
+            "html_text_input",
+            "nome" => "unidade_medida_nome",
+            "label" => "Nome",
+            "foco" => true
+        ];
 
         return $va_campos_edicao;
+    }
+
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["unidade_medida_nome"] = [
+            "html_text_input",
+            "nome" => "unidade_medida_nome",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE"
+        ];
+
+        return $va_filtros_navegacao;
     }
 
     public function inicializar_visualizacoes()

@@ -350,7 +350,7 @@ class recurso_sistema extends objeto_base
     {
         $va_filtros_navegacao = array();
 
-        $va_filtros_navegacao["recurso_sistema_nome_plural"] = [
+        $va_filtros_navegacao["recurso_sistema_nome_plural,recurso_sistema_nome_singular"] = [
             "html_text_input",
             "nome" => "recurso_sistema_nome_plural,recurso_sistema_nome_singular",
             "label" => "Nome",
