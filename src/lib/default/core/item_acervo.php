@@ -54,6 +54,11 @@ class item_acervo extends objeto_base
         ];
     }
 
+    public function get_atributo_identificador()
+    {
+        return "item_acervo_identificador";
+    }
+
     public function inicializar_atributos()
     {
         $va_atributos = array();
