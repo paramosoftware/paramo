@@ -66,6 +66,20 @@ class natureza_acervo extends objeto_base
         return $va_relacionamentos;
     }
 
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["natureza_acervo_nome"] = [
+            "html_text_input",
+            "nome" => "natureza_acervo_nome",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE"
+        ];
+
+        return $va_filtros_navegacao;
+    }
+
     public function inicializar_visualizacoes()
     {
         $va_campos_visualizacao = array();

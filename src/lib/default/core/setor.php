@@ -58,7 +58,13 @@ class setor extends objeto_base
     {
         $va_campos_edicao = array();
 
-        $va_campos_edicao["setor_nome"] = ["html_text_input", "nome" => "setor_nome", "label" => "Nome", "Setor", "foco" => true];
+        $va_campos_edicao["setor_nome"] = [
+            "html_text_input",
+            "nome" => "setor_nome",
+            "label" => "Nome",
+            "Setor",
+            "foco" => true]
+        ;
 
         $va_campos_edicao["setor_instituicao_codigo"] = [
             "html_combo_input",
@@ -71,6 +77,20 @@ class setor extends objeto_base
         ];
 
         return $va_campos_edicao;
+    }
+
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["setor_nome"] = [
+            "html_text_input",
+            "nome" => "setor_nome",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE"
+        ];
+
+        return $va_filtros_navegacao;
     }
 
     public function inicializar_visualizacoes()
