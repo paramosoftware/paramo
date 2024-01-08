@@ -99,6 +99,21 @@ class pagina_site extends objeto_base
         return $va_campos_edicao;
     }
 
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo='')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["pagina_site_dados_textuais_0_pagina_site_titulo"] = [
+            "html_text_input",
+            "nome" => "pagina_site_dados_textuais_0_pagina_site_titulo",
+            "label" => "Nome",
+            "operador_filtro" => "LIKE",
+            "foco" => true
+        ];
+
+        return $va_filtros_navegacao;
+    }
+
     public function inicializar_visualizacoes()
     {
         $va_campos_visualizacao = array();
