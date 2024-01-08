@@ -538,7 +538,7 @@ class entidade extends objeto_base
     {
         $va_filtros_navegacao = array();
 
-        $va_filtros_navegacao["entidade_nome"] = [
+        $va_filtros_navegacao["entidade_nome,entidade_principal_codigo_0_entidade_nome,entidade_variacoes_nome_codigo_0_entidade_nome"] = [
             "html_text_input",
             "nome" => "entidade_nome,entidade_principal_codigo_0_entidade_nome,entidade_variacoes_nome_codigo_0_entidade_nome",
             "label" => "Nome",

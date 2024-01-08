@@ -469,14 +469,14 @@ class objeto extends item_acervo
             "sem_valor" => true
         ];
 
-        $va_filtros_navegacao["objeto_material_codigo"] = [
+        $va_filtros_navegacao["objeto_material_codigo_0_material_nome"] = [
             "html_text_input",
             "nome" => "objeto_material_codigo_0_material_nome",
             "label" => "Material",
             "operador_filtro" => "LIKE"
         ];
 
-        $va_filtros_navegacao["objeto_tecnica_codigo"] = [
+        $va_filtros_navegacao["objeto_tecnica_codigo_0_tecnica_nome"] = [
             "html_text_input",
             "nome" => "objeto_tecnica_codigo_0_tecnica_nome",
             "label" => "Técnica",
