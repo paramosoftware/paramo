@@ -167,6 +167,12 @@
             $vs_atributo_nome = "formato_material_nome";
 
             break;
+        
+        case "suporte":
+            $vs_atributo_codigo = "suporte_codigo";
+            $vs_atributo_nome = "suporte_nome";
+            
+            break;
 
         default:
             $vb_substituir_disponivel = false;
