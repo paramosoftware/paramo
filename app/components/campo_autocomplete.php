@@ -778,6 +778,7 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
 {
     vs_termos = $("#<?php print $vs_nome_campo_lookup ?>").val();
     va_termos = vs_termos.split(";");
+    var va_termos_inexistentes = [];
 
     //Para chamar corretamente o load mais de uma vez
     jQuery.ajaxSetup({async:false});
@@ -799,10 +800,20 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
             ?>
 
             $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").load(vs_url_lista_sugestoes);
-            $("#lista_<?php print $vs_nome_campo_lookup ?>").trigger('click');
+
+            if ($("#lista_<?php print $vs_nome_campo_lookup ?>").length == 0)
+            {
+                va_termos_inexistentes.push(vs_termo);
+            } 
+            else
+            {
+                $("#lista_<?php print $vs_nome_campo_lookup ?>").trigger('click');
+            }
+
         }
     }
-
+    $("#<?php print $vs_nome_campo_lookup ?>").val("Não encontrados: " + va_termos_inexistentes.join(';'));
+    
     $("#div_adicionar_todos_<?php print $vs_nome_campo_lookup ?>").hide();
 });
 
