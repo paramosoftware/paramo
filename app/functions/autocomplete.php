@@ -291,7 +291,7 @@
 
     ////////////////////////////////////////////////////
     ///////////////////////////////////////////////////
-
+    
     $vs_id_objeto_campo = $vs_id_objeto_tela;
 
     if (isset($_GET['tela']))
@@ -359,10 +359,10 @@
     {
         exit();
     }
-    
+
     $va_termo_busca[$vs_procurar_por] = [$vs_termo, "LIKE"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
-    
+
     $vo_objeto_tela = new $vs_id_objeto_tela;
 
     $va_campos_edicao = $vo_objeto_tela->get_campos_edicao();
@@ -413,6 +413,8 @@
                 "operador" => "NOT IN"
             ];
     }
+
+    $va_parametros_campo["termos_inexistentes"][] = $va_termo_busca["termo"];
 
     $vo_html_selection_list_input = new html_combo_input(null, $vs_campo, "autocomplete");
     $vo_html_selection_list_input->build($va_termo_busca, $va_parametros_campo);
