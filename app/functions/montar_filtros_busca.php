@@ -185,8 +185,39 @@
                             $vb_busca_hierarquica = $va_campo_filtro["hierarquia"];
 
                         $va_parametros_filtros_consulta[$vs_campo] = [$vs_valor, $vs_operador_filtro, $vb_busca_hierarquica];
+
+                        if (isset($va_campo_filtro["filtro"]))
+                        {
+
+                            if (!is_array($va_campo_filtro["filtro"]))
+                            {
+                                $va_campo_filtro["filtro"] = [$va_campo_filtro["filtro"]];
+                            }
+
+                            foreach ($va_campo_filtro["filtro"] as $va_filtro)
+                            {
+
+                                if (!isset($va_filtro["atributo"]))
+                                {
+                                    continue;
+                                }
+
+                                $vs_atributo = $va_filtro["atributo"];
+
+                                if (isset($va_parametros_filtros_consulta[$vs_atributo]))
+                                {
+                                    continue;
+                                }
+
+                                if (isset($va_filtro["valor"]))
+                                {
+                                    $va_parametros_filtros_consulta[$vs_atributo] = [$va_filtro["valor"], $va_filtro["operador_filtro"] ?? "="];
+                                }
+                            }
+                        }
                     }
                 }
+
             }
 
             if (count($va_parametros_filtros_form))
