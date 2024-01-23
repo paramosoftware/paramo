@@ -3586,26 +3586,31 @@ class objeto_base
                             }
                         }
 
+
+                        $vs_selecao_nome = $pa_valores["selecao_nome"];
+
+                        $vo_selecao = new selecao('');
+                        $va_selecao = $vo_selecao->ler_lista(["selecao_nome" => $vs_selecao_nome], "lista");
+
+                        if (count($va_selecao))
+                            $vn_selecao_codigo = $va_selecao[0]["selecao_codigo"];
+                        else
+                        {
+                            $va_valores_selecao["selecao_nome"] = $vs_selecao_nome;
+                            $va_valores_selecao["selecao_tipo_codigo"] = 1;
+                            $va_valores_selecao["usuario_logado_codigo"] = $pa_valores['usuario_logado_codigo'];
+                            $va_valores_selecao["selecao_recurso_sistema_codigo"] = $this->recurso_sistema_codigo;
+
+                            $vn_selecao_codigo = $vo_selecao->salvar($va_valores_selecao);
+                        }
+
+
                         if ($vn_objeto_codigo)
+                        {
                             $pa_valores[$this->chave_primaria[0]] = $vn_objeto_codigo;
+                        }
                         elseif (isset($pa_valores["criar_registros"]) && ($pa_valores["criar_registros"]))
                         {
-                            $vn_selecao_codigo = "";
-                            $vs_selecao_nome = $pa_valores["selecao_nome"];
-
-                            $vo_selecao = new selecao('');
-                            $va_selecao = $vo_selecao->ler_lista(["selecao_nome" => $vs_selecao_nome], "lista");
-
-                            if (count($va_selecao))
-                                $vn_selecao_codigo = $va_selecao[0]["selecao_codigo"];
-                            else {
-                                $va_valores_selecao["selecao_nome"] = $vs_selecao_nome;
-                                $va_valores_selecao["selecao_tipo_codigo"] = 1;
-                                $va_valores_selecao["usuario_logado_codigo"] = $pa_valores['usuario_logado_codigo'];
-                                $va_valores_selecao["selecao_recurso_sistema_codigo"] = $this->recurso_sistema_codigo;
-
-                                $vn_selecao_codigo = $vo_selecao->salvar($va_valores_selecao);
-                            }
 
                             if (isset($pa_valores["nome_arquivo_identificador"]) && ($pa_valores["nome_arquivo_identificador"]))
                                 $pa_valores["item_acervo_identificador"] = $vs_id_base_arquivo;
@@ -3624,6 +3629,7 @@ class objeto_base
                             return false;
                         }
 
+                        $vo_selecao->adicionar_item($vn_selecao_codigo, $vn_objeto_codigo);
                         print $vs_id_base_arquivo . "|" . $vn_objeto_codigo;
                     }
 
