@@ -42,7 +42,8 @@
     $va_campos_upload["nome_arquivo_identificador"] = [
         "html_checkbox_input",
         "nome" => "nome_arquivo_identificador",
-        "label" => "Nome do arquivo contém código identificador do registro"
+        "label" => "Nome do arquivo contém código identificador do registro",
+        "valor_padrao" => "1"
     ];
 
     $va_campos_upload["criar_registros"] = [
@@ -83,13 +84,12 @@
     $va_campos_upload["selecao_nome"] = [
         "html_text_input",
         "nome" => "selecao_nome",
-        "label" => "Registros criados serão adicionados nesta seleção",
+        "label" => "Registros criados ou modificados serão adicionados nesta seleção",
         "readonly" => true
     ];
 
     $va_valores_campos = array();
-    //$va_valores_campos["nome_arquivo_identificador"] = 1;
-    $va_valores_campos["selecao_nome"] = "upload_" . $vn_usuario_logado_codigo . date('YmdHis');
+    $va_valores_campos["selecao_nome"] = "upload-" . $vs_id_objeto_tela . "-" . date("Y-m-d-H:i");
 
 
 if (config::get(["f_integracao_google_drive"]) ?? false)
