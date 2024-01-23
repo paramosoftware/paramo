@@ -1489,6 +1489,24 @@ class objeto_base
                     }
 
                     $pa_joins_select[$vs_alias_tabela_join] = $vs_tipo_join . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $po_objeto->chave_primaria["coluna_tabela"] . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
+
+                    $contador = 0;
+
+                    foreach ($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"] as $v_campo_relacionamento)
+                    {
+                        if (is_array($v_campo_relacionamento))
+                        {
+                            if (isset($v_campo_relacionamento[0]) && isset($v_campo_relacionamento[1]))
+                            {
+                                $pa_tipos_parametros_select[] = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$contador];
+                                $pa_parametros_select[] = $v_campo_relacionamento[1];
+                                $pa_joins_select[] = " AND " . $vs_alias_tabela_join . "." . $v_campo_relacionamento[0] . " = (?)";
+                            }
+                        }
+                        $contador++;
+                    }
+
+
                     $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
                 }
 
