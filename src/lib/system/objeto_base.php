@@ -1291,6 +1291,8 @@ class objeto_base
 
             if ($vs_id_objeto) 
             {
+                $va_filtros_relacionamento = array();
+
                 // $vs_tabela_proximo_filtro vai guardar o alias da última tabela adicionada para este filtro específico
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1311,6 +1313,8 @@ class objeto_base
                     ///////////////////////////////////////////////////////////////////////////
 
                     $vs_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["tabela_intermediaria"];
+                    $va_campos_relacionamento = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"];
+                    $va_filtros_relacionamento = $po_objeto->relacionamentos[$va_filtro[0]]["filtros"] ?? array();
 
                     if (is_array($po_objeto->relacionamentos[$va_filtro[0]]["chave_exportada"]))
                         $vs_campo_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["chave_exportada"][0];
@@ -1338,6 +1342,30 @@ class objeto_base
                 {
                     $pa_joins_select[$vs_alias_tabela_join] = " JOIN " . $vs_tabela_join . " as " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
                     $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
+                }
+
+                foreach ($va_filtros_relacionamento as $vs_campo_filtro_relacionamento => $va_filtro_relacionamento)
+                {
+                    $va_valores_busca = array();
+                    $vs_operador = "";
+                    $vs_interrogacoes = " (?) ";
+
+                    if (isset($va_campos_relacionamento[$vs_campo_filtro_relacionamento]))
+                    {
+                        if ($this->montar_valores_busca($va_filtro_relacionamento, $va_valores_busca, $vs_operador, $vs_interrogacoes))
+                        {
+                            if ($vs_operador == "NOT")
+                                $pa_joins_select[$vs_alias_tabela_join] .= " AND " . $vs_operador . " " . $vs_alias_tabela_join . "." . $va_campos_relacionamento[$vs_campo_filtro_relacionamento][0] . " <=> " . $vs_interrogacoes;
+                            else
+                                $pa_joins_select[$vs_alias_tabela_join] .= " AND " . $vs_alias_tabela_join . "." . $va_campos_relacionamento[$vs_campo_filtro_relacionamento][0] . " " . $vs_operador . $vs_interrogacoes;
+
+                            foreach ($va_valores_busca as $va_valor_busca)
+                            {
+                                $pa_parametros_select[] = $va_valor_busca;
+                                $pa_tipos_parametros_select[] = "i";
+                            }
+                        }
+                    }
                 }
 
                 if ($vb_filtro_relacionamento_objeto && isset($po_objeto->relacionamentos[$va_filtro[0]]["tabela_relacionamento"])) 

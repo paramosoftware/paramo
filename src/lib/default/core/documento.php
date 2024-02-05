@@ -709,6 +709,7 @@ class documento extends item_acervo
 
         $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome"] = [
             "html_text_input",
+            "exists_busca" => "item_acervo_codigo_0_item_acervo_entidade_codigo",
             "nome" => "item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome",
             "label" => "Autoria ou agente",
             "operador_filtro" => "LIKE"
@@ -737,6 +738,7 @@ class documento extends item_acervo
 
         $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_localidade_codigo_0_localidade_nome"] = [
             "html_text_input",
+            "exists_busca" => "item_acervo_codigo_0_item_acervo_localidade_codigo",
             "nome" => "item_acervo_codigo_0_item_acervo_localidade_codigo_0_localidade_nome",
             "label" => "Local",
             "operador_filtro" => "LIKE"

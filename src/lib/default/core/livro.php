@@ -600,6 +600,7 @@ class livro extends item_acervo
 
         $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome,item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_principal_codigo_0_entidade_nome"] = [
             "html_text_input",
+            "exists_busca" => "item_acervo_codigo_0_item_acervo_entidade_codigo",
             "nome" => "item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome,item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_principal_codigo_0_entidade_nome",
             "label" => "Autoria",
             "operador_filtro" => "LIKE"
