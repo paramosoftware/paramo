@@ -144,11 +144,23 @@
                 elseif (strpos($vs_key_filtro, "_sem_valor") !== FALSE)
                 {
                     $va_parametros_filtros_form[$vs_key_filtro] = 1;
+                    if (isset($va_campo_filtro["exists_busca"]))
+                    {
+                        $vs_key_filtro = $va_campo_filtro["exists_busca"];
+                    }
+
                     $va_parametros_filtros_consulta[str_replace("_sem_valor", "", $vs_key_filtro)] = ["0", "_EXISTS_"];
                 }
                 elseif (strpos($vs_key_filtro, "_com_valor") !== FALSE)
                 {
+
                     $va_parametros_filtros_form[$vs_key_filtro] = 1;
+
+                    if (isset($va_campo_filtro["exists_busca"]))
+                    {
+                        $vs_key_filtro = $va_campo_filtro["exists_busca"];
+                    }
+
                     $va_parametros_filtros_consulta[str_replace("_com_valor", "", $vs_key_filtro)] = ["1", "_EXISTS_"];
                 }
                 else
