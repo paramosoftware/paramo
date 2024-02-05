@@ -446,6 +446,7 @@ class objeto extends item_acervo
 
         $va_filtros_navegacao["item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome"] = [
             "html_text_input",
+            "exists_busca" => "item_acervo_codigo_0_item_acervo_entidade_codigo",
             "nome" => "item_acervo_codigo_0_item_acervo_entidade_codigo_0_entidade_nome",
             "label" => "Autoria",
             "operador_filtro" => "LIKE"
@@ -471,6 +472,7 @@ class objeto extends item_acervo
 
         $va_filtros_navegacao["objeto_material_codigo_0_material_nome"] = [
             "html_text_input",
+            "exists_busca" => "objeto_material_codigo",
             "nome" => "objeto_material_codigo_0_material_nome",
             "label" => "Material",
             "operador_filtro" => "LIKE"
@@ -478,6 +480,7 @@ class objeto extends item_acervo
 
         $va_filtros_navegacao["objeto_tecnica_codigo_0_tecnica_nome"] = [
             "html_text_input",
+            "exists_busca" => "objeto_tecnica_codigo",
             "nome" => "objeto_tecnica_codigo_0_tecnica_nome",
             "label" => "Técnica",
             "operador_filtro" => "LIKE"
