@@ -138,7 +138,6 @@
 <?php require_once dirname(__FILE__) . "/components/footer.php"; ?>
 
 <script>
-    <?php if ($vb_usuario_super_admin && $vb_logado_como_habilitado) : ?>
 
     $(document).on('click', ".btn-tab", function () {
         $('.acervo').hide();
@@ -148,9 +147,12 @@
         }, 100);
     });
 
+    <?php if ($vb_usuario_super_admin && $vb_logado_como_habilitado && false) : ?>
+
     $(document).ready(function () {
         $('.acervo').hide();
     });
+
     <?php endif; ?>
 
 </script>
