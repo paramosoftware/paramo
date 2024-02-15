@@ -244,7 +244,7 @@
             $va_instituicao = $vo_instituicao->ler_lista(["instituicao_codigo" => $vn_usuario_logado_instituicao_codigo], "ficha");
 
             $vs_usuario_logado_instituicao_nome = $va_instituicao[0]["instituicao_nome"];
-            $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"];
+            $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"] ?? 0;
         }
         else
         {
