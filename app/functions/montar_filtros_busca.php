@@ -277,7 +277,7 @@
             if ($vb_acesso_invalido_registro)
             {
                 $vb_fazer_busca = false;
-                $vb_pode_inserir = false;
+                //$vb_pode_inserir = false;
                 $vb_pode_editar = false;
             }
 
