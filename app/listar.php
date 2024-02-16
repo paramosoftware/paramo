@@ -79,10 +79,10 @@
                             <div class="card-body">
                                 <?php
                                     $vb_acesso_invalido_cadastro = false;
-                                    
+
                                     foreach ($vo_objeto->controlador_acesso as $vs_parametro_controlador => $vs_atributo_controlador)
                                     {
-                                        if (trim($va_parametros_controle_acesso[$vs_parametro_controlador]) == "") 
+                                        if ((trim($va_parametros_controle_acesso[$vs_parametro_controlador]) == "")  && ($vo_objeto->get_chave_primaria()[0] != $vs_parametro_controlador))
                                         {
                                             //if (!isset($va_parametros_controle_acesso["_combinacao_"]) || (isset($va_parametros_controle_acesso["_combinacao_"]) && $va_parametros_controle_acesso["_combinacao_"] != "OR") )
                                             //    $a = 1;

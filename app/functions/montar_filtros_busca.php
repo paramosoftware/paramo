@@ -277,7 +277,7 @@
             if ($vb_acesso_invalido_registro)
             {
                 $vb_fazer_busca = false;
-                $vb_pode_inserir = false;
+                //$vb_pode_inserir = false;
                 $vb_pode_editar = false;
             }
 
@@ -306,8 +306,10 @@
                             isset($va_parametros_filtros_consulta[$vs_atributo_controlador][0])
                             &&
                             !in_array($va_parametros_filtros_consulta[$vs_atributo_controlador][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
+                            &&
+                            (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) || (isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] != "_EXISTS_")) )   
                         )
-                        {                            
+                        {
                             // Se foi postado um valor de filtro, mas ele não está na lista de permissões de acesso
                             ///////////////////////////////////////////////////////////////////////////////////////
     

@@ -155,6 +155,15 @@
 
     //////////////////////////////////////////////////////////
 
+    if (
+        !($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
+        &&
+        (in_array($vs_id_objeto_tela, ["grupo_usuario"]) || in_array($vs_id_objeto_tela, config::get(["sidebar"])["configuracoes"]))
+    )
+    {
+        exit();
+    }
+
     $va_usuario_logado_setores_codigos = array();
     $va_usuario_logado_setores_nomes = array();
 
