@@ -278,10 +278,16 @@ function get_cards_instituicoes($pa_regras = array()): array
     $vs_atributo_acervo_objeto_item_acervo = $vo_dashboard->get_atributo_acervo_objeto_item_acervo();
     $vs_atributo_instituicao_objeto_item_acervo = $vo_dashboard->get_atributo_instituicao_objeto_item_acervo();
 
-    // $vo_instituicao = new instituicao;
-    // $va_instituicoes = $vo_instituicao->ler_lista(null, "ficha");
+    $vb_usuario_pode_ver_todas_instituicoes = config::get(["f_usuario_pode_ver_todas_instituicoes"]) ?? false;
 
-    global $va_instituicoes;
+    if ($vb_usuario_pode_ver_todas_instituicoes)
+    {
+        $vo_instituicao = new instituicao;
+        $va_instituicoes = $vo_instituicao->ler_lista(null, "ficha");
+    }
+    else
+        global $va_instituicoes;
+    
     
     $vo_setor_sistema = new setor_sistema;
     $va_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");
