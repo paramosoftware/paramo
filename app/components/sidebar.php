@@ -251,8 +251,11 @@
             ///////////////////////////////////////////////
 
             $va_recursos_configuracoes = array();
-            if ($vb_usuario_logado_instituicao_admin)
+            
+            if ($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
                 $va_recursos_configuracoes = $va_recursos_sidebar["configuracoes"];
+            else
+                unset($va_recursos_permissoes[array_search("grupo_usuario", $va_recursos_permissoes)]);
 
             ///////////////////////////////////////////////
 
