@@ -221,6 +221,8 @@
         }
     }
 
+    $va_instituicoes = array();
+    
     if (($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin) || ($vb_controlar_acesso_acervo === FALSE))
     {
         $vo_instituicao = new instituicao('');
