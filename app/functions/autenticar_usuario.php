@@ -268,7 +268,14 @@
 
         $va_filtro_acervo["acervo_instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
 
-        $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
+        $va_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
+
+        foreach ($va_acervos as $va_acervo)
+        {
+            if (!$vn_setor_sistema_acessado_codigo || $va_acervo["acervo_setor_sistema_codigo"]["setor_sistema_codigo"] == $vn_setor_sistema_acessado_codigo)
+                $va_usuario_logado_acervos[] = $va_acervo;
+        }
+
     }
     elseif (isset($va_usuario["usuario_acervo_codigo"]))
     {
