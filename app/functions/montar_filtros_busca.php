@@ -296,7 +296,11 @@
                             unset($va_parametros_filtros_form[$vs_atributo_controlador]);
                         }
 
-                        if (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador]))
+                        if (
+                            !isset($va_parametros_filtros_consulta[$vs_atributo_controlador])
+                            ||
+                            ((isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] == "_EXISTS_")) && $va_parametros_filtros_consulta[$vs_atributo_controlador][0] == "1")
+                        )
                         {
                             $va_parametros_filtros_consulta[$vs_atributo_controlador] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
 
@@ -307,7 +311,7 @@
                             &&
                             !in_array($va_parametros_filtros_consulta[$vs_atributo_controlador][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
                             &&
-                            (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) || (isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] != "_EXISTS_")) )   
+                            (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) || (isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] != "_EXISTS_")))   
                         )
                         {
                             // Se foi postado um valor de filtro, mas ele não está na lista de permissões de acesso
