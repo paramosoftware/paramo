@@ -5927,7 +5927,7 @@ class objeto_base
     
         foreach ($this->controlador_acesso as $vs_parametro_controlador => $vs_atributo_controlador)
         {
-            if (trim($pa_parametros_acesso[$vs_parametro_controlador]) == "") 
+            if ((trim($pa_parametros_acesso[$vs_parametro_controlador]) == "")  && ($this->get_chave_primaria()[0] != $vs_parametro_controlador))
             {
                 if (!isset($pa_parametros_acesso["_combinacao_"]) || (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] != "OR") )
                     exit();
