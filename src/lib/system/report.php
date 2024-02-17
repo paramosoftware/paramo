@@ -105,7 +105,10 @@ class report extends exFPDF
         $this->set_margins();
         $this->set_font();
         $this->set_page();
-        $this->add_first_page_header();
+        if ($this->page == 1)
+        {
+            $this->add_first_page_header();
+        }
         $this->process_itens();
     }
 
