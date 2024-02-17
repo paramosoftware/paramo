@@ -126,7 +126,8 @@
                         else
                         {
                             $vb_busca_id = true;
-                            $va_parametros_filtros_consulta["item_acervo_codigo_0_item_acervo_identificador"] = [$vs_busca_id, "="];
+                            $vs_classe_base = class_exists("texto") ? "texto" : "item_acervo";
+                            $va_parametros_filtros_consulta[$vs_classe_base . "_codigo_0_item_acervo_identificador"] = [$vs_busca_id, "="];
                         }                        
                         
                         require dirname(__FILE__) . "/components/dashboard_resultado_busca.php";
