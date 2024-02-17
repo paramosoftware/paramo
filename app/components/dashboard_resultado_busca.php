@@ -2,8 +2,8 @@
 
 $va_objetos_itens_acervo = $va_objetos_itens_acervo ?? [];
 $vs_termo_busca = $vs_termo_busca ?? "";
-$vb_pode_editar = $vb_pode_editar ?? false;
 $vo_objeto = $vo_objeto ?? null;
+$vb_montar_filtros_busca = true;
 
 $vn_pagina_atual = 1;
 $vb_houve_resultado = false;
@@ -112,9 +112,7 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
                                         }
                                     }
 
-                                    $vs_url_editar = " #";
-                                    if ($vb_pode_editar)
-                                        $vs_url_editar = "editar.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
+                                    $vs_url_editar = "editar.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
                                     ?>
                                     <tr class="align-middle">
                                         <td>

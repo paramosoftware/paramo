@@ -75,7 +75,7 @@
         if (!isset($vs_target_ui))
             $vs_target_ui = "";
 
-        if (!isset($va_parametros_filtros_consulta))
+        if (!isset($va_parametros_filtros_consulta) || isset($vb_montar_filtros_busca))
             require_once dirname(__FILE__) . "/montar_filtros_busca.php";
 
         if ($vb_fazer_busca)

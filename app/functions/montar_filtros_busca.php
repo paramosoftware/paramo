@@ -12,7 +12,7 @@
     //////////////////////////////////////////////////
 
     $va_parametros_filtros_form = array();
-    $va_parametros_filtros_consulta = array();
+    $va_parametros_filtros_consulta = $va_parametros_filtros_consulta ?? [];
     $vb_tem_filtros_consulta = false;
 
     if (!isset($va_log_info))
