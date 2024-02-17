@@ -326,6 +326,9 @@
                                 $va_instituicoes[] = $vo_instituicao->ler($va_parametros_filtros_consulta[$vs_atributo_controlador][0]);
     
                                 $_SESSION["instituicao_visualizar_como"] = $va_instituicoes[0]["instituicao_codigo"];
+                                $vb_fazer_busca = true;
+
+                                $va_instituicao_visualizar_como_parametros = [$vs_atributo_controlador => $va_parametros_filtros_consulta[$vs_atributo_controlador][0]];
                             }
                         }
                     }

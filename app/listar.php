@@ -61,6 +61,17 @@
         
         <input type="hidden" name="campo_paginacao" id="campo_paginacao" value="">
 
+        <?php if (isset($va_instituicao_visualizar_como_parametros) && $va_instituicao_visualizar_como_parametros)
+        {
+            foreach ($va_instituicao_visualizar_como_parametros as $vs_parametro => $vs_valor)
+            {
+                print '<input type="hidden" name="'.$vs_parametro.'" id="'.$vs_parametro.'" value="'.$vs_valor.'">';
+            }
+        }
+        ?>
+
+
+
         <?php if (isset($vn_bibliografia_codigo) && $vn_bibliografia_codigo)
         {
         ?>
@@ -96,7 +107,7 @@
                                         }
                                     }
                                     
-                                    if ($vb_acesso_invalido_cadastro)
+                                    if ($vb_acesso_invalido_cadastro && !isset($_SESSION["instituicao_visualizar_como"]))
                                     {
                                         print '<div class="alert alert-danger">';
                                         print 'Não é possível criar um novo cadastro: não há acervo cadastrado para este setor ou o usuário não tem permissões de acesso.';
