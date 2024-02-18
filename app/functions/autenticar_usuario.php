@@ -155,6 +155,15 @@
 
     //////////////////////////////////////////////////////////
 
+    if (
+        !($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
+        &&
+        (in_array($vs_id_objeto_tela, ["grupo_usuario"]) || in_array($vs_id_objeto_tela, config::get(["sidebar"])["configuracoes"]))
+    )
+    {
+        exit();
+    }
+
     $va_usuario_logado_setores_codigos = array();
     $va_usuario_logado_setores_nomes = array();
 
@@ -212,6 +221,8 @@
         }
     }
 
+    $va_instituicoes = array();
+    
     if (($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin) || ($vb_controlar_acesso_acervo === FALSE))
     {
         $vo_instituicao = new instituicao('');
@@ -244,7 +255,7 @@
             $va_instituicao = $vo_instituicao->ler_lista(["instituicao_codigo" => $vn_usuario_logado_instituicao_codigo], "ficha");
 
             $vs_usuario_logado_instituicao_nome = $va_instituicao[0]["instituicao_nome"];
-            $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"];
+            $vb_usuario_logado_instituicao_admin = $va_instituicao[0]["instituicao_admin"] ?? 0;
         }
         else
         {
@@ -257,7 +268,14 @@
 
         $va_filtro_acervo["acervo_instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
 
-        $va_usuario_logado_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
+        $va_acervos = $vo_acervo->ler_lista($va_filtro_acervo, "lista");
+
+        foreach ($va_acervos as $va_acervo)
+        {
+            if (!$vn_setor_sistema_acessado_codigo || $va_acervo["acervo_setor_sistema_codigo"]["setor_sistema_codigo"] == $vn_setor_sistema_acessado_codigo)
+                $va_usuario_logado_acervos[] = $va_acervo;
+        }
+
     }
     elseif (isset($va_usuario["usuario_acervo_codigo"]))
     {

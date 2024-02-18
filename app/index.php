@@ -86,27 +86,29 @@
                             {
                                 if ($va_secao["exibir"])
                                 {
-                                    echo "<h5 class='border-bottom border-bottom-3 border-bottom-danger'>";
-                                    echo htmlspecialchars($va_secao["titulo"]. " ");
-                                    if ($va_secao["descricao"] != "")
-                                    {
-                                        echo '<span title="' . htmlspecialchars($va_secao["descricao"]) . '">';
-                                        echo '<svg class="icon"><use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-flag-alt"></use></svg>';
-                                        echo '</span>';
-                                    }
-                                    echo "</h5>";
-
-                                    echo "<div class='row mt-2'>";
-
                                     $va_cards = get_cards($va_secao["card"], $va_secao["regras"]);
 
-                                    foreach ($va_cards as $va_card)
+                                    if (count($va_cards))
                                     {
-                                        require dirname(__FILE__) . "/components/dashboard_card.php";
+                                        echo "<h5 class='border-bottom border-bottom-3 border-bottom-danger'>";
+                                        echo htmlspecialchars($va_secao["titulo"]. " ");
+                                        if ($va_secao["descricao"] != "")
+                                        {
+                                            echo '<span title="' . htmlspecialchars($va_secao["descricao"]) . '">';
+                                            echo '<svg class="icon"><use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-flag-alt"></use></svg>';
+                                            echo '</span>';
+                                        }
+                                        echo "</h5>";
+
+                                        echo "<div class='row mt-2'>";
+
+                                        foreach ($va_cards as $va_card)
+                                        {
+                                            require dirname(__FILE__) . "/components/dashboard_card.php";
+                                        }
+
+                                        echo "</div>";
                                     }
-
-                                    echo "</div>";
-
                                 }
                             }
                         }
@@ -124,7 +126,8 @@
                         else
                         {
                             $vb_busca_id = true;
-                            $va_parametros_filtros_consulta["item_acervo_codigo_0_item_acervo_identificador"] = [$vs_busca_id, "="];
+                            $vs_classe_base = class_exists("texto") ? "texto" : "item_acervo";
+                            $va_parametros_filtros_consulta[$vs_classe_base . "_codigo_0_item_acervo_identificador"] = [$vs_busca_id, "="];
                         }                        
                         
                         require dirname(__FILE__) . "/components/dashboard_resultado_busca.php";
@@ -138,7 +141,6 @@
 <?php require_once dirname(__FILE__) . "/components/footer.php"; ?>
 
 <script>
-    <?php if ($vb_usuario_super_admin && $vb_logado_como_habilitado) : ?>
 
     $(document).on('click', ".btn-tab", function () {
         $('.acervo').hide();
@@ -148,9 +150,12 @@
         }, 100);
     });
 
+    <?php if ($vb_usuario_super_admin && $vb_logado_como_habilitado && false) : ?>
+
     $(document).ready(function () {
         $('.acervo').hide();
     });
+
     <?php endif; ?>
 
 </script>
@@ -274,8 +279,17 @@ function get_cards_instituicoes($pa_regras = array()): array
     $vs_atributo_acervo_objeto_item_acervo = $vo_dashboard->get_atributo_acervo_objeto_item_acervo();
     $vs_atributo_instituicao_objeto_item_acervo = $vo_dashboard->get_atributo_instituicao_objeto_item_acervo();
 
-    $vo_instituicao = new instituicao;
-    $va_instituicoes = $vo_instituicao->ler_lista(null, "ficha");
+    $vb_usuario_pode_ver_todas_instituicoes = config::get(["f_usuario_pode_ver_todas_instituicoes"]) ?? false;
+
+    if ($vb_usuario_pode_ver_todas_instituicoes)
+    {
+        $vo_instituicao = new instituicao;
+        $va_instituicoes = $vo_instituicao->ler_lista(null, "ficha");
+    }
+    else
+        global $va_instituicoes;
+    
+    
     $vo_setor_sistema = new setor_sistema;
     $va_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");
 

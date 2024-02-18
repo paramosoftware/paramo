@@ -12,7 +12,7 @@
     //////////////////////////////////////////////////
 
     $va_parametros_filtros_form = array();
-    $va_parametros_filtros_consulta = array();
+    $va_parametros_filtros_consulta = $va_parametros_filtros_consulta ?? [];
     $vb_tem_filtros_consulta = false;
 
     if (!isset($va_log_info))
@@ -277,7 +277,7 @@
             if ($vb_acesso_invalido_registro)
             {
                 $vb_fazer_busca = false;
-                $vb_pode_inserir = false;
+                //$vb_pode_inserir = false;
                 $vb_pode_editar = false;
             }
 
@@ -296,7 +296,11 @@
                             unset($va_parametros_filtros_form[$vs_atributo_controlador]);
                         }
 
-                        if (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador]))
+                        if (
+                            !isset($va_parametros_filtros_consulta[$vs_atributo_controlador])
+                            ||
+                            ((isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] == "_EXISTS_")) && $va_parametros_filtros_consulta[$vs_atributo_controlador][0] == "1")
+                        )
                         {
                             $va_parametros_filtros_consulta[$vs_atributo_controlador] = [$va_parametros_controle_acesso[$vs_key_controlador], "="];
 
@@ -306,8 +310,10 @@
                             isset($va_parametros_filtros_consulta[$vs_atributo_controlador][0])
                             &&
                             !in_array($va_parametros_filtros_consulta[$vs_atributo_controlador][0], explode("|", $va_parametros_controle_acesso[$vs_key_controlador]))
+                            &&
+                            (!isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) || (isset($va_parametros_filtros_consulta[$vs_atributo_controlador][1]) && ($va_parametros_filtros_consulta[$vs_atributo_controlador][1] != "_EXISTS_")))   
                         )
-                        {                            
+                        {
                             // Se foi postado um valor de filtro, mas ele não está na lista de permissões de acesso
                             ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -320,6 +326,9 @@
                                 $va_instituicoes[] = $vo_instituicao->ler($va_parametros_filtros_consulta[$vs_atributo_controlador][0]);
     
                                 $_SESSION["instituicao_visualizar_como"] = $va_instituicoes[0]["instituicao_codigo"];
+                                $vb_fazer_busca = true;
+
+                                $va_instituicao_visualizar_como_parametros = [$vs_atributo_controlador => $va_parametros_filtros_consulta[$vs_atributo_controlador][0]];
                             }
                         }
                     }

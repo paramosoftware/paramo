@@ -83,6 +83,8 @@ return [
     "f_keywords" => false,
     # Permite que um usuário administrador de uma instituição administradora possa se logar como uma outra instituição
     "f_logado_como" => false,
+    # Permite que um usuário de uma instituição veja os acervos e itens de outras instituições que compartilham a base de dados
+    "f_usuario_pode_ver_todas_instituicoes" => true,
     # Habilita abertura do campo representantes digitais por padrão na ficha de cadastro
     "f_abrir_campo_representantes_digitais" => false,
     # Habilita operações em lote de edição e exclusão de registros
