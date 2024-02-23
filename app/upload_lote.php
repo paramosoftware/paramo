@@ -165,9 +165,8 @@ $vn_espaco_usado = (int)($vn_espaco_usado / 1024 / 1024 / 1024);
                                             $va_campos = $vo_objeto->inicializar_campos_edicao();
                                             $va_abas_form = $vo_objeto->get_form_edicao("completo");
 
-                                            //$vo_form_cadastro = new html_form_cadastro($vs_id_objeto_tela, $va_campos, array(), array());
                                             $vo_form_cadastro = new html_form_cadastro($vs_id_objeto_tela, $va_abas_form, $va_campos, array(), array());
-                                            $vs_campo_foco = $vo_form_cadastro->build('', $vn_usuario_logado_instituicao_codigo, $vn_usuario_logado_acervo_codigo, false, false);
+                                            $vs_campo_foco = $vo_form_cadastro->build('', $vn_usuario_logado_instituicao_codigo, $vn_usuario_logado_acervo_codigo);
                                         ?>
                                     </div>
 

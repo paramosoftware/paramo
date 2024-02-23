@@ -376,7 +376,7 @@ function get_cards_acervos(array $pa_regras): array
         $vo_acervo = new $va_parametros_card_acervo['objeto_acervo'];
         $va_acervo = $vo_acervo->ler($va_acervo['acervo_codigo'], "ficha");
 
-        $vs_acervo_nome = $va_acervo["acervo_nome"] ?? $va_acervo["entidade_nome"];
+        $vs_acervo_nome = $va_acervo["acervo_nome"] ?? $va_acervo["entidade_nome"] ?? ["[Sem rótulo]"];
         $vs_acervo_instituicao_codigo = $va_acervo["acervo_instituicao_codigo"]["instituicao_codigo"];
 
         $vo_item_acervo = new $vs_objeto_item_acervo_nome;
