@@ -3699,7 +3699,7 @@ class objeto_base
                     $va_extensoes_permitidas = config::get(["extensoes_permitidas"]);
                     $media_types = config::get(["media_types"]) ?? [];
 
-                    $vs_novo_nome_arquivo = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"]);
+                    $vs_novo_nome_arquivo = md5($this->recurso_sistema_codigo . $pa_valores[$this->chave_primaria[0]] . $va_arquivo["name"] . rand());
 
                     $va_path_arquivo_destino = [
                         "large" => [
