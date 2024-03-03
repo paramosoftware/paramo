@@ -5191,8 +5191,10 @@ class objeto_base
 
             $vs_campo_relacionamento = reset($pa_relacionamento["campos_relacionamento"]);
 
-            if (is_array($vs_campo_relacionamento))
-                $vs_campo_relacionamento = $vs_campo_relacionamento[0][0];
+            while (is_array($vs_campo_relacionamento))
+            {
+                $vs_campo_relacionamento = $vs_campo_relacionamento[0];
+            }
 
             if ($this->tabela_banco == $pa_relacionamento["tabela_intermediaria"])
             {
