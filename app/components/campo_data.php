@@ -270,7 +270,7 @@
         </div>
     </div>
 
-    <?php if ($vs_modo == "listagem")
+    <?php if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]))
     {
     ?>
     <div>
