@@ -146,8 +146,8 @@ public function validar_valores($pa_valores_form=array(), $pa_parametros_campo=a
 
 protected function verificar_exibicao(&$pa_valores_form=null, $pa_parametros_campo=array(), $ps_sufixo_nome_campo = "")
 {
-    //if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-        //return false;
+    if (isset($pa_parametros_campo["nao_exibir"]) && $pa_parametros_campo["nao_exibir"])
+        return false;
     
     $vb_pode_exibir = true;
     $vb_pode_exibir_temp = true;
