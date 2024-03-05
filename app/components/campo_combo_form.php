@@ -298,6 +298,8 @@ if (!$vb_pode_exibir)
                         v_updated_field.innerHTML = data;
 
                         v_field_to_update.parentNode.replaceChild(v_updated_field, v_field_to_update);
+                        
+                        $("#" + vs_campo_atualizar_nome).trigger("change");
                     });
                 }
             <?php
@@ -347,7 +349,6 @@ if (!$vb_pode_exibir)
                 }
             }
             ?>
-
         });
 
         </script>
