@@ -108,6 +108,12 @@ public function inicializar_atributos()
         'tipo_dado' => 's'
     ];
 
+    $va_atributos['usuario_ativo'] = [
+        'usuario_ativo',
+        'coluna_tabela' => 'ativo',
+        'tipo_dado' => 'b'
+    ];
+
     return $va_atributos;
 }
 

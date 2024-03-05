@@ -31,7 +31,7 @@ class session
             return false;
         }
 
-        $va_usuario = session::get_user(["usuario_token" => $vs_token]);
+        $va_usuario = session::get_user(["usuario_token" => $vs_token, "usuario_ativo" => 1]);
 
         if (!empty($va_usuario))
         {
@@ -176,7 +176,7 @@ class session
     {
 
         $vs_redirect_pagina = "";
-        $va_usuario = session::get_user(["usuario_login" => $ps_usuario_login]);
+        $va_usuario = session::get_user(["usuario_login" => $ps_usuario_login, "usuario_ativo" => 1]);
 
         if (!empty($va_usuario))
         {

@@ -89,8 +89,8 @@ return [
     "f_abrir_campo_representantes_digitais" => false,
     # Habilita operações em lote de edição e exclusão de registros
     "f_operacoes_lote" => false,
-    # Habilita operações em lote de edição e exclusão de registros
-    "f_filtros_busca_preenchimento_campo" => false,
+    # Habilita busca pela presença de valores nos filtros de navegação
+    "f_filtros_busca_preenchimento_campo" => true,
 
 
     # ============================================== CONTROLE DE ACESSO ============================================== #
