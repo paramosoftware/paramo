@@ -232,7 +232,7 @@ if (!$vb_pode_exibir)
         ?>            
     </select>
 
-    <?php if ($vs_modo == "listagem")
+    <?php if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]))
     {
     ?>
         <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo ?>_com_valor" id="<?php print $vs_nome_campo ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo ?>(this.checked, 'com_valor')"
