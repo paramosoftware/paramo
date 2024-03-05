@@ -1540,6 +1540,10 @@ class objeto_base
 
                 $vs_tabela_banco = $vs_alias_tabela_join;
                 $vs_campo_tabela = reset($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"]);
+                if (is_array($vs_campo_tabela))
+                {
+                    $vs_campo_tabela = reset($vs_campo_tabela);
+                }
                 $vs_tipo_dado_campo = reset($po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"]);
             }
 
@@ -5191,8 +5195,10 @@ class objeto_base
 
             $vs_campo_relacionamento = reset($pa_relacionamento["campos_relacionamento"]);
 
-            if (is_array($vs_campo_relacionamento))
-                $vs_campo_relacionamento = $vs_campo_relacionamento[0][0];
+            while (is_array($vs_campo_relacionamento))
+            {
+                $vs_campo_relacionamento = $vs_campo_relacionamento[0];
+            }
 
             if ($this->tabela_banco == $pa_relacionamento["tabela_intermediaria"])
             {
