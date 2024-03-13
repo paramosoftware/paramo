@@ -355,6 +355,9 @@
     if (isset($_GET['excluir']))
         $vn_item_excluir = trim($_GET['excluir']);
 
+    if (!isset($vb_aplicar_controle_acesso))
+        $vb_aplicar_controle_acesso = true;
+
     if (!$vs_termo)
     {
         exit();
@@ -415,6 +418,22 @@
     }
 
     $va_parametros_campo["termos_inexistentes"][] = $va_termo_busca["termo"];
+
+
+    // No form de edição é aqui que eu controlo a exibição de instituições e acervos
+    // conforme as permissões do usuário
+    ///////////////////////////////////////////////////////////////////////////////
+
+    
+    if ( $vb_aplicar_controle_acesso && (in_array($va_parametros_campo["atributos"][0], array_keys($va_parametros_controle_acesso))) )
+    {
+        if ($va_parametros_controle_acesso[$va_parametros_campo["atributos"][0]] != "")
+            $va_termo_busca[$va_parametros_campo["atributos"][0]] = $va_parametros_controle_acesso[$va_parametros_campo["atributos"][0]];
+    }
+    //elseif (isset($va_termo_busca[$va_parametros_campo["nome"]]))
+        //$va_termo_busca[$va_parametros_campo["atributo"]] = $va_objeto[$va_parametros_campo["nome"]];
+    
+
 
     $vo_html_selection_list_input = new html_combo_input(null, $vs_campo, "autocomplete");
     $vo_html_selection_list_input->build($va_termo_busca, $va_parametros_campo);
