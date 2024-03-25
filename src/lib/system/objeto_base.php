@@ -5962,9 +5962,13 @@ class objeto_base
                 if (isset($pa_valores[$vs_atributo_controlador]) && trim($pa_valores[$vs_atributo_controlador] != ""))
                 {
                     $va_valores_parametros_acesso = explode("|", $pa_parametros_acesso[$vs_parametro_controlador]);
-                    
-                    if (!in_array($pa_valores[$vs_atributo_controlador], $va_valores_parametros_acesso))
-                        return false;
+                    $va_valores_form = explode("|", $pa_valores[$vs_atributo_controlador]);
+
+                    foreach ($va_valores_form as $vs_valor)
+                    {
+                        if (!in_array($vs_valor, $va_valores_parametros_acesso))
+                            return false;
+                    }
                 }
             }
         }
