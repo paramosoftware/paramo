@@ -220,7 +220,7 @@
 
         $va_telas["listagem"][$vs_id_objeto_tela] = $va_campos;
     }
-    
+
     if ($vs_id_campo)
     {
         //if (isset($va_campos[$vs_id_campo]))
@@ -229,7 +229,10 @@
 
             if (isset($vs_campo_pai) && $vs_campo_pai)
             {
-                $va_campos[$vs_id_campo] = $va_telas[$vs_modo][$vs_id_objeto_tela][$vs_campo_pai]["subcampos"][$vs_id_campo];
+                if (isset($vs_sufixo_nome_campo))
+                    $vs_id_subcampo = str_replace($vs_sufixo_nome_campo, "", $vs_id_campo);
+
+                $va_campos[$vs_id_campo] = $va_telas[$vs_modo][$vs_id_objeto_tela][$vs_campo_pai]["subcampos"][$vs_id_subcampo];
 
                 if (isset($vs_sufixo_nome_campo))
                     $va_campos[$vs_id_campo]["sufixo_nome"] = $vs_sufixo_nome_campo;

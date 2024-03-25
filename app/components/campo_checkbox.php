@@ -102,7 +102,7 @@ else
         }
         ?>
 
-        <input type="hidden" class="checkbox form-check-input" name="<?php print $vs_nome_campo ?>" id="<?php print $vs_nome_campo ?>" value="<?php print $vb_valor_campo ?>"
+        <input type="hidden" class="checkbox" name="<?php print $vs_nome_campo ?>" id="<?php print $vs_nome_campo ?>" value="<?php print $vb_valor_campo ?>"
         <?php
             if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
                 print ' disabled';
@@ -160,7 +160,6 @@ function atualizar_dependencias_<?php print $vs_nome_campo . $vs_sufixo_nome_cam
     foreach($pa_parametros_campo["controlar_exibicao"] as $vs_campo_controlar)
     {
     ?>
-        console.log(pb_valor);
         atualizar_exibicao_<?php print $vs_campo_controlar ?>(pb_valor);
     <?php
     }
