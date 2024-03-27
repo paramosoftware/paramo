@@ -81,7 +81,7 @@ if ( !(count($va_itens_campo) || $vb_exibir_campo_texto_se_vazio || $vb_exibir_c
             </span>
         <?php
         }
-        elseif (count($va_itens_campo))
+        elseif ((count($va_itens_campo) > 1) || !$vb_exibir_campo_texto_se_vazio)
         {
         ?>
             <?php

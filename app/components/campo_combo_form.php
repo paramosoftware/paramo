@@ -293,7 +293,7 @@ if (!$vb_pode_exibir)
                     $.get(vs_url_campo_atualizado, function(data, status)
                     {
                         var v_field_to_update = document.querySelector("#div_"+vs_campo_atualizar_id);
-                
+
                         var v_updated_field = document.createElement('div');
                         v_updated_field.innerHTML = data;
 
@@ -329,7 +329,7 @@ if (!$vb_pode_exibir)
 
                     $vs_objeto_fonte = $pa_parametros_campo["objeto"];
                 ?>
-                    vs_url_campo_atualizado = 'functions/montar_campos.php?obj=<?php print $vs_objeto_fonte; ?>&campo=<?php print $vs_campo; ?>&modo=edicao&cod='+$(this).val()+'&exibir=<?php print $vb_exibir; ?>';
+                    vs_url_campo_atualizado = 'functions/montar_campos.php?obj=<?php print $vs_objeto_fonte; ?>&campo=<?php print $vs_campo; ?>&modo=edicao&cod='+$(this).val()+'&exibir=<?php print $vb_exibir; ?>&atualizacao=1';
 
                     $.get(vs_url_campo_atualizado, function(data, status)
                     {

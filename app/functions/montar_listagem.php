@@ -130,6 +130,11 @@
                     $vn_ordenacao = array_keys($va_visualizacao_lista["order_by"])[0];
             }
 
+            if (empty($vs_ordem))
+            {
+               $vs_ordem = $va_visualizacao_lista["sort"] ?? "ASC";
+            }
+
             // Se é uma ordenação por utilização, tem que acrescentar o campo quantidade na mão
             /////////////////////////////////////
 

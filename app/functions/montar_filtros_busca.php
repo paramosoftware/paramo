@@ -251,28 +251,27 @@
         if (isset($va_parametros_submit["concatenadores"]))
             $va_parametros_filtros_consulta["concatenadores"] = $va_parametros_submit["concatenadores"];
 
-        if (isset($vo_objeto->controlador_acesso))
+
+        if (isset($vo_objeto->controlador_acesso) && count($vo_objeto->controlador_acesso))
         {
             // Verificação preliminar da existência de permissões de acesso
             ///////////////////////////////////////////////////////////////
 
-            $vb_acesso_invalido_registro = false;
+            $va_acessos_por_controlador = array();
     
             foreach ($vo_objeto->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
             {
                 if (trim($va_parametros_controle_acesso[$vs_key_controlador]) == "")
-                {
-                    if (isset($va_parametros_controle_acesso["_combinacao_"]) && $va_parametros_controle_acesso["_combinacao_"] == "OR")
-                    {
-                        $vb_acesso_invalido_registro = false;
-                        break;
-                    }
-                    else
-                    {
-                        $vb_acesso_invalido_registro = true;
-                    }
-                }
+                    $va_acessos_por_controlador[$vs_key_controlador] = false;
+                else
+                    $va_acessos_por_controlador[$vs_key_controlador] = true;
             }
+
+            if (isset($va_parametros_controle_acesso["_combinacao_"]) && $va_parametros_controle_acesso["_combinacao_"] == "OR")
+                $vb_acesso_invalido_registro = !in_array(true, $va_acessos_por_controlador);
+            else
+                $vb_acesso_invalido_registro = in_array(false, $va_acessos_por_controlador);
+
 
             if ($vb_acesso_invalido_registro)
             {

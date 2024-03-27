@@ -5882,23 +5882,23 @@ class objeto_base
 
     public function validar_acesso_registro($pn_objeto_codigo, $pa_parametros_acesso)
     {
-        $vb_acesso_invalido_registro = false;
+        if (!count($this->controlador_acesso))
+            return true;
+
+        $va_acessos_por_controlador = array();
     
-        foreach ($this->controlador_acesso as $vs_parametro_controlador => $vs_atributo_controlador)
+        foreach ($this->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
         {
-            if (trim($pa_parametros_acesso[$vs_parametro_controlador]) == "") 
-            {
-                if (!isset($pa_parametros_acesso["_combinacao_"]) || (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] != "OR") )
-                    exit();
-                else 
-                    $vb_acesso_invalido_registro = true;
-            }
-            elseif (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] == "OR")
-            {
-                $vb_acesso_invalido_registro = false;
-                break;
-            }
+            if (trim($pa_parametros_acesso[$vs_key_controlador]) == "")
+                $va_acessos_por_controlador[$vs_key_controlador] = false;
+            else
+                $va_acessos_por_controlador[$vs_key_controlador] = true;
         }
+
+        if (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] == "OR")
+            $vb_acesso_invalido_registro = !in_array(true, $va_acessos_por_controlador);
+        else
+            $vb_acesso_invalido_registro = in_array(false, $va_acessos_por_controlador);
 
         if ($vb_acesso_invalido_registro)
             return false;
@@ -5929,30 +5929,30 @@ class objeto_base
 
     public function validar_edicao_registro($pa_valores, $pa_parametros_acesso)
     {    
-        $vb_acesso_invalido_registro = false;
+        if (!count($this->controlador_acesso))
+            return true;
+
+        $va_acessos_por_controlador = array();
     
-        foreach ($this->controlador_acesso as $vs_parametro_controlador => $vs_atributo_controlador)
+        foreach ($this->controlador_acesso as $vs_key_controlador => $vs_atributo_controlador)
         {
-            if ((trim($pa_parametros_acesso[$vs_parametro_controlador]) == "")  && ($this->get_chave_primaria()[0] != $vs_parametro_controlador))
-            {
-                if (!isset($pa_parametros_acesso["_combinacao_"]) || (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] != "OR") )
-                    exit();
-                else 
-                    $vb_acesso_invalido_registro = true;
-            }
-            elseif (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] == "OR")
-            {
-                $vb_acesso_invalido_registro = false;
-                break;
-            }
+            if (trim($pa_parametros_acesso[$vs_key_controlador]) == "")
+                $va_acessos_por_controlador[$vs_key_controlador] = false;
+            else
+                $va_acessos_por_controlador[$vs_key_controlador] = true;
         }
+
+        if (isset($pa_parametros_acesso["_combinacao_"]) && $pa_parametros_acesso["_combinacao_"] == "OR")
+            $vb_acesso_invalido_registro = !in_array(true, $va_acessos_por_controlador);
+        else
+            $vb_acesso_invalido_registro = in_array(false, $va_acessos_por_controlador);
 
         if ($vb_acesso_invalido_registro)
             return false;
 
         foreach ($this->controlador_acesso as $vs_parametro_controlador => $vs_atributo_controlador)
         {
-            if (isset($pa_parametros_acesso[$vs_parametro_controlador]))
+            if (isset($pa_parametros_acesso[$vs_parametro_controlador]) && trim($pa_parametros_acesso[$vs_key_controlador]) != "")
             {
                 $va_atributo_controlador = explode("_0_", $vs_atributo_controlador);
 
@@ -5962,9 +5962,13 @@ class objeto_base
                 if (isset($pa_valores[$vs_atributo_controlador]) && trim($pa_valores[$vs_atributo_controlador] != ""))
                 {
                     $va_valores_parametros_acesso = explode("|", $pa_parametros_acesso[$vs_parametro_controlador]);
-                    
-                    if (!in_array($pa_valores[$vs_atributo_controlador], $va_valores_parametros_acesso))
-                        return false;
+                    $va_valores_form = explode("|", $pa_valores[$vs_atributo_controlador]);
+
+                    foreach ($va_valores_form as $vs_valor)
+                    {
+                        if (!in_array($vs_valor, $va_valores_parametros_acesso))
+                            return false;
+                    }
                 }
             }
         }
