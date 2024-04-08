@@ -193,32 +193,32 @@ $(document).on('keyup', ".form-control", function(event)
 
 $(document).on('click', "#btn_limpar", function()
 {
-    var frm_elements = form_lista.elements;
-
-    for (i = 0; i < frm_elements.length; i++)
+    var frm_elements = $("#filtros").find(".input").each(function ()
     {
-        field_type = frm_elements[i].type.toLowerCase();
+        field_type = $(this).prop('type');
 
         switch (field_type)
         {
             case "text":
+                $(this).val("");
+                break;
             case "number":
-                frm_elements[i].value = "";
+                $(this).val("");
+                break;
+            case "hidden":
+                $(this).val("");
                 break;
             case "radio":
             case "checkbox":
-                if (frm_elements[i].checked)
-                {
-                    frm_elements[i].checked = false;
-                }
+                $(this).prop("checked", false);
                 break;
             case "select-one":
-                frm_elements[i].selectedIndex = -1;
+                $(this).prop("selectedIndex", 0);
                 break;
             default:
                 break;
         }
-    }
+    });
 }
 );
 
