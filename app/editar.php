@@ -458,7 +458,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     ?>
 
                                     <div class="col-md-3 text-right">
-                                        <?php if ($vb_exibir_botao_salvar_duplicar) { ?>
+                                        <?php if (!$vn_objeto_codigo && $vb_exibir_botao_salvar_duplicar) { ?>
                                             <button class="btn btn-primary btn-salvar-duplicar" type="button" id="btn_salvar_duplicar_top">
                                                 Salvar e duplicar
                                             </button>
@@ -496,7 +496,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     </div>
                                     
                                     <div class="col-md-3 text-right">
-                                        <?php if ($vb_exibir_botao_salvar_duplicar) { ?>
+                                        <?php if (!$vn_objeto_codigo && $vb_exibir_botao_salvar_duplicar) { ?>
                                             <button class="btn btn-primary btn-salvar-duplicar" type="button" id="btn_salvar_duplicar_bottom">
                                                 Salvar e duplicar
                                             </button>
@@ -562,10 +562,16 @@ $(document).on('click', ".btn-tab", function() {
 
 $(document).on('click', ".btn-salvar-duplicar", function() {
     $("#modo").val("dup");
-    $(".btn-salvar").trigger("click");
+    
+    salvar();
 });
 
 $(document).on('click', ".btn-salvar", function() {
+    salvar();
+});
+
+function salvar()
+{
     vb_alterou_cadastro = false;
 
     $.post("functions/validar_dados_form.php", $.param($("#form_cadastro").serializeArray()), function(response)
@@ -577,7 +583,7 @@ $(document).on('click', ".btn-salvar", function() {
             //console.log(response);
         }
     });
-});
+}
 
 $(window).bind('beforeunload', function() {
     if (vb_alterou_cadastro)
