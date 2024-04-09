@@ -102,6 +102,8 @@
         $vs_nome_campo_codigos = $vs_nome_campo. "_codigo" . $vs_sufixo_nome_campo;
     }
 
+    $vs_id_campo_codigos = str_replace(",", "_", $vs_nome_campo_codigos);
+
     unset($vs_nome_campo);
 
     $va_keys_atributos = array_keys($pa_parametros_campo["atributos"]);
@@ -436,7 +438,7 @@
     ?>
     <div id="div_sugestoes_<?php print $vs_nome_campo_lookup ?>"></div>
 
-    <input type="hidden" class="input" id="<?php print $vs_nome_campo_codigos; ?>" name="<?php print $vs_nome_campo_codigos; ?>" value="<?php print $vn_valor_campo_codigo; ?>"
+    <input type="hidden" class="input" id="<?php print $vs_id_campo_codigos; ?>" name="<?php print $vs_nome_campo_codigos; ?>" value="<?php print $vn_valor_campo_codigo; ?>"
     <?php
         if ( 
             (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
@@ -514,9 +516,9 @@ $(document).on('click', "#chk_nulo_<?php print $vs_nome_campo_lookup . $vs_sufix
     $("#btn_remover_todos_<?php print $vs_nome_campo_lookup; ?>").trigger("click");
 
     if ($('#<?php print $vs_nome_campo_lookup ?>').prop('disabled'))
-        $("#<?php print $vs_nome_campo_codigos ?>").val("");
+        $("#<?php print $vs_id_campo_codigos ?>").val("");
     else
-        $("#<?php print $vs_nome_campo_codigos ?>").val("0");
+        $("#<?php print $vs_id_campo_codigos ?>").val("0");
 
     $("#<?php print $vs_nome_campo_lookup ?>").prop("disabled", !$('#<?php print $vs_nome_campo_lookup ?>').prop('disabled'));
 });
@@ -526,7 +528,7 @@ $(document).on('click', "#chk_<?php print $vs_nome_campo_lookup . $vs_sufixo_nom
     $("#<?php print $vs_nome_campo_lookup; ?>").toggle();
     $("#div_selecionados_<?php print $vs_nome_campo_lookup; ?>").toggle();
 
-    $("#<?php print $vs_nome_campo_codigos ?>").prop("disabled", !$('#<?php print $vs_nome_campo_codigos ?>').prop('disabled'));
+    $("#<?php print $vs_id_campo_codigos ?>").prop("disabled", !$('#<?php print $vs_id_campo_codigos ?>').prop('disabled'));
     $("#<?php print $vs_nome_campo_lookup ?>").prop("disabled", !$('#<?php print $vs_nome_campo_lookup ?>').prop('disabled'));
 
     $("#<?php print $vs_nome_campo_lookup; ?>").focus();
@@ -557,7 +559,7 @@ $(function()
                     va_lista_codigos_atualizada = va_lista_codigos_atualizada + "|" + $(this).attr("id").replace("linha_<?php print $vs_nome_campo_lookup ?>_", "");
             });
 
-            $('#<?php print $vs_nome_campo_codigos ?>').val(va_lista_codigos_atualizada);
+            $('#<?php print $vs_id_campo_codigos ?>').val(va_lista_codigos_atualizada);
         } 
     });
 });
@@ -717,7 +719,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                 if (isset($pa_parametros_campo["prevenir_circularidade"]))
                 {
                 ?>
-                    vs_url_valores_proibidos = "functions/ler_valores_proibidos.php?campo=<?php print $vs_nome_campo_codigos; ?>&obj=<?php print $vs_objeto_campo; ?>";
+                    vs_url_valores_proibidos = "functions/ler_valores_proibidos.php?campo=<?php print $vs_id_campo_codigos; ?>&obj=<?php print $vs_objeto_campo; ?>";
                 
                     // Vamos adicionar aqui o código do próprio registro, se existir (é atualização)
                     ////////////////////////////////////////////////////////////////////////////////
@@ -833,7 +835,7 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
 
 function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, ps_texto_selecionado)
 {
-    va_codigos = $("#<?php print $vs_nome_campo_codigos ?>").val().split("|");
+    va_codigos = $("#<?php print $vs_id_campo_codigos ?>").val().split("|");
 
     vb_multiplos_valores = false;
     <?php
@@ -855,7 +857,7 @@ function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, p
     }
     ?>
 
-    if ( ($("#<?php print $vs_nome_campo_codigos ?>").val() != "") && !vb_multiplos_valores && !vb_valor_no_input)
+    if ( ($("#<?php print $vs_id_campo_codigos; ?>").val() != "") && !vb_multiplos_valores && !vb_valor_no_input)
         return false;
     
     if (va_codigos.indexOf(pn_valor_selecionado) == -1)
@@ -900,7 +902,7 @@ function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, p
 
         if (<?php print $vb_permitir_repeticao_termo; ?>)
         {
-            if ($("#<?php print $vs_nome_campo_codigos ?>").val().length == 0)
+            if ($("#<?php print $vs_id_campo_codigos ?>").val().length == 0)
                 vn_valor_selecionado = pn_valor_selecionado + "_1";
             else
                 vn_valor_selecionado = pn_valor_selecionado + "_" + (va_codigos.length + 1);
@@ -909,7 +911,7 @@ function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, p
         <?php if (!$vb_valor_no_input)
         {
         ?>
-            vs_url_nova_linha = "functions/linha.php?tela=<?php print $vs_tela ?>&campo_lookup=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $vs_nome_campo_codigos ?>&mostrar_subcampos=<?php print $vb_mostrar_subcampos; ?>&codigo="+vn_valor_selecionado+"&valor="+encodeURIComponent(vs_valor_selecionado)+"&pode_editar=<?php print $vb_pode_editar; ?>"+vs_filtro;
+            vs_url_nova_linha = "functions/linha.php?tela=<?php print $vs_tela ?>&campo_lookup=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $vs_id_campo_codigos ?>&mostrar_subcampos=<?php print $vb_mostrar_subcampos; ?>&codigo="+vn_valor_selecionado+"&valor="+encodeURIComponent(vs_valor_selecionado)+"&pode_editar=<?php print $vb_pode_editar; ?>"+vs_filtro;
 
             <?php
             if (isset($pa_parametros_campo["atributo_complementar"]))
@@ -936,19 +938,19 @@ function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, p
         }
         ?>
 
-        if ( ($("#<?php print $vs_nome_campo_codigos ?>").val().length == 0) || !vb_multiplos_valores)
+        if ( ($("#<?php print $vs_id_campo_codigos ?>").val().length == 0) || !vb_multiplos_valores)
         {
-            $("#<?php print $vs_nome_campo_codigos ?>").val(vn_valor_selecionado);
+            $("#<?php print $vs_id_campo_codigos ?>").val(vn_valor_selecionado);
         }
         else
         {
-            va_codigos = $("#<?php print $vs_nome_campo_codigos ?>").val().split("|");
+            va_codigos = $("#<?php print $vs_id_campo_codigos ?>").val().split("|");
             vn_tamanho_lista = va_codigos.length;
 
             if (!va_codigos.includes(vn_valor_selecionado.toString()))
             {
-                va_lista_codigos_atualizada = $("#<?php print $vs_nome_campo_codigos ?>").val() + "|" + vn_valor_selecionado;
-                $("#<?php print $vs_nome_campo_codigos ?>").val(va_lista_codigos_atualizada);
+                va_lista_codigos_atualizada = $("#<?php print $vs_id_campo_codigos ?>").val() + "|" + vn_valor_selecionado;
+                $("#<?php print $vs_id_campo_codigos ?>").val(va_lista_codigos_atualizada);
                 vn_tamanho_lista = vn_tamanho_lista + 1;
             }
 
@@ -977,7 +979,7 @@ function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, p
             foreach($pa_parametros_campo["controlar_exibicao"] as $vs_campo_controlar)
             {
             ?>
-                atualizar_exibicao_<?php print $vs_campo_controlar ?>($("#<?php print $vs_nome_campo_codigos ?>").val());
+                atualizar_exibicao_<?php print $vs_campo_controlar ?>($("#<?php print $vs_id_campo_codigos ?>").val());
             <?php
             }
         }
@@ -1097,7 +1099,7 @@ function atualizar_dependencias_<?php print $vs_nome_campo_lookup; ?>(pn_valor_s
         foreach($pa_parametros_campo["controlar_exibicao"] as $vs_campo_controlar)
         {
         ?>
-            v_valor =  $("#<?php print $vs_nome_campo_codigos ?>").val();
+            v_valor =  $("#<?php print $vs_id_campo_codigos ?>").val();
             atualizar_exibicao_<?php print $vs_campo_controlar ?>(v_valor);
         <?php
         }
@@ -1113,7 +1115,7 @@ $(document).on('click', "#lista_<?php print $vs_nome_campo_lookup ?>", function(
 $(document).on('click', "#btn_remover_todos_<?php print $vs_nome_campo_lookup; ?>", function()
 {
     $("#div_selecionados_<?php print $vs_nome_campo_lookup ?>").empty();
-    $("#<?php print $vs_nome_campo_codigos ?>").val('');
+    $("#<?php print $vs_id_campo_codigos ?>").val('');
     $("#div_remover_todos_<?php print $vs_nome_campo_lookup ?>").hide();
 });
 
