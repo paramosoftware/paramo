@@ -1942,8 +1942,10 @@ class objeto_base
         // são chaves estrangeiras e relacionamentos
         //////////////////////////////////////////////////////////////
 
-        if (count($va_resultado)) {
-            foreach ($va_resultado as &$va_item_resultado) {
+        if (count($va_resultado)) 
+        {
+            foreach ($va_resultado as &$va_item_resultado) 
+            {
                 $vs_objeto = $va_item_resultado["_objeto"];
                 $vo_objeto = $va_objetos_instanciados[$vs_objeto];
 
@@ -2096,9 +2098,11 @@ class objeto_base
                     }
                 }
 
-                if ($vo_objeto->recurso_sistema_codigo) {
+                if ($vo_objeto->recurso_sistema_codigo) 
+                {
                     $vs_alias_chave_primaria = $vo_objeto->chave_primaria[0];
-                    foreach ($va_visualizacao as $vs_key_campo_visualizacao => $va_campo_visualizacao) {
+                    foreach ($va_visualizacao as $vs_key_campo_visualizacao => $va_campo_visualizacao) 
+                    {
                         if ($va_campo_visualizacao["nome"] == $vo_objeto->chave_primaria[0])
                             $vs_alias_chave_primaria = $vs_key_campo_visualizacao;
                     }
@@ -2144,9 +2148,12 @@ class objeto_base
                     }
                 }
 
-                foreach ($va_visualizacao as $vs_key_campo_visualizacao => $va_campo_visualizacao) {
-                    if (isset($va_campo_visualizacao["formato"])) {
-                        foreach ($va_campo_visualizacao["formato"] as $vs_id_formato => $vs_parametro) {
+                foreach ($va_visualizacao as $vs_key_campo_visualizacao => $va_campo_visualizacao) 
+                {
+                    if (isset($va_campo_visualizacao["formato"])) 
+                    {
+                        foreach ($va_campo_visualizacao["formato"] as $vs_id_formato => $vs_parametro) 
+                        {
                             switch ($vs_id_formato) {
                                 case "data":
                                     $vo_periodo = new Periodo;
@@ -2177,6 +2184,11 @@ class objeto_base
                         }
                     }
                 }
+
+                $va_item_resultado["_number_of_children"] = 0;
+                
+                if ($vo_objeto->campo_hierarquico)
+                    $va_item_resultado["_number_of_children"] = $vo_objeto->ler_numero_registros([$vo_objeto->campo_hierarquico => $va_item_resultado[$vs_alias_chave_primaria]]);
             }
         }
 

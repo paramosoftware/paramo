@@ -208,122 +208,171 @@
 
             foreach ($va_objetos_lista as $va_item)
             {
-                $va_item_listagem = array();
+                $vb_mostrar_registros_filhos = true;
 
-                $va_item_listagem["_objeto"] = $va_item["_objeto"];
-                $va_item_listagem[$vo_objeto->get_chave_primaria()[0]] = $va_item[$vo_objeto->get_chave_primaria()[0]];
+                $vb_contador_nivel = 0;
+                $va_items_nivel = array();
 
-                $vs_path = "";
-                if ( isset($va_item["representante_digital_codigo"]) && isset($va_visualizacao_lista["campos"]["representante_digital_codigo"]) )
-                    $vs_path = ler_valor1("representante_digital_codigo", $va_item, $va_visualizacao_lista["campos"]["representante_digital_codigo"], 1);
-
-                $va_item_listagem["representante_digital"] = $vs_path;
-
-                $va_atributos_item_listagem = array();
-                foreach($va_campos_visualizacao as $vs_key_campo_visualizacao => $vs_label_campo_visualizacao)
+                while($vb_mostrar_registros_filhos)
                 {
-                    $va_atributo_item_listagem = array();
+                    $va_item_listagem = array();
 
-                    $vb_id_field = false;
-                    $vb_main_field = false;
-                    $vb_descriptive_field = false;
+                    $va_item_listagem["_objeto"] = $va_item["_objeto"];
+                    $va_item_listagem[$vo_objeto->get_chave_primaria()[0]] = $va_item[$vo_objeto->get_chave_primaria()[0]];
 
-                    if (is_array($vs_label_campo_visualizacao))
+                    if (isset($va_item["_number_of_children"]) && $va_item["_number_of_children"] > 0)
+                        $va_item_listagem["_number_of_children"] = $va_item["_number_of_children"];
+                    else
+                        $vb_mostrar_registros_filhos = false;
+
+                    $vs_path = "";
+                    if ( isset($va_item["representante_digital_codigo"]) && isset($va_visualizacao_lista["campos"]["representante_digital_codigo"]) )
+                        $vs_path = ler_valor1("representante_digital_codigo", $va_item, $va_visualizacao_lista["campos"]["representante_digital_codigo"], 1);
+
+                    $va_item_listagem["representante_digital"] = $vs_path;
+
+                    $va_atributos_item_listagem = array();
+
+                    foreach($va_campos_visualizacao as $vs_key_campo_visualizacao => $vs_label_campo_visualizacao)
                     {
-                        if (isset($vs_label_campo_visualizacao["controlado_por"]))
-                        {
-                            $vs_controlado_por = $vs_label_campo_visualizacao["controlado_por"];
+                        $va_atributo_item_listagem = array();
 
-                            if (isset($va_item[$vs_controlado_por]))
+                        $vb_id_field = false;
+                        $vb_main_field = false;
+                        $vb_descriptive_field = false;
+
+                        if (is_array($vs_label_campo_visualizacao))
+                        {
+                            if (isset($vs_label_campo_visualizacao["controlado_por"]))
                             {
-                                if ($va_item[$vs_controlado_por] == 0)
+                                $vs_controlado_por = $vs_label_campo_visualizacao["controlado_por"];
+
+                                if (isset($va_item[$vs_controlado_por]))
                                 {
-                                    continue;
+                                    if ($va_item[$vs_controlado_por] == 0)
+                                    {
+                                        continue;
+                                    }
                                 }
                             }
+
+
+                            if (isset($vs_label_campo_visualizacao["id_field"]))
+                                $vb_id_field = true;
+
+                            if (isset($vs_label_campo_visualizacao["main_field"]))
+                                $vb_main_field = true;
+
+                            if (isset($vs_label_campo_visualizacao["descriptive_field"]))
+                                $vb_descriptive_field = true;
+
+                            if (isset($vs_label_campo_visualizacao["label"]))
+                                $vs_label_campo_visualizacao = $vs_label_campo_visualizacao["label"];
                         }
 
+                        if (intval($vs_key_campo_visualizacao))
+                            $vs_key_campo_visualizacao = $vs_label_campo_visualizacao;
 
-                        if (isset($vs_label_campo_visualizacao["id_field"]))
-                            $vb_id_field = true;
-
-                        if (isset($vs_label_campo_visualizacao["main_field"]))
-                            $vb_main_field = true;
-
-                        if (isset($vs_label_campo_visualizacao["descriptive_field"]))
-                            $vb_descriptive_field = true;
-
-                        if (isset($vs_label_campo_visualizacao["label"]))
-                            $vs_label_campo_visualizacao = $vs_label_campo_visualizacao["label"];
-                    }
-
-                    if (intval($vs_key_campo_visualizacao))
-                        $vs_key_campo_visualizacao = $vs_label_campo_visualizacao;
-
-                    $va_campo_visualizacao = null;
-                    if (isset($va_visualizacao_lista["campos"][$vs_key_campo_visualizacao]))
-                    {
-                        $va_campo_visualizacao = $va_visualizacao_lista["campos"][$vs_key_campo_visualizacao];
-
-                        if (isset($va_campos_visualizacao[$vs_key_campo_visualizacao]["formato"]))
+                        $va_campo_visualizacao = null;
+                        if (isset($va_visualizacao_lista["campos"][$vs_key_campo_visualizacao]))
                         {
-                            $va_campo_visualizacao = array_merge($va_campo_visualizacao, $va_campos_visualizacao[$vs_key_campo_visualizacao]);
-                        }
+                            $va_campo_visualizacao = $va_visualizacao_lista["campos"][$vs_key_campo_visualizacao];
 
-
-                        if (isset($va_campo_visualizacao["main_field"]))
-                            $vb_main_field = true;
-                    }
-
-                    $vs_label_campo = $vs_label_campo_visualizacao;
-                    if (!$vs_label_campo)
-                    {
-                        if (isset($va_campo_visualizacao["label"]))
-                            $vs_label_campo = $va_campo_visualizacao["label"];
-                    }
-
-                    $vs_valor_atributo = ler_valor1($vs_key_campo_visualizacao, $va_item, $va_campo_visualizacao);
-
-                    if ($vb_id_field)
-                        $va_item_listagem["id_field"] = $vs_valor_atributo;
-
-                    elseif ($vb_main_field)
-                    {
-                        if (!isset($va_item_listagem["main_field"]) && $vs_valor_atributo != "")
-                            $va_item_listagem["main_field"] = $vs_valor_atributo;
-                        elseif ($vs_valor_atributo != "")
-                            $va_item_listagem["main_field"] = $va_item_listagem["main_field"] . ": " . $vs_valor_atributo;
-                    }
-                    elseif ($vb_descriptive_field)
-                        $va_item_listagem["descriptive_field"] = $vs_valor_atributo;
-
-                    if ( ($vs_output == "out") || (!$vb_id_field && !$vb_main_field && !$vb_descriptive_field) )
-                    {
-                        if ($vs_valor_atributo != "")
-                        {
-
-                            $va_atributo_item_listagem["label"] = $vs_label_campo;
-                            $va_atributo_item_listagem["valor"] = $vs_valor_atributo;
-
-                            if(isset($va_campo_visualizacao["exibir"]))
+                            if (isset($va_campos_visualizacao[$vs_key_campo_visualizacao]["formato"]))
                             {
-                                $va_atributo_item_listagem["exibir"] = $va_campo_visualizacao["exibir"];
+                                $va_campo_visualizacao = array_merge($va_campo_visualizacao, $va_campos_visualizacao[$vs_key_campo_visualizacao]);
+                            }
+
+
+                            if (isset($va_campo_visualizacao["main_field"]))
+                                $vb_main_field = true;
+                        }
+
+                        $vs_label_campo = $vs_label_campo_visualizacao;
+                        if (!$vs_label_campo)
+                        {
+                            if (isset($va_campo_visualizacao["label"]))
+                                $vs_label_campo = $va_campo_visualizacao["label"];
+                        }
+
+                        $vs_valor_atributo = ler_valor1($vs_key_campo_visualizacao, $va_item, $va_campo_visualizacao);
+
+                        if ($vb_id_field)
+                            $va_item_listagem["id_field"] = $vs_valor_atributo;
+
+                        elseif ($vb_main_field)
+                        {
+                            if (!isset($va_item_listagem["main_field"]) && $vs_valor_atributo != "")
+                                $va_item_listagem["main_field"] = $vs_valor_atributo;
+                            elseif ($vs_valor_atributo != "")
+                                $va_item_listagem["main_field"] = $va_item_listagem["main_field"] . ": " . $vs_valor_atributo;
+                        }
+                        elseif ($vb_descriptive_field)
+                            $va_item_listagem["descriptive_field"] = $vs_valor_atributo;
+
+                        if ( ($vs_output == "out") || (!$vb_id_field && !$vb_main_field && !$vb_descriptive_field) )
+                        {
+                            if ($vs_valor_atributo != "")
+                            {
+
+                                $va_atributo_item_listagem["label"] = $vs_label_campo;
+                                $va_atributo_item_listagem["valor"] = $vs_valor_atributo;
+
+                                if(isset($va_campo_visualizacao["exibir"]))
+                                {
+                                    $va_atributo_item_listagem["exibir"] = $va_campo_visualizacao["exibir"];
+                                }
+                                else
+                                {
+                                    $va_atributo_item_listagem["exibir"] = true;
+                                }
+
+
+                                $va_atributos_item_listagem[] = $va_atributo_item_listagem;
+                            }
+                        }
+                    }
+
+                    $va_item_listagem["atributos"] = $va_atributos_item_listagem;
+
+                    $va_item_listagem["_nivel"] = $vb_contador_nivel;
+
+                    $va_itens_listagem[] = $va_item_listagem;
+                    $va_itens_listagem_codigos[] = $va_item[$vo_objeto->get_chave_primaria()[0]];
+
+                    if ($vb_mostrar_registros_filhos)
+                    {
+                        $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $va_item[$vo_objeto->get_chave_primaria()[0]]], "navegacao");
+
+                        if (count($va_registros_filhos))
+                        {
+                            $va_item = array_shift($va_registros_filhos);
+
+                            $vb_contador_nivel++;
+                            $va_items_nivel[$vb_contador_nivel] = $va_registros_filhos;
+                        }
+                    }
+                    else
+                    {
+                        // Quer dizer que eu cheguei ao fim de um nível (o item não tem filho)
+
+                        $vb_achou_irmao = false;
+
+                        while ( ($vb_contador_nivel > 0) && !$vb_achou_irmao)
+                        {
+                            if (count($va_items_nivel[$vb_contador_nivel]))
+                            {
+                                $va_item = array_shift($va_items_nivel[$vb_contador_nivel]);
+                                $vb_achou_irmao = true;
+                                $vb_mostrar_registros_filhos = true;
                             }
                             else
-                            {
-                                $va_atributo_item_listagem["exibir"] = true;
-                            }
-
-
-                            $va_atributos_item_listagem[] = $va_atributo_item_listagem;
+                                $vb_contador_nivel--;
                         }
                     }
+
+                    //$vb_mostrar_registros_filhos = false;
                 }
-
-                $va_item_listagem["atributos"] = $va_atributos_item_listagem;
-
-                $va_itens_listagem[] = $va_item_listagem;
-                $va_itens_listagem_codigos[] = $va_item[$vo_objeto->get_chave_primaria()[0]];
             }
 
             $_SESSION[$vs_id_objeto_tela]["listagem_codigos"] = $va_itens_listagem_codigos;

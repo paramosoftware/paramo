@@ -97,7 +97,7 @@ if ($vn_numero_registros)
     {
         $vn_objeto_codigo = $va_item_listagem[$vo_objeto->get_chave_primaria()[0]];
     ?>
-        <div class="card mb-3">
+        <div class="card mb-3" style="margin-left:<?php print 30*($va_item_listagem["_nivel"]); ?>px">
             <div class="card-header row no-margin-side card-titulo" id="div_<?php print reset($va_item_listagem) ?>">
 
                 <div
@@ -107,12 +107,33 @@ if ($vn_numero_registros)
                     print ' style="width:100%"';
                 ?>
                 >
-                    <h5>
+                    <h5 style="display: inline-flex;">
+                        <?php
+                        if (isset($va_item_listagem["_number_of_children"]))
+                        {
+                        ?>
+                            <button class="btn btn-transparent p-0" id="btn_show_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="show_child_records(<?php print $vn_objeto_codigo; ?>)">
+                            <svg class="icon text-cor-laranja">
+                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
+                            </svg>
+                            </button>
+
+                            <button class="btn btn-transparent p-0" style="display:none" id="btn_hide_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="hide_child_records(<?php print $vn_objeto_codigo; ?>)">
+                            <svg class="icon text-cor-laranja">
+                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-minus"></use>
+                            </svg>
+                            </button>
+                        <?php
+                        }
+                        ?>
+
                         <?php
                             $vs_url_editar = "ficha.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
+
                             if ($vb_pode_editar && ($vs_target_ui != "modal"))
                             {
                                 $vs_url_editar = "editar.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
+
                                 if ($vn_bibliografia_codigo)
                                     $vs_url_editar .= "&bibliografia=" . $vn_bibliografia_codigo;
                             }
@@ -134,10 +155,10 @@ if ($vn_numero_registros)
                         }
                         ?>
                         >
-                        <?php
-                            if (isset($va_item_listagem["main_field"]))
-                                print $va_item_listagem["main_field"];
-                        ?>
+                            <?php
+                                if (isset($va_item_listagem["main_field"]))
+                                    print $va_item_listagem["main_field"];
+                            ?>
                         </a>
                     </h5>
                 </div>
@@ -330,6 +351,8 @@ if ($vn_numero_registros)
             }
             ?>
         </div>
+
+        <div style="margin-left:30px" id="children_<?php print $vn_objeto_codigo; ?>"></div>
     <?php
     }
 ?>
@@ -411,6 +434,27 @@ $(document).on('click', "#btn_excluir_listagem", function()
         $("#form_lista").submit();
     }
 });
+
+function show_child_records(pn_item_codigo)
+{
+    var vs_url_child_records = "functions/ler_registros_filhos.php?obj=<?php print $vs_id_objeto_tela; ?>&cod="+pn_item_codigo;
+
+    $.get(vs_url_child_records, function(data, status)
+    {
+        $("#children_" + pn_item_codigo).html(data);
+        
+        $("#btn_show_chidren_" + pn_item_codigo).hide();
+        $("#btn_hide_chidren_" + pn_item_codigo).show();
+    });
+}
+
+function hide_child_records(pn_item_codigo)
+{
+    $("#children_" + pn_item_codigo).empty();
+    
+    $("#btn_show_chidren_" + pn_item_codigo).show();
+    $("#btn_hide_chidren_" + pn_item_codigo).hide();
+}
 
 </script>
 
