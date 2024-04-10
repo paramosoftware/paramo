@@ -246,7 +246,7 @@ protected function ler_valor_textual($pa_valores_form, $ps_campo_nome)
                 if (isset($vs_valor_campo[$vs_parte_campo_nome]))
                     $vs_valor_campo = $vs_valor_campo[$vs_parte_campo_nome];
                 
-                elseif ((isset($vs_valor_campo[0])))
+                elseif ((isset($vs_valor_campo[0])) && is_array($vs_valor_campo[0]))
                 {
                     $vs_valor_campo = $vs_valor_campo[0];
                     $vs_valor_campo = $vs_valor_campo[$vs_parte_campo_nome];
