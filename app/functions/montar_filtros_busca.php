@@ -46,6 +46,7 @@
         $vb_aplicar_controle_acesso = true;
         $vb_busca_combinada = false;
         $va_controles_acesso_aplicados = array();
+        $vb_buscar_niveis_inferiores = false;
 
         foreach ($va_parametros_submit as $vs_key_filtro => $vs_valor_filtro)
         {
@@ -53,6 +54,7 @@
             //////////////////////////////////////////////////////////////////////
 
             $vs_campo = $vs_key_filtro;
+
             if ( preg_match('/\w+(_F_\d+)$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_com_valor$/', $vs_key_filtro) || preg_match('/\w+(_F_\d+)_sem_valor$/', $vs_key_filtro))
             {
                 $vs_campo = substr($vs_key_filtro, 0, strpos($vs_key_filtro, "_F_"));
@@ -68,7 +70,7 @@
             {
                 $va_campo_filtro = $va_campos[$vs_campo];
                 $vs_campo = $vs_key_filtro;
-                
+
                 // Vamos tratar as datas
                 ////////////////////////
 
@@ -227,9 +229,11 @@
                                 }
                             }
                         }
+
+                        if ($va_campo_filtro["buscar_niveis_inferiores"] ?? false)
+                            $vb_buscar_niveis_inferiores = true;
                     }
                 }
-
             }
 
             if (count($va_parametros_filtros_form))

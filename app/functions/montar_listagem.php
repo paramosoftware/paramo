@@ -35,6 +35,7 @@
         $vb_fazer_busca = true;
 
     $vn_numero_registros = 0;
+    $vn_numero_registros_filhos = 0;
     $va_itens_listagem = array();
     $va_itens_listagem_codigos = array();
     $vn_primeiro_registro = 1;
@@ -117,7 +118,7 @@
 
             if ($vo_objeto->get_campo_hierarquico() && $vo_objeto->exibir_lista_hierarquica)
             {
-                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && ( (!$vb_tem_filtros_consulta && ($vo_objeto->tipo_hierarquia == "default")) || $vo_objeto->tipo_hierarquia == "subordinada"))
+                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && ( ((!isset($vb_buscar_niveis_inferiores) || !$vb_buscar_niveis_inferiores) && ($vo_objeto->tipo_hierarquia == "default")) || $vo_objeto->tipo_hierarquia == "subordinada"))
                     $va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()] = [null, "<=>"];
             }
 
@@ -340,12 +341,17 @@
                     $va_itens_listagem[] = $va_item_listagem;
                     $va_itens_listagem_codigos[] = $va_item[$vo_objeto->get_chave_primaria()[0]];
 
+                    if (!($vb_expandir_niveis_hierarquicos ?? false))
+                        $vb_mostrar_registros_filhos = false;
+
                     if ($vb_mostrar_registros_filhos)
                     {
                         $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $va_item[$vo_objeto->get_chave_primaria()[0]]], "navegacao");
 
                         if (count($va_registros_filhos))
                         {
+                            $vn_numero_registros_filhos = $vn_numero_registros_filhos + count($va_registros_filhos);
+
                             $va_item = array_shift($va_registros_filhos);
 
                             $vb_contador_nivel++;
@@ -370,8 +376,6 @@
                                 $vb_contador_nivel--;
                         }
                     }
-
-                    //$vb_mostrar_registros_filhos = false;
                 }
             }
 
