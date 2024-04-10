@@ -162,7 +162,7 @@ function get_parametros_relatorio_quantitativo($pn_campo_sistema_codigo)
     $vs_objeto_relacionado_campo_identificador = "";
     foreach ($va_campos_sistema_objeto_relacionado as $va_campo_objeto_relacionado)
     {
-        if ($va_campo_objeto_relacionado["campo_sistema_identificador_recurso_sistema"])
+        if (isset($va_campo_objeto_relacionado["campo_sistema_identificador_recurso_sistema"]) && $va_campo_objeto_relacionado["campo_sistema_identificador_recurso_sistema"])
         {
             $vs_objeto_relacionado_campo_identificador = $va_campo_objeto_relacionado["campo_sistema_nome"];
         }
