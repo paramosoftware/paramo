@@ -166,6 +166,41 @@ class grupo_usuario extends objeto_base
         return $va_campos_edicao;
     }
 
+    public function inicializar_filtros_navegacao($pn_bibliografia_codigo = '')
+    {
+        $va_filtros_navegacao = array();
+
+        $va_filtros_navegacao["grupo_usuario_nome"] = [
+            "html_text_input",
+            "nome" => "grupo_usuario_nome",
+            "label" => "Nome do grupo",
+            "operador_filtro" => "LIKE",
+            "foco" => true
+        ];
+
+        $va_filtros_navegacao["grupo_usuario_usuario_codigo"] = [
+            "html_combo_input",
+            "nome" => "grupo_usuario_usuario_codigo",
+            "label" => "Usuário",
+            "objeto" => "usuario",
+            "atributos" => [
+                "usuario_codigo",
+                "usuario_nome"
+            ],
+            "atributo" => "usuario_codigo",
+            "sem_valor" => true,
+            "filtro" => [
+                [
+                    "atributo" => "usuario_tipo_codigo",
+                    "valor" => 3,
+                    "operador" => "!="
+                ]
+            ]
+        ];
+
+        return $va_filtros_navegacao;
+    }
+
     public function inicializar_visualizacoes()
     {
         $va_campos_visualizacao = array();
