@@ -21,6 +21,9 @@
     if (!isset($vb_pode_remover))
         $vb_pode_remover = true;
 
+    if (!isset($vs_label_objeto))
+        $vs_label_objeto = "";
+
     $vs_preview_only = false;
     if (isset($pa_parametros_campo["preview_only"]))
         $vs_preview_only = $pa_parametros_campo["preview_only"];
@@ -132,6 +135,11 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                     $vs_rp_legenda = $va_valores_linha["representante_digital_legenda"] ?? "";
                                     $vs_rd_formato = $va_valores_linha["representante_digital_formato"] ?? "";
 
+                                    $vs_download_link = "functions/serve_file.php?file=" . $vs_rd_path . "&size=original&download=1&name=" . $vs_label_objeto . "-" . $vn_numero_campo;
+
+                                    if ($pa_parametros_campo["tipo"] == 2)
+                                        $vs_download_link .= "&folder=documents";
+
                                 ?> 
                                     <div class="col espacamento-documentos rp" style="max-width:190px;" id="<?php print $vs_nome_campo . "_" . $vn_linha_codigo; ?>">
                                             <div class="card h-100 shadow-sm no-border no-shadow">
@@ -200,21 +208,19 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                                         <span class="float-start card-text footer-card"><?php print $vn_numero_campo; ?></span>
 
                                                         <div class="text-end">
-                                                        <?php if ($vs_rd_formato == "pdf") : ?>
+                                                            <button class="btn btn-primary float-end btn-trash btn_remover" type="button" id="btn_rem_rd_<?php  print $vn_linha_codigo; ?>" title="Remover">
+                                                                <svg class="icon">
+                                                                    <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-trash"></use>
+                                                                </svg>
+                                                            </button>
 
-                                                            <a class="btn btn-primary btn-trash text-end mx-3" href="<?= $vs_download_path ?? ""  ?>" target="_blank">
+                                                            <a class="btn btn-primary btn-trash mx-1 btn_download" type="button" id="btn_download_rd_<?php  print $vn_linha_codigo; ?>" title="Baixar"
+                                                            href="<?php print $vs_download_link; ?>" target="_blank"
+                                                            >
                                                                 <svg class="icon">
                                                                     <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-cloud-download"></use>
                                                                 </svg>
                                                             </a>
-
-                                                        <?php endif; ?>
-                                                        
-                                                        <button class="btn btn-primary float-end btn-trash btn_remover" type="button" id="btn_rem_rd_<?php  print $vn_linha_codigo; ?>">
-                                                            <svg class="icon">
-                                                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-trash"></use>
-                                                            </svg>
-                                                        </button>
                                                         </div>
                                                     </div>                                  
                                                 </div>
