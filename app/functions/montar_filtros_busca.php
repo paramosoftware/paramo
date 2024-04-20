@@ -2,6 +2,9 @@
     if (!isset($vb_autenticar_usuario))
         $vb_autenticar_usuario = true;
 
+    if (!isset($vb_usuario_externo))
+        $vb_usuario_externo = false;
+
     // Antes de chamar configurar_campos_tela.php, tenho que definir o modo "listagem"
     //////////////////////////////////////////////////////////////////////////////////
 
@@ -256,7 +259,7 @@
             $va_parametros_filtros_consulta["concatenadores"] = $va_parametros_submit["concatenadores"];
 
 
-        if (isset($vo_objeto->controlador_acesso) && count($vo_objeto->controlador_acesso))
+        if (!$vb_usuario_externo && isset($vo_objeto->controlador_acesso) && count($vo_objeto->controlador_acesso))
         {
             // Verificação preliminar da existência de permissões de acesso
             ///////////////////////////////////////////////////////////////
@@ -337,6 +340,25 @@
                     }
                 } 
             }
+        }
+        elseif ($vb_usuario_externo)
+        {
+            // Se o usuário é externo, os registros a que ele têm acesso são definidos em seleções compartilhadas com ele
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            $vo_selecao = new selecao;
+            
+            $va_selecoes_compartilhadas = $vo_selecao->ler_lista(["selecao_usuario_compartilhamento_codigo" => $vn_usuario_logado_codigo], "lista");
+
+            $va_selecoes_compartilhadas_codigos = array();
+
+            foreach ($va_selecoes_compartilhadas as $va_selecao)
+            {
+                $va_selecoes_compartilhadas_codigos[] = $va_selecao["selecao_codigo"];
+            }
+
+            if (count($va_selecoes_compartilhadas_codigos))
+                $va_parametros_filtros_consulta["item_selecao_codigo"] = implode("|", $va_selecoes_compartilhadas_codigos);
         }
 
         if (!$vb_aplicar_controle_acesso)

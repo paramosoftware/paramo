@@ -125,6 +125,7 @@
     $vn_usuario_logado_acervo_codigo = "";
 
     $vb_usuario_administrador = false;
+    $vb_usuario_externo = false;
     $va_usuario_grupos_usuario = array();
     
     $vb_pode_ler = false;
@@ -152,6 +153,12 @@
 
     if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 2)
         $vb_usuario_administrador = true;
+
+    if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 3)
+    {
+        $vb_usuario_externo = true;
+        $vb_pode_ler = true;
+    }
 
     //////////////////////////////////////////////////////////
 

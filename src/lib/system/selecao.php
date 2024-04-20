@@ -94,6 +94,17 @@ class selecao extends objeto_base
             'alias' => 'itens selecionados'
         ];
 
+        $va_relacionamentos['selecao_usuario_compartilhamento_codigo'] = [
+            'selecao_usuario_compartilhamento_codigo',
+            'tabela_intermediaria' => 'selecao_usuario',
+            'chave_exportada' => 'selecao_codigo',
+            'campos_relacionamento' => ['selecao_usuario_compartilhamento_codigo' => 'usuario_codigo'],
+            'tipos_campos_relacionamento' => ['i'],
+            'tabela_relacionamento' => 'usuario',
+            'objeto' => 'usuario',
+            'alias' => 'usuários'
+        ];
+
         return $va_relacionamentos;
     }
 
@@ -199,6 +210,17 @@ class selecao extends objeto_base
             ];
         }
 
+        $va_campos_edicao["selecao_usuario_compartilhamento_codigo"] = [
+            "html_autocomplete",
+            "nome" => ["selecao_usuario_compartilhamento", "selecao_usuario_compartilhamento_codigo"],
+            "label" => "Compartilhar com usuários",
+            "objeto" => "Usuario",
+            "atributos" => ["usuario_codigo", "usuario_nome"],
+            "multiplos_valores" => true,
+            "procurar_por" => "usuario_nome",
+            "visualizacao" => "lista"
+        ];
+
         return $va_campos_edicao;
     }
 
@@ -242,6 +264,11 @@ class selecao extends objeto_base
             "selecao_data" => "Data"
         ];
 
+        $va_campos_visualizacao["selecao_usuario_compartilhamento_codigo"] = [
+            "nome" => "selecao_usuario_compartilhamento_codigo",
+            "formato" => ["campo" => "usuario_nome"]
+        ];
+
         $this->visualizacoes["ficha"]["campos"] = $va_campos_visualizacao;
         $this->visualizacoes["ficha"]["ordem_campos"] = [
             "selecao_nome" => ["label" => "Nome", "main_field" => true],
@@ -252,7 +279,8 @@ class selecao extends objeto_base
 
     public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", $pn_primeiro_registro = 0, $pn_numero_registros = 0, $pa_order_by = null, $ps_order = null, $pa_log_info = null, $pn_idioma_codigo = 1)
     {
-        $pa_filtros_busca["selecao_usuario_codigo"] = $_SESSION["usuario_logado_codigo"];
+        if (!isset($pa_filtros_busca["selecao_usuario_compartilhamento_codigo"]))
+            $pa_filtros_busca["selecao_usuario_codigo"] = $_SESSION["usuario_logado_codigo"];
 
         return parent::ler_lista($pa_filtros_busca, $ps_visualizacao, $pn_primeiro_registro, $pn_numero_registros, $pa_order_by, $ps_order, $pa_log_info, $pn_idioma_codigo);
     }

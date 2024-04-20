@@ -178,6 +178,17 @@ public function inicializar_relacionamentos($pn_recurso_sistema_codigo=null)
         'alias' => 'setores do sistema'
     ];
 
+    $va_relacionamentos['usuario_selecao_compartilhada_codigo'] = [
+        'usuario_selecao_compartilhada_codigo', 
+        'tabela_intermediaria' => 'selecao_usuario', 
+        'chave_exportada' => 'usuario_codigo', 
+        'campos_relacionamento' => ['usuario_selecao_compartilhada_codigo' => 'selecao_codigo'], 
+        'tipos_campos_relacionamento' => ['i'], 
+        'tabela_relacionamento' => 'selecao', 
+        'objeto' => 'selecao',
+        'alias' => 'seleções compartilhadas'
+    ];
+
     return $va_relacionamentos;
 }
 
