@@ -130,7 +130,7 @@ class selecao extends objeto_base
             "atributos" => ["recurso_sistema_codigo", "recurso_sistema_nome_singular"],
             "atributo" => "recurso_sistema_codigo",
             "sem_valor" => false,
-            "atributo_obrigatorio" => true,
+            "exibicao_obrigatoria" => true,
             "filtro" => $va_filtro,
         ];
 
@@ -141,7 +141,8 @@ class selecao extends objeto_base
             "foco" => true
         ];
 
-        if (isset($pa_valores_objeto["selecao_recurso_sistema_codigo"])) {
+        if (isset($pa_valores_objeto["selecao_recurso_sistema_codigo"])) 
+        {
             $vs_objeto_id = $pa_valores_objeto["selecao_recurso_sistema_codigo"]["recurso_sistema_id"];
 
             $vo_objeto = new $vs_objeto_id($vs_objeto_id);
@@ -149,8 +150,9 @@ class selecao extends objeto_base
 
             $vs_atributo_identificador = "";
             $vs_atributo_nome = "";
-            foreach ($va_visualizacao["ordem_campos"] as $vs_campo => $va_campo) {
 
+            foreach ($va_visualizacao["ordem_campos"] as $vs_campo => $va_campo) 
+            {
                 if (isset($va_campo["id_field"])) {
                     $vs_atributo_identificador = $vs_campo;
                 }
@@ -160,21 +162,27 @@ class selecao extends objeto_base
                 }
             }
 
-            if (!$vs_atributo_nome) {
+            if (!$vs_atributo_nome) 
+            {
                 $vs_atributo_nome = $vs_objeto_id.'_nome';
             }
 
-            if ($vs_atributo_identificador && (strpos($vs_atributo_identificador, "identificador") !== false)) {
+            if (!$vs_atributo_identificador) $vs_atributo_identificador = $vs_atributo_nome;
+
+            if ($vs_atributo_identificador && (strpos($vs_atributo_identificador, "identificador") !== false)) 
+            {
                 $va_atributos = [
                     $vo_objeto->get_chave_primaria()[0],
-                    [$vs_atributo_identificador, $vs_atributo_nome]
+                    $vs_atributo_nome
                 ];
 
                 $va_campos = array_keys($va_visualizacao["campos"]);
                 $vs_campo_codigo = in_array("item_acervo_codigo", $va_campos) ? "item_acervo_codigo" : "texto_codigo";
 
                 $vs_procurar_por = $vs_campo_codigo.'_0_'.$vs_atributo_identificador;
-            } else {
+            } 
+            else 
+            {
                 $va_atributos = [$vo_objeto->get_chave_primaria()[0], $vs_atributo_nome];
                 $vs_procurar_por = $vs_atributo_nome;
             }
@@ -189,7 +197,6 @@ class selecao extends objeto_base
                 "procurar_por" => $vs_procurar_por,
                 "visualizacao" => "lista",
             ];
-
         }
 
         return $va_campos_edicao;
