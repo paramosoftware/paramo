@@ -148,7 +148,7 @@
     }
     elseif ($vs_modo == "ficha")
     {
-        if ($vb_autenticar_usuario && !$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+        if (!$vb_usuario_externo && $vb_autenticar_usuario && !$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
         {
             $vb_pode_editar = false;
             $vb_aplicar_controle_acesso = false;
@@ -158,6 +158,25 @@
                 $vo_instituicao = new instituicao;
                 $va_instituicoes[] = $vo_instituicao->ler($_SESSION["instituicao_visualizar_como"]);
             }
+        }
+        elseif ($vb_usuario_externo)
+        {
+            // Se o usuário é externo, os registros a que ele têm acesso são definidos em seleções compartilhadas com ele
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            $vo_selecao = new selecao;
+            
+            $va_selecoes_compartilhadas = $vo_selecao->ler_lista(["selecao_usuario_compartilhamento_codigo" => $vn_usuario_logado_codigo], "lista");
+
+            $va_selecoes_compartilhadas_codigos = array();
+
+            foreach ($va_selecoes_compartilhadas as $va_selecao)
+            {
+                $va_selecoes_compartilhadas_codigos[] = $va_selecao["selecao_codigo"];
+            }
+
+            if (count($va_selecoes_compartilhadas_codigos))
+                $va_parametros_filtros_consulta["item_selecao_codigo"] = implode("|", $va_selecoes_compartilhadas_codigos);
         }
 
         $va_parametros_filtros_consulta[$vo_objeto->get_chave_primaria()[0]] = $vn_objeto_codigo;
