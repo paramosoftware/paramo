@@ -3,6 +3,9 @@
     if (!isset($vb_autenticar_usuario))
         $vb_autenticar_usuario = true;
 
+    if (!isset($vb_usuario_externo))
+        $vb_usuario_externo = false;
+
     if ($vb_autenticar_usuario)
         require_once dirname(__FILE__) . "/autenticar_usuario.php";
 
