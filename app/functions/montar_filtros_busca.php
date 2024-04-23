@@ -346,17 +346,6 @@
             // Se o usuário é externo, os registros a que ele têm acesso são definidos em seleções compartilhadas com ele
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            $vo_selecao = new selecao;
-            
-            $va_selecoes_compartilhadas = $vo_selecao->ler_lista(["selecao_usuario_compartilhamento_codigo" => $vn_usuario_logado_codigo], "lista");
-
-            $va_selecoes_compartilhadas_codigos = array();
-
-            foreach ($va_selecoes_compartilhadas as $va_selecao)
-            {
-                $va_selecoes_compartilhadas_codigos[] = $va_selecao["selecao_codigo"];
-            }
-
             if (count($va_selecoes_compartilhadas_codigos))
                 $va_parametros_filtros_consulta["item_selecao_codigo"] = implode("|", $va_selecoes_compartilhadas_codigos);
         }

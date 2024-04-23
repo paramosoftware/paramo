@@ -158,6 +158,17 @@
     {
         $vb_usuario_externo = true;
         $vb_pode_ler = true;
+
+        $vo_selecao = new selecao;
+            
+        $va_selecoes_compartilhadas = $vo_selecao->ler_lista(["selecao_usuario_compartilhamento_codigo" => $vn_usuario_logado_codigo], "lista");
+
+        $va_selecoes_compartilhadas_codigos = array();
+
+        foreach ($va_selecoes_compartilhadas as $va_selecao)
+        {
+            $va_selecoes_compartilhadas_codigos[] = $va_selecao["selecao_codigo"];
+        }
     }
 
     //////////////////////////////////////////////////////////
@@ -175,6 +186,7 @@
     $va_usuario_logado_setores_nomes = array();
 
     $vo_setor_sistema = new setor_sistema('');
+
     if ($vb_usuario_administrador)
     {
         $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");

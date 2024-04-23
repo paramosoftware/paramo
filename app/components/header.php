@@ -1,10 +1,12 @@
 <header class="header header-sticky mb-4">
     <div class="container-fluid">
+        <?php if (!$vb_usuario_externo) { ?>
         <button class="header-toggler px-md-0 me-md-3" type="button" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
             <svg class="icon icon-lg">
             <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-menu"></use>
             </svg>
         </button>
+        <?php } ?>
         
         <a class="header-brand d-md-none" href="#">
             <img width="118" src="<?php print config::get(["logo"]); ?>">
@@ -37,55 +39,57 @@
             }
             ?>
         <?php endif; ?>
-
+        
         <ul class="header-nav ms-auto">
-            <li class="nav-item">
+            <?php if (!$vb_usuario_externo) : ?>
+                <li class="nav-item">
 
-                <div class="input-group">
-                    <form method="get" action="index.php">
                     <div class="input-group">
-                    
-                    <?php
-                        if (!isset($vs_busca_id))
-                            $vs_busca_id = "";
-                    ?>
+                        <form method="get" action="index.php">
+                        <div class="input-group">
+                        
+                        <?php
+                            if (!isset($vs_busca_id))
+                                $vs_busca_id = "";
+                        ?>
 
-                    <input class="form-control" required type="text" placeholder="Busca por identificador" aria-label="Buscar" name="busca_id" value="<?php print htmlspecialchars($vs_busca_id); ?>">
-                    
-                    <button class="btn btn-primary" type="submit">
-                        <svg class="icon">
-                            <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-search"></use>
-                        </svg>
-                    </button>
-                    
+                        <input class="form-control" required type="text" placeholder="Busca por identificador" aria-label="Buscar" name="busca_id" value="<?php print htmlspecialchars($vs_busca_id); ?>">
+                        
+                        <button class="btn btn-primary" type="submit">
+                            <svg class="icon">
+                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-search"></use>
+                            </svg>
+                        </button>
+                        
+                        </div>
+                        </form>
+
+                        <div class="me-2">&nbsp;</div>
+                        
+                        <form method="get" action="index.php">
+                        <div class="input-group">
+
+                        <?php
+                            if (!isset($vs_termo_busca))
+                                $vs_termo_busca = "";
+                        ?>
+
+                        <input class="form-control" required type="text" placeholder="Busca geral" aria-label="Buscar" name="busca" value="<?php print htmlspecialchars($vs_termo_busca); ?>">
+                        
+                        <button class="btn btn-primary" type="submit">
+                            <svg class="icon">
+                                <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-search"></use>
+                            </svg>
+                        </button>
+
+                        </div>
+                        </form>
+
                     </div>
-                    </form>
-
-                    <div class="me-2">&nbsp;</div>
-                    
-                    <form method="get" action="index.php">
-                    <div class="input-group">
-
-                    <?php
-                        if (!isset($vs_termo_busca))
-                            $vs_termo_busca = "";
-                    ?>
-
-                    <input class="form-control" required type="text" placeholder="Busca geral" aria-label="Buscar" name="busca" value="<?php print htmlspecialchars($vs_termo_busca); ?>">
-                    
-                    <button class="btn btn-primary" type="submit">
-                        <svg class="icon">
-                            <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-search"></use>
-                        </svg>
-                    </button>
-
-                    </div>
-                    </form>
-
-                </div>
-            </li>
+                </li>
+            <?php endif; ?>
         </ul>
-
+        
         <ul class="header-nav ms-3">
             <li class="nav-item dropdown">
                 <a class="nav-link py-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
@@ -101,19 +105,20 @@
                         <div class="fw-semibold"><?php print htmlspecialchars($vs_usuario_logado_nome); ?></div>
                     </div>
 
-
-                    <a class="dropdown-item" href="listar.php?obj=selecao">
-                    <svg class="icon me-2">
-                        <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-mouse"></use>
-                    </svg>Minhas seleções
-                    </a>
+                    <?php if (!$vb_usuario_externo) : ?>
+                        <a class="dropdown-item" href="listar.php?obj=selecao">
+                        <svg class="icon me-2">
+                            <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-mouse"></use>
+                        </svg>Minhas seleções
+                        </a>
+                    <?php endif; ?>
 
                     <a class="dropdown-item" href="editar_senha.php">
                     <svg class="icon me-2">
                         <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-bell"></use>
                     </svg>Alterar senha
                     </a>
-
+                    
                     <?php if ($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin && !isset($_SESSION["instituicao_logado_como"])) : ?>
                         <div class="dropdown-header bg-light py-2">
                             <div class="fw-semibold">Personalizar</div>
@@ -181,16 +186,22 @@
                 </a>
                 </li>
                 
-                <li class="breadcrumb-item active">
-                    <span>
-                    <?php 
-                        if ($vs_recurso_sistema_nome_plural)
-                            print htmlspecialchars($vs_recurso_sistema_nome_plural);
-                        elseif (isset($va_breadcrumb) && count($va_breadcrumb))
-                            print htmlspecialchars(join(" > ", $va_breadcrumb));
-                    ?>
-                    </span>
-                </li>
+                <?php if ($vs_recurso_sistema_nome_plural)
+                {
+                ?>
+                    <li class="breadcrumb-item active">
+                        <span>
+                        <?php 
+                            if ($vs_recurso_sistema_nome_plural)
+                                print htmlspecialchars($vs_recurso_sistema_nome_plural);
+                            elseif (isset($va_breadcrumb) && count($va_breadcrumb))
+                                print htmlspecialchars(join(" > ", $va_breadcrumb));
+                        ?>
+                        </span>
+                    </li>
+                <?php
+                }
+                ?>
             </ol>
         </nav>
     </div>
