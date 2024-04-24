@@ -137,8 +137,8 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 
                                     $vs_download_link = "functions/serve_file.php?file=" . $vs_rd_path . "&size=original&download=1&name=" . $vs_label_objeto . "-" . $vn_numero_campo;
 
-                                    if ($pa_parametros_campo["tipo"] == 2)
-                                        $vs_download_link .= "&folder=documents";
+                                    // if ($pa_parametros_campo["tipo"] == 2)
+                                    //     $vs_download_link .= "&folder=documents";
 
                                 ?> 
                                     <div class="col espacamento-documentos rp" style="max-width:190px;" id="<?php print $vs_nome_campo . "_" . $vn_linha_codigo; ?>">
