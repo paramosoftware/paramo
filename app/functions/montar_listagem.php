@@ -3,6 +3,9 @@
     if (!isset($vb_autenticar_usuario))
         $vb_autenticar_usuario = true;
 
+    if (!isset($vb_usuario_externo))
+        $vb_usuario_externo = false;
+
     if ($vb_autenticar_usuario)
         require_once dirname(__FILE__) . "/autenticar_usuario.php";
 
@@ -35,6 +38,7 @@
         $vb_fazer_busca = true;
 
     $vn_numero_registros = 0;
+    $vn_numero_registros_filhos = 0;
     $va_itens_listagem = array();
     $va_itens_listagem_codigos = array();
     $vn_primeiro_registro = 1;
@@ -117,7 +121,7 @@
 
             if ($vo_objeto->get_campo_hierarquico() && $vo_objeto->exibir_lista_hierarquica)
             {
-                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && ( (!$vb_tem_filtros_consulta && ($vo_objeto->tipo_hierarquia == "default")) || $vo_objeto->tipo_hierarquia == "subordinada"))
+                if (!isset($va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()]) && ( ((!isset($vb_buscar_niveis_inferiores) || !$vb_buscar_niveis_inferiores) && ($vo_objeto->tipo_hierarquia == "default")) || $vo_objeto->tipo_hierarquia == "subordinada"))
                     $va_parametros_filtros_consulta[$vo_objeto->get_campo_hierarquico()] = [null, "<=>"];
             }
 
@@ -147,7 +151,7 @@
     }
     elseif ($vs_modo == "ficha")
     {
-        if ($vb_autenticar_usuario && !$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+        if (!$vb_usuario_externo && $vb_autenticar_usuario && !$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
         {
             $vb_pode_editar = false;
             $vb_aplicar_controle_acesso = false;
@@ -157,6 +161,14 @@
                 $vo_instituicao = new instituicao;
                 $va_instituicoes[] = $vo_instituicao->ler($_SESSION["instituicao_visualizar_como"]);
             }
+        }
+        elseif ($vb_usuario_externo)
+        {
+            // Se o usuário é externo, os registros a que ele têm acesso são definidos em seleções compartilhadas com ele
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            if (count($va_selecoes_compartilhadas_codigos))
+                $va_parametros_filtros_consulta["item_selecao_codigo"] = implode("|", $va_selecoes_compartilhadas_codigos);
         }
 
         $va_parametros_filtros_consulta[$vo_objeto->get_chave_primaria()[0]] = $vn_objeto_codigo;
@@ -340,12 +352,17 @@
                     $va_itens_listagem[] = $va_item_listagem;
                     $va_itens_listagem_codigos[] = $va_item[$vo_objeto->get_chave_primaria()[0]];
 
+                    if (!($vb_expandir_niveis_hierarquicos ?? false))
+                        $vb_mostrar_registros_filhos = false;
+
                     if ($vb_mostrar_registros_filhos)
                     {
                         $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $va_item[$vo_objeto->get_chave_primaria()[0]]], "navegacao");
 
                         if (count($va_registros_filhos))
                         {
+                            $vn_numero_registros_filhos = $vn_numero_registros_filhos + count($va_registros_filhos);
+
                             $va_item = array_shift($va_registros_filhos);
 
                             $vb_contador_nivel++;
@@ -370,8 +387,6 @@
                                 $vb_contador_nivel--;
                         }
                     }
-
-                    //$vb_mostrar_registros_filhos = false;
                 }
             }
 

@@ -1,6 +1,10 @@
 <?php
-    $vb_montar_menu = true;
-    $vs_url_base = "listar.php?obj=";
+
+$vb_montar_menu = true;
+$vs_url_base = "listar.php?obj=";
+
+if (!$vb_usuario_externo)
+{
 ?>
 
 <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
@@ -484,6 +488,11 @@
         ?>
     </ul>
 </div>
+
+<?php
+}
+?>
+
 
 <script src="assets/libraries/@coreui/coreui/js/coreui.bundle.min.js"></script>
 <script src="assets/libraries/simplebar/js/simplebar.min.js"></script>

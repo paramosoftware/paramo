@@ -5,7 +5,14 @@ $va_info_setores = $va_info_setores ?? [];
 ?>
 
 <div class="card deashboard-card mb-4">
-    <div class="card-header">Estatísticas do Acervo</div>
+    <div class="card-header">
+        <?php 
+            if (!$vb_usuario_externo)
+                print "Estatísticas do Acervo";
+            else
+                print "Itens disponíveis para consulta";
+        ?>
+    </div>
 
     <div class="card-body">
         <?php

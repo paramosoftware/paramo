@@ -8,6 +8,8 @@
     if (!isset($vs_target_ui))
         $vs_target_ui = "";
 
+    $vb_expandir_niveis_hierarquicos = $_GET["expandir"] ?? false;
+
     require dirname(__FILE__)."/../functions/montar_listagem.php";
 ?>
 
@@ -36,10 +38,22 @@
             require_once dirname(__FILE__) ."/barra_visualizacoes.php";
         ?>
 
+        <?php if ($vo_objeto->get_campo_hierarquico())
+        {
+        ?>
+            <div class="mt-2 mb-2" style="margin-left:5px">
+                <input type="checkbox" id="chk_exibir_niveis" name="expandir" onclick="document.getElementById('form_lista').submit();"
+                <?php if ($vb_expandir_niveis_hierarquicos) print " checked"; ?>
+                > Exibir todos os níveis expandidos
+            </div>
+        <?php
+        }
+        ?>
+
         <div style="overflow:auto; margin-bottom:20px">
             <div style="float:left; padding-top:10px; margin-left:5px" id="listagem-numero-registros">
             <?php
-                print $vn_numero_registros . " registros encontrados<br>";
+                print ($vn_numero_registros + $vn_numero_registros_filhos) . " registros encontrados<br>";
             ?>
             </div>
 
@@ -112,13 +126,17 @@ if ($vn_numero_registros)
                         if (isset($va_item_listagem["_number_of_children"]))
                         {
                         ?>
-                            <button class="btn btn-transparent p-0" id="btn_show_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="show_child_records(<?php print $vn_objeto_codigo; ?>)">
+                            <button class="btn btn-transparent p-0" id="btn_show_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="show_child_records(<?php print $vn_objeto_codigo; ?>)"
+                            <?php if ($vb_expandir_niveis_hierarquicos) print ' style="display:none"'; ?>
+                            >
                             <svg class="icon text-cor-laranja">
                                 <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-plus"></use>
                             </svg>
                             </button>
 
-                            <button class="btn btn-transparent p-0" style="display:none" id="btn_hide_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="hide_child_records(<?php print $vn_objeto_codigo; ?>)">
+                            <button class="btn btn-transparent p-0"  id="btn_hide_chidren_<?php print $vn_objeto_codigo; ?>" type="button" onclick="hide_child_records(<?php print $vn_objeto_codigo; ?>)"
+                            <?php print ' style="display:none"'; ?>
+                            >
                             <svg class="icon text-cor-laranja">
                                 <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-minus"></use>
                             </svg>

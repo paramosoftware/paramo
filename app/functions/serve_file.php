@@ -21,6 +21,7 @@ $vs_file = $_GET['file'] ?? send_not_found_response();
 $vs_size = $_GET['size'] ?? null;
 $vs_folder = $_GET['folder'] ?? null;
 $vb_force_download = $_GET['download'] ?? false;
+$vs_download_file_name = $_GET['name'] ?? "";
 
 $vs_file_path = get_file_path($vs_file, $vs_size, $vs_folder);
 
@@ -29,7 +30,7 @@ if (!file_exists($vs_file_path))
     send_not_found_response();
 }
 
-send_file_response($vs_file_path, $vb_force_download);
+send_file_response($vs_file_path, $vb_force_download, $vs_download_file_name);
 
 function get_file_path($ps_file, $ps_size = null, $ps_folder = null): string
 {
@@ -93,7 +94,7 @@ function send_not_found_response() : void
     exit;
 }
 
-function send_file_response($ps_file_path, $pb_force_download = false) : void
+function send_file_response($ps_file_path, $pb_force_download = false, $ps_download_file_name = "") : void
 {
     set_time_limit(0);
     ob_implicit_flush(1);
@@ -104,7 +105,10 @@ function send_file_response($ps_file_path, $pb_force_download = false) : void
 
     if ($pb_force_download || (strpos($ps_file_path, "/temp/") !== false && filesize($ps_file_path) > 100000000))
     {
-        header("Content-Disposition: attachment; filename=" . basename($ps_file_path));
+        if (trim($ps_download_file_name) != "") 
+            $vs_ext = strtolower(pathinfo($ps_file_path, PATHINFO_EXTENSION));
+
+        header("Content-Disposition: attachment; filename=" . ((trim($ps_download_file_name) != "") ? trim($ps_download_file_name) . "." . $vs_ext : basename($ps_file_path)));
         header('Content-Description: File Transfer');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');

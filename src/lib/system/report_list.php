@@ -16,14 +16,14 @@ class report_list extends report
         parent::__construct($ps_file_path, $orientation, $unit, $size);
     }
 
-    function add_table()
+    function add_table($pn_nivel = 0)
     {
 
         $vb_image_first_row = $this->vs_image_path && $this->vs_image_position == 'first_row';
 
         $this->vs_num_cols = $this->vs_image_path && $this->vs_image_position == 'left_side' ? '%{20, 20, 60}' : '%{20, 80}';
 
-        $table = new easyTable($this, $this->vs_num_cols, 'border:1; border-color:#ccc; paddingX:2; paddingY:2;' . ($this->vb_break_row ? ' split-row:true;' : ''));
+        $table = new easyTable($this, $this->vs_num_cols, 'width:' . (100-(5*$pn_nivel)) . '%; align:R; border:1; border-color:#ccc; paddingX:2; paddingY:2;' . ($this->vb_break_row ? ' split-row:true;' : ''));
 
         if ($this->vs_image_path)
         {
@@ -47,8 +47,9 @@ class report_list extends report
 
                 if (!$vb_remove_label)
                 {
-                    $table->easyCell($va_row["label"], 'align:L; valign:M; font-style:B');
+                    $table->easyCell($va_row["label"], 'align:L; valign:M; font-style:B; font-size:8');
                 }
+
                 $table->easyCell($va_row["value"], 'align:L; valign:M');
             }
 
@@ -63,7 +64,7 @@ class report_list extends report
         foreach ($this->va_itens as $va_item)
         {
             $this->process_attributes($va_item);
-            $this->add_table();
+            $this->add_table($va_item["_nivel"]);
         }
     }
 

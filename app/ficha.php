@@ -92,8 +92,16 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             }
                                             ?>
                                             
-                                            <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
-                                            <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
+                                            <?php if (!$vb_usuario_externo)
+                                            {
+                                            ?>
+                                                <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
+                                                <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
+                                            <?php
+                                            }
+                                            ?>
+
+                                            <button class="btn btn-outline-primary" type="button" id="btn_fechar_imagem" style="display:none">Fechar imagem</button>
                                             <button class="btn btn-outline-primary" type="button" id="btn_voltar_lista" onClick="history.back(-1);">Voltar</button>
                                         </div>                           
                                     </div>
@@ -215,6 +223,9 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                         </div>
                     </div>
                 </div> 
+            </div>
+
+            <div class="container-lg" id="div-image-container">
             </div>
         </div>
     </form>

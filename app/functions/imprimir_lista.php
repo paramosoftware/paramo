@@ -20,6 +20,8 @@ if (!defined("NUMERO_ITENS_PAGINA_LISTAGEM"))
 }
 
 $vn_pagina_atual = 1;
+$vb_expandir_niveis_hierarquicos = true;
+
 require dirname(__FILE__). "/montar_listagem.php";
 
 $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
