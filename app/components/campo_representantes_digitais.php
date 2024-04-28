@@ -377,7 +377,8 @@ $(document).on('click', ".image-viewer, .iframe-viewer", function () {
         this.timeout = null;
     }, 3000);
 
-    coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle();
+    if ((document.querySelector('#sidebar')) != null)
+        coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle();
 
     $(".container-lg").addClass("container-lg-com-imagem");
     $(".container-lg").removeClass("container-lg");
