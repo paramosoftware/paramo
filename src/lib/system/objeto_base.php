@@ -1090,7 +1090,7 @@ class objeto_base
 
                 $vo_objeto_pai = new $po_objeto->objeto_pai($po_objeto->objeto_pai);
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $ps_operador_logico);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico);
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]) || isset($po_objeto->chave_primaria[$va_filtro[0]])) 
             {
