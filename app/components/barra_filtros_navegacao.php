@@ -215,6 +215,9 @@ $(document).on('click', "#btn_limpar", function()
             case "select-one":
                 $(this).prop("selectedIndex", 0);
                 break;
+            case "date":
+                $("input[type=date]").val("");
+                break;    
             default:
                 break;
         }
