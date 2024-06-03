@@ -148,7 +148,7 @@ if ($vn_numero_registros)
                         <?php
                             $vs_url_editar = "ficha.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
 
-                            if ($vb_pode_editar && ($vs_target_ui != "modal"))
+                            if ( ($vb_pode_editar || config::get(["f_acesso_leitura_form_cadastro"])) && ($vs_target_ui != "modal"))
                             {
                                 $vs_url_editar = "editar.php?obj=" . $vs_id_objeto_tela . "&cod=" . $vn_objeto_codigo;
 

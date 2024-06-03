@@ -91,7 +91,8 @@ return [
     "f_operacoes_lote" => false,
     # Habilita busca pela presença de valores nos filtros de navegação
     "f_filtros_busca_preenchimento_campo" => true,
-
+    # Habilita a abertura do form de cadastro mesmo se o usuário tiver apenas permissão de leitura
+    "f_acesso_leitura_form_cadastro" => false,
 
     # ============================================== CONTROLE DE ACESSO ============================================== #
 

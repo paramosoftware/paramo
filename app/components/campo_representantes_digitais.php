@@ -76,7 +76,9 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                 {
                 ?>
                     <div class="mb-3">
-                        <button class="btn btn-outline-primary px-4" type="button" id="btn_adicionar_campo_<?php print $vs_nome_campo; ?>">Adicionar</button>
+                        <?php if ($vb_pode_editar) { ?>
+                            <button class="btn btn-outline-primary px-4" type="button" id="btn_adicionar_campo_<?php print $vs_nome_campo; ?>">Adicionar</button>
+                        <?php } ?>
 
                         <?php if ($vb_integracao_google_drive) : ?>
                             <span id="google-drive-button" data-campo-tipo="<?= $pa_parametros_campo["tipo"] ?>">

@@ -22,7 +22,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 <?php
     require_once dirname(__FILE__) ."/components/sidebar.php";
 
-    if (!$vb_pode_editar && !$vb_pode_inserir)
+    if (!$vb_pode_editar && !config::get(["f_acesso_leitura_form_cadastro"]) && !$vb_pode_inserir)
         exit();
 
     // editar.php será alterada para permitir edição em lote
@@ -382,7 +382,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             {
                                             ?>
                                                 <button class="btn btn-outline-primary" type="button" id="btn_ficha">Ficha</button>
-                                                <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
+
+                                                <?php if ($vb_pode_inserir) { ?>
+                                                    <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
+                                                <?php } ?>
+
                                                 <button class="btn btn-outline-primary" type="button" style="display:none">Excluir</button>
                                             <?php
                                             }
@@ -464,9 +468,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             </button>
                                         <?php } ?>
 
-                                        <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_top">
-                                            Salvar
-                                        </button>
+                                        <?php if ($vb_pode_editar || $vb_pode_inserir) { ?>
+                                            <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_top">
+                                                Salvar
+                                            </button>
+                                        <?php } ?>
                                     </div>
                                 </div>
 
@@ -502,9 +508,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             </button>
                                         <?php } ?>
 
-                                        <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_bottom">
-                                            Salvar
-                                        </button>
+                                        <?php if ($vb_pode_editar || $vb_pode_inserir) { ?>
+                                            <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_bottom">
+                                                Salvar
+                                            </button>
+                                        <?php } ?>
                                     </div>
                                 </div>
 

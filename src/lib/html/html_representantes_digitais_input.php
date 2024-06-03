@@ -3,7 +3,7 @@
 class html_representantes_digitais_input extends html_input
 {
 
-public function build($pa_valores_form=array(), $pa_parametros_campo=array())
+public function build($pa_valores_form=array(), $pa_parametros_campo=array(), $pa_recursos_sistema_permissao_edicao=array())
 {
     $vs_tela = $this->get_tela();
 
@@ -34,6 +34,10 @@ public function build($pa_valores_form=array(), $pa_parametros_campo=array())
             }
         }
     }
+
+    $vb_pode_editar = 0;
+    if (in_array("_all_", $pa_recursos_sistema_permissao_edicao) || (isset($pa_parametros_campo["objeto"]) && in_array($pa_parametros_campo["objeto"], $pa_recursos_sistema_permissao_edicao)))
+        $vb_pode_editar = 1;
 
     require dirname(__FILE__)."/../../../app/components/campo_representantes_digitais.php";
 }
