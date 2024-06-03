@@ -126,15 +126,13 @@
                                         ?>
 
                                         <div class="btn-group me-2 espacamento-esquerda-10 flex-wrap mt-4 mt-sm-0" role="group" aria-label="First group">
-                                            <!--
-                                            <button class="btn btn-outline-primary" type="button" id="btn_atualizar">Atualizar</button>
-                                            -->
-                                            <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
+                                            <?php if (!$vb_usuario_externo) : ?>
+                                                <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
 
-                                            <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
+                                                <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
+                                            <?php endif; ?>
 
                                             <?php
-
                                                 $va_objetos_upload = config::get(["upload_lote_permitido"]) ?? [];
                                                 
                                                 if (in_array($vs_id_objeto_tela, $va_objetos_upload) && $vb_pode_editar)

@@ -3,7 +3,7 @@
 class html_representantes_digitais_input extends html_input
 {
 
-public function build($pa_valores_form=array(), $pa_parametros_campo=array())
+public function build($pa_valores_form=array(), $pa_parametros_campo=array(), $pa_recursos_sistema_permissao_edicao=array())
 {
     $vs_tela = $this->get_tela();
 
@@ -17,6 +17,27 @@ public function build($pa_valores_form=array(), $pa_parametros_campo=array())
     $vn_objeto_codigo = "";
     if ($pa_valores_form[$vs_tela . "_codigo"])
         $vn_objeto_codigo = $pa_valores_form[$vs_tela . "_codigo"];
+
+    // Vou tentar recuperar aqui o label identificador do objeto
+    ////////////////////////////////////////////////////////////
+
+    $va_campos_objeto = $vo_objeto->get_visualizacao("navegacao");
+    $vs_label_objeto = "";
+
+    if (isset($va_campos_objeto["ordem_campos"]))
+    {
+        foreach ($va_campos_objeto["ordem_campos"] as $vs_key_campo => $va_campo)
+        {
+            if (isset($va_campo["main_field"]))
+            {
+                $vs_label_objeto = ler_valor1($vs_key_campo, $pa_valores_form, $va_campo);
+            }
+        }
+    }
+
+    $vb_pode_editar = 0;
+    if (in_array("_all_", $pa_recursos_sistema_permissao_edicao) || (isset($pa_parametros_campo["objeto"]) && in_array($pa_parametros_campo["objeto"], $pa_recursos_sistema_permissao_edicao)))
+        $vb_pode_editar = 1;
 
     require dirname(__FILE__)."/../../../app/components/campo_representantes_digitais.php";
 }

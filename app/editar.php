@@ -22,7 +22,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 <?php
     require_once dirname(__FILE__) ."/components/sidebar.php";
 
-    if (!$vb_pode_editar && !$vb_pode_inserir)
+    if (!$vb_pode_editar && !config::get(["f_acesso_leitura_form_cadastro"]) && !$vb_pode_inserir)
         exit();
 
     // editar.php será alterada para permitir edição em lote
@@ -382,7 +382,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             {
                                             ?>
                                                 <button class="btn btn-outline-primary" type="button" id="btn_ficha">Ficha</button>
-                                                <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
+
+                                                <?php if ($vb_pode_inserir) { ?>
+                                                    <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
+                                                <?php } ?>
+
                                                 <button class="btn btn-outline-primary" type="button" style="display:none">Excluir</button>
                                             <?php
                                             }
@@ -448,8 +452,8 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                         }
                                         ?>
 
-                                        <div class="btn-group me-2 espacamento-esquerda-10" role="group" aria-label="First group">
-                                            <button class="btn btn-outline-primary" type="button" id="btn_fechar_imagem" style="display:none">Imagem</button>
+                                        <div class="btn-group me-2" role="group" aria-label="First group">
+                                            <button class="btn btn-outline-primary" type="button" id="btn_fechar_imagem" style="display:none">Fechar imagem</button>
                                         </div>
                                     </div>
                                     
@@ -458,15 +462,17 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     ?>
 
                                     <div class="col-md-3 text-right">
-                                        <?php if ($vb_exibir_botao_salvar_duplicar) { ?>
+                                        <?php if (!$vn_objeto_codigo && $vb_exibir_botao_salvar_duplicar) { ?>
                                             <button class="btn btn-primary btn-salvar-duplicar" type="button" id="btn_salvar_duplicar_top">
                                                 Salvar e duplicar
                                             </button>
                                         <?php } ?>
 
-                                        <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_top">
-                                            Salvar
-                                        </button>
+                                        <?php if ($vb_pode_editar || $vb_pode_inserir) { ?>
+                                            <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_top">
+                                                Salvar
+                                            </button>
+                                        <?php } ?>
                                     </div>
                                 </div>
 
@@ -496,15 +502,17 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                     </div>
                                     
                                     <div class="col-md-3 text-right">
-                                        <?php if ($vb_exibir_botao_salvar_duplicar) { ?>
+                                        <?php if (!$vn_objeto_codigo && $vb_exibir_botao_salvar_duplicar) { ?>
                                             <button class="btn btn-primary btn-salvar-duplicar" type="button" id="btn_salvar_duplicar_bottom">
                                                 Salvar e duplicar
                                             </button>
                                         <?php } ?>
 
-                                        <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_bottom">
-                                            Salvar
-                                        </button>
+                                        <?php if ($vb_pode_editar || $vb_pode_inserir) { ?>
+                                            <button class="btn btn-primary btn-salvar" type="button" id="btn_salvar_bottom">
+                                                Salvar
+                                            </button>
+                                        <?php } ?>
                                     </div>
                                 </div>
 
@@ -562,10 +570,16 @@ $(document).on('click', ".btn-tab", function() {
 
 $(document).on('click', ".btn-salvar-duplicar", function() {
     $("#modo").val("dup");
-    $(".btn-salvar").trigger("click");
+    
+    salvar();
 });
 
 $(document).on('click', ".btn-salvar", function() {
+    salvar();
+});
+
+function salvar()
+{
     vb_alterou_cadastro = false;
 
     $.post("functions/validar_dados_form.php", $.param($("#form_cadastro").serializeArray()), function(response)
@@ -577,7 +591,7 @@ $(document).on('click', ".btn-salvar", function() {
             //console.log(response);
         }
     });
-});
+}
 
 $(window).bind('beforeunload', function() {
     if (vb_alterou_cadastro)

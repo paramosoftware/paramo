@@ -48,7 +48,7 @@
 
     $va_setores = get_setores($va_usuario_logado_setores_sistema);
     $va_objetos_itens_acervo = get_objetos_itens_acervo($va_setores, $va_recursos_sistema);
-    $va_info_setores = get_info_setores($va_setores, $vn_usuario_logado_instituicao_codigo);
+    $va_info_setores = get_info_setores($va_setores, $vn_usuario_logado_instituicao_codigo, $va_selecoes_compartilhadas_codigos ?? array());
 
     $va_valores_data = array();
     $va_filtros_busca = array();
@@ -206,7 +206,7 @@ function get_objetos_itens_acervo(array $pa_setores, array $pa_recursos_sistema)
     return $va_objetos_itens_acervo;
 }
 
-function get_info_setores(array $pa_setores, $pn_usuario_logado_instituicao_codigo): array
+function get_info_setores(array $pa_setores, $pn_usuario_logado_instituicao_codigo, $pa_selecoes_compartilhadas_codigos): array
 {
     $vo_dashboard = new dashboard;
     $vs_objeto_item_acervo_nome = $vo_dashboard->get_objeto_item_acervo_nome();
@@ -237,7 +237,10 @@ function get_info_setores(array $pa_setores, $pn_usuario_logado_instituicao_codi
 
                 if ($vb_controlar_acesso_instituicao)
                     $va_filtros_recurso_sistema[$vs_objeto_item_acervo_nome . "_codigo_0_" . $vs_atributo_instituicao_objeto_item_acervo] = $vn_usuario_logado_instituicao_codigo;
-                
+
+                if (count($pa_selecoes_compartilhadas_codigos))
+                    $va_filtros_recurso_sistema["item_selecao_codigo"] = implode("|", $pa_selecoes_compartilhadas_codigos);
+
                 $vn_numero_itens_recurso = $vo_item_acervo->ler_numero_registros($va_filtros_recurso_sistema);
 
                 $vn_numero_itens = $vn_numero_itens + $vn_numero_itens_recurso;

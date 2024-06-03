@@ -125,6 +125,7 @@
     $vn_usuario_logado_acervo_codigo = "";
 
     $vb_usuario_administrador = false;
+    $vb_usuario_externo = false;
     $va_usuario_grupos_usuario = array();
     
     $vb_pode_ler = false;
@@ -153,6 +154,23 @@
     if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 2)
         $vb_usuario_administrador = true;
 
+    if ($va_usuario["usuario_tipo_codigo"]["tipo_usuario_codigo"] == 3)
+    {
+        $vb_usuario_externo = true;
+        $vb_pode_ler = true;
+
+        $vo_selecao = new selecao;
+            
+        $va_selecoes_compartilhadas = $vo_selecao->ler_lista(["selecao_usuario_compartilhamento_codigo" => $vn_usuario_logado_codigo], "lista");
+
+        $va_selecoes_compartilhadas_codigos = array();
+
+        foreach ($va_selecoes_compartilhadas as $va_selecao)
+        {
+            $va_selecoes_compartilhadas_codigos[] = $va_selecao["selecao_codigo"];
+        }
+    }
+
     //////////////////////////////////////////////////////////
 
     if (
@@ -168,6 +186,7 @@
     $va_usuario_logado_setores_nomes = array();
 
     $vo_setor_sistema = new setor_sistema('');
+
     if ($vb_usuario_administrador)
     {
         $va_usuario_logado_setores_sistema = $vo_setor_sistema->ler_lista(null, "navegacao");
