@@ -1109,7 +1109,14 @@ function atualizar_dependencias_<?php print $vs_nome_campo_lookup; ?>(pn_valor_s
 
 $(document).on('click', "#lista_<?php print $vs_nome_campo_lookup ?>", function()
 {
-    adicionar_<?php print $vs_nome_campo_lookup; ?>($("#lista_<?php print $vs_nome_campo_lookup ?> option:selected").val(), $("#lista_<?php print $vs_nome_campo_lookup ?> option:selected").text());
+    var vn_selected_index = document.getElementById("lista_<?php print $vs_nome_campo_lookup ?>").selectedIndex;
+
+    if (vn_selected_index == -1) vn_selected_index = 0;
+
+    var vn_selected_value = document.getElementById("lista_<?php print $vs_nome_campo_lookup ?>").options[vn_selected_index].value;
+    var vs_selected_text = document.getElementById("lista_<?php print $vs_nome_campo_lookup ?>").options[vn_selected_index].text;    
+
+    adicionar_<?php print $vs_nome_campo_lookup; ?>(vn_selected_value, vs_selected_text);
 });
 
 $(document).on('click', "#btn_remover_todos_<?php print $vs_nome_campo_lookup; ?>", function()
