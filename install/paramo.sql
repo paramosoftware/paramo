@@ -2837,6 +2837,32 @@ LOCK TABLES `selecao_item` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `selecao_usuario`
+--
+
+DROP TABLE IF EXISTS `selecao_usuario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `selecao_usuario` (
+  `selecao_codigo` int(11) DEFAULT NULL,
+  `usuario_codigo` int(11) DEFAULT NULL,
+  KEY `selecao_usuario_selecao_FK` (`selecao_codigo`),
+  KEY `selecao_usuario_usuario_FK` (`usuario_codigo`),
+  CONSTRAINT `selecao_usuario_selecao_FK` FOREIGN KEY (`selecao_codigo`) REFERENCES `selecao` (`codigo`),
+  CONSTRAINT `selecao_usuario_usuario_FK` FOREIGN KEY (`usuario_codigo`) REFERENCES `usuario` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `selecao_usuario`
+--
+
+LOCK TABLES `selecao_usuario` WRITE;
+/*!40000 ALTER TABLE `selecao_usuario` DISABLE KEYS */;
+/*!40000 ALTER TABLE `selecao_usuario` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `serie`
 --
 
@@ -3579,7 +3605,10 @@ CREATE TABLE `usuario` (
   `ultimo_login` datetime DEFAULT NULL,
   `senha_provisoria` varchar(250) DEFAULT NULL,
   `expiracao_senha_provisoria` datetime DEFAULT NULL,
-  PRIMARY KEY (`codigo`)
+  `setor_sistema_codigo` int(11) DEFAULT NULL,
+  PRIMARY KEY (`codigo`),
+  KEY `fk_usuario_setor_sistema` (`setor_sistema_codigo`),
+  CONSTRAINT `fk_usuario_setor_sistema` FOREIGN KEY (`setor_sistema_codigo`) REFERENCES `setor_sistema` (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3781,4 +3810,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-02 21:17:09
+-- Dump completed on 2024-06-10 11:17:31

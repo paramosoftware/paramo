@@ -22,8 +22,6 @@ function __construct()
         "atributo_relacionamento" => "oauth_usuario_codigo",
         "pode_excluir_pai" => true
     ];
-
-
 }
 
 public function inicializar_chave_primaria()
@@ -83,6 +81,12 @@ public function inicializar_atributos()
         'coluna_tabela' => 'email',
         'tipo_dado' => 's'
     ];
+
+    $va_atributos['usuario_telefone'] = [
+         'usuario_telefone',
+         'coluna_tabela' => 'telefone',
+         'tipo_dado' => 's'
+     ];
 
     $va_atributos['usuario_token'] = [
         'usuario_token',
