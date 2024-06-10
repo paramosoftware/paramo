@@ -1,5 +1,7 @@
 <?php
     $_GET["start_time"] = $_GET["start_time"] ?? microtime(true);
+    $_GET["num_queries"] = $_GET["num_queries"] ?? 0;
+    $_GET["queries_execution_time"] = $_GET["queries_execution_time"] ?? 0;
     
     if (!defined("AUTOLOAD"))
     {

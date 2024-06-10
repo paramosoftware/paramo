@@ -116,7 +116,11 @@ class Banco
             $vs_select = $vs_select . " " . $ps_limit;
 
         $_GET["num_queries"] = isset($_GET["num_queries"]) ? $_GET["num_queries"] + 1 : 1;
-        return $this->conexao_banco->consultar($vs_select, $pa_tipos_valores, $pa_valores);
+        $vn_start_time = microtime(true);
+        $va_return = $this->conexao_banco->consultar($vs_select, $pa_tipos_valores, $pa_valores);
+        $vn_end_time = microtime(true);
+        $_GET["queries_execution_time"] = isset($_GET["queries_execution_time"]) ? $_GET["queries_execution_time"] + ($vn_end_time - $vn_start_time) : ($vn_end_time - $vn_start_time);
+        return $va_return;
     }
 
     public function inserir($ps_table, $pa_columns, $pa_tipos_valores, $pa_valores, $vs_insert_ignore = '')
