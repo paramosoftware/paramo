@@ -100,6 +100,23 @@ class conexao_pdo
         }
     }
 
+    function executar_sql($ps_sql)
+    {
+        try {
+            $stmt = $this->con->prepare($ps_sql);
+            $stmt->execute();
+            $va_resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $va_resultado;
+        } catch (PDOException $e) {
+            $this->error = true;
+            $vo_banco = Banco::get_instance();
+            $vo_banco->finalizar_transacao();
+            $vs_message = $e->getMessage() . " - " . $ps_sql . " - " . $e->getTraceAsString();
+            session::log_and_redirect_error("Erro ao executar query no banco de dados", $vs_message, true);
+        }
+    }
+
 
     function iniciar_transacao()
     {

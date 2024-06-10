@@ -104,7 +104,13 @@ class conexao_mysqli
         try {
             $stmt = $this->con->prepare($ps_sql);
             $stmt->execute();
+            $result = $stmt->get_result();
+            $va_resultado = array();
+            while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                $va_resultado[] = $row;
+            }
             $stmt->close();
+            return $va_resultado;
         } catch (Exception $e) {
             $this->error = true;
             $vo_banco = Banco::get_instance();

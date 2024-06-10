@@ -200,7 +200,7 @@ class Banco
 
     public function executar_sql($ps_sql)
     {
-        $this->conexao_banco->executar_sql($ps_sql);
+        return $this->conexao_banco->executar_sql($ps_sql);
     }
 
     function iniciar_transacao()
