@@ -91,7 +91,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                         <?php endif; ?>
 
 
-                        <?php if (isset($va_valor_campo) && (count($va_valor_campo) > 0)) : ?>
+                        <?php if (isset($va_valor_campo) && (count($va_valor_campo) > 0) && $vb_pode_editar) : ?>
                             <button class="btn btn-outline-primary px-4" type="button" id="btn_remover_todos_<?php print $vs_nome_campo; ?>">Remover todos</button>
                             
                             <?php 
