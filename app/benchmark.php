@@ -25,12 +25,15 @@ for ($i = 0; $i < $vn_times; $i++)
 }
 $script_end_time = microtime(true);
 
+$ping_db = ping_domain("localhost", 3306, $vn_times);
+
 print "<h2>Informações da Execução</h2>";
 
 print "Tempo total de carregamento: " . ($script_end_time - $_GET["start_time"]) . "<br>";
 print "Número de consultas: " . $vn_times . "<br>";
 print "Tempo médio: " . ($vn_execution_time_sum / $vn_times) . "<br>";
 print "Tempo de execução das queries: " . $_GET["queries_execution_time"] . "<br>";
+print "Tempo de execução das desconsiderando ping: " . ($_GET["queries_execution_time"] - $ping_db) . "<br>";
 
 print "<h2>Informações de Uso de Memória</h2>";
 
@@ -50,6 +53,8 @@ print "<h2>Informações de Rede</h2>";
 
 print "Ping para google.com: " . ping_domain("google.com") . "<br>";
 print "Ping para banco de dados: " . ping_domain("localhost", 3306) . "<br>";
+print "Ping para banco de dados (soma $vn_times vezes): " . $ping_db . "<br>";
+print "Ping para banco de dados (média): " . ($ping_db / $vn_times) . "<br>";
 
 print "<h2>Informações do MySQL</h2>";
 
@@ -107,7 +112,18 @@ function get_ram_info()
     return convert($vs_mem_info * 1024);
 }
 
-function ping_domain($domain, $port = 80)
+function ping_domain($domain, $port = 80, $times = 1)
+{
+    $vn_sum = 0;
+    for ($i = 0; $i < $times; $i++)
+    {
+        $vn_sum += ping($domain, $port);
+    }
+
+    return $vn_sum;
+}
+
+function ping($domain, $port = 80)
 {
     $start_time = microtime(true);
     $file = fsockopen($domain, $port, $errno, $errstr, 10);
@@ -121,11 +137,10 @@ function ping_domain($domain, $port = 80)
         }
     } else {
         fclose($file);
-        $status = ($stop_time - $start_time) * 1000;
-        $status = floor($status);
+        $status = ($stop_time - $start_time);
     }
 
-    return $status . " ms";
+    return $status;
 }
 
 function get_mysql_version()
