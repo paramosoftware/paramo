@@ -1,4 +1,6 @@
 <?php
+    $_GET["start_time"] = $_GET["start_time"] ?? microtime(true);
+    
     if (!defined("AUTOLOAD"))
     {
         require_once dirname(__FILE__) . "/../../autoload.php";

@@ -115,6 +115,7 @@ class Banco
         if (isset($ps_limit))
             $vs_select = $vs_select . " " . $ps_limit;
 
+        $_GET["num_queries"] = isset($_GET["num_queries"]) ? $_GET["num_queries"] + 1 : 1;
         return $this->conexao_banco->consultar($vs_select, $pa_tipos_valores, $pa_valores);
     }
 
