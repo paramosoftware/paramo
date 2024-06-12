@@ -14,8 +14,10 @@
         session::redirect();
     }
 
+    $vs_usuario_login = $_POST['usuario_login'] ?? "";
+    $vs_usuario_senha = $_POST['usuario_senha'] ?? "";
+    $vb_login_success = session::login($vs_usuario_login, $vs_usuario_senha);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -24,14 +26,11 @@
 
     require_once dirname(__FILE__) . "/components/header_html.php";;
 
-    $vs_usuario_login = $_POST['usuario_login'] ?? "";
-    $vs_usuario_senha = $_POST['usuario_senha'] ?? "";
-
     $vs_login_msg = "";
 
     if ($vs_usuario_login != "" && $vs_usuario_senha != "")
     {
-        if (!session::login($vs_usuario_login, $vs_usuario_senha))
+        if (!$vb_login_success)
         {
             $vs_login_msg = "Login ou senha incorretos.";
         }
