@@ -112,7 +112,7 @@
                     $vs_visualizacao = $_POST['visualizacao_codigo'];
             }
 
-            if (!$vs_visualizacao)
+            if (!$vs_visualizacao)//
                 $vs_visualizacao = "navegacao";
 
             // Se tem um campo hierárquico e ele não vem no filtro,
@@ -310,22 +310,31 @@
                         $vs_valor_atributo = ler_valor1($vs_key_campo_visualizacao, $va_item, $va_campo_visualizacao);
 
                         if ($vb_id_field)
+                        {
                             $va_item_listagem["id_field"] = $vs_valor_atributo;
+                            $va_item_listagem["id_field_label"] = $vs_label_campo;    
+                        }
 
                         elseif ($vb_main_field)
                         {
                             if (!isset($va_item_listagem["main_field"]) && $vs_valor_atributo != "")
                                 $va_item_listagem["main_field"] = $vs_valor_atributo;
-                            elseif ($vs_valor_atributo != "")
+                            elseif ($vs_valor_atributo != "") 
                                 $va_item_listagem["main_field"] = $va_item_listagem["main_field"] . ": " . $vs_valor_atributo;
+
+                            $va_item_listagem["main_field_label"] = $vs_label_campo;        
                         }
                         elseif ($vb_descriptive_field)
+                        {
                             $va_item_listagem["descriptive_field"] = $vs_valor_atributo;
+
+                            $va_item_listagem["descriptive_field_label"] = $vs_label_campo;  
+                        }        
 
                         if ( ($vs_output == "out") || (!$vb_id_field && !$vb_main_field && !$vb_descriptive_field) )
                         {
-                            if ($vs_valor_atributo != "")
-                            {
+                            /* if ($vs_valor_atributo != "")
+                            { */
 
                                 $va_atributo_item_listagem["label"] = $vs_label_campo;
                                 $va_atributo_item_listagem["valor"] = $vs_valor_atributo;
@@ -341,7 +350,7 @@
 
 
                                 $va_atributos_item_listagem[] = $va_atributo_item_listagem;
-                            }
+                           // }
                         }
                     }
 
