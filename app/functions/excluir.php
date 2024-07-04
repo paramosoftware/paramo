@@ -20,7 +20,7 @@
 
     $vo_objeto = new $vs_id_objeto('');
 
-    if (!$vo_objeto->validar_acesso_registro($vn_codigo_objeto, $va_parametros_controle_acesso))
+    if (!$vo_objeto->validar_acesso_registro($vn_codigo_objeto, $va_parametros_controle_acesso) || in_array($vn_codigo_objeto, $vo_objeto->registros_protegidos))
     {
         utils::log(
             "Tentativa de exclusão sem permissão: ",

@@ -224,7 +224,7 @@ if ($vn_numero_registros)
                                 }
                                 ?>
 
-                                <?php if ($vb_pode_substituir)
+                                <?php if ($vb_pode_substituir && !in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
                                 {
                                 ?>
                                     <a class="dropdown-item botao_substituir" id="btn_substituir_<?php print $vn_objeto_codigo; ?> href="#">Substituir</a>
@@ -232,7 +232,7 @@ if ($vn_numero_registros)
                                 }
                                 ?>
 
-                                <?php if ($vb_pode_excluir)
+                                <?php if ($vb_pode_excluir && !in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
                                 {
                                 ?>
                                     <a class="dropdown-item botao_excluir" id="btn_excluir_<?php print $vn_objeto_codigo; ?>" href="confirmar_exclusao.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>">Excluir</a>
