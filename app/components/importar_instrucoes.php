@@ -69,8 +69,6 @@ function get_import_config_options(): array
             "type" => "checkbox",
             "fields" => [
                 "html_autocomplete",
-//                "multi_check_input",
-//                "multi_fields_input"
             ]
         ];
 
