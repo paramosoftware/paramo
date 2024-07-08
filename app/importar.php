@@ -1,7 +1,7 @@
 <?php
 global $vs_recurso_sistema_nome_plural, $vs_id_objeto_importacao, $va_usuario;
 
-$vs_id_objeto_importacao = $_GET["obj"] ?? $_POST["obj"];
+$vs_id_objeto_importacao = $_POST["obj"] ?? $_GET["obj"] ?? null;
 $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
 
 
@@ -215,14 +215,6 @@ function is_item_acervo($pa_import_header): bool
 
 }
 
-function process_upsert() {}
-
-function process_update() {}
-
-function process_insert($vo_objeto_de_importacao) {}
-
-function process_debug() {}
-
 function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_import, $ps_usuario_codigo): array
 {
 
@@ -246,28 +238,46 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
             {
 
                 $va_identifier_search_pointers = get_identifier_parameters_from_import_header($pa_header_import, "identificador");
-                if ($va_identifier_search_pointers)
+                if (!$va_identifier_search_pointers && $va_parametros_importacao["import_mode"] == "update")
+                {
+                    $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto sem identificador em importação de atualização."];
+                    continue;
+                }
+                elseif ($va_identifier_search_pointers)
                 {
                     $vo_objeto_de_importacao->inicializar_campos_importacao();
                     $va_campos_importacao = $vo_objeto_de_importacao->get_campos_importacao();
+                    $vs_identificacao_objeto_busca = $row_data[$va_identifier_search_pointers["posicao"]];
+                    $vs_campo_identificador_busca = $va_campos_importacao["identificador_registro"][0];
+                    if (isset($vs_identificacao_objeto_busca)) {
+                        $va_search_parameters[$vs_campo_identificador_busca] = [
+                            $vs_identificacao_objeto_busca
+                        ];
+                        $vo_search_result = $vo_objeto_de_importacao->ler_lista($va_search_parameters);
+                    } elseif ($va_parametros_importacao["import_mode"] == "update")
+                    {
+                        $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto sem valor de identificação em importação de atualização."];
 
-                    $va_search_parameters[$va_campos_importacao["identificador_registro"][0]] = [
-                        $row_data[$va_identifier_search_pointers["posicao"]]
-                    ];
-                    $vo_search_result = $vo_objeto_de_importacao->ler_lista($va_search_parameters);
+                    }
+                }
 
-                    if (count($vo_search_result) > 0)
+
+
+
+
+                    if (isset($vo_search_result) && count($vo_search_result) > 0)
                     {
                         if ($va_parametros_importacao["import_mode"] == "create")
                         {
                             $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto já existente na aplicação."];
                             continue;
                         }
-                        $va_dados_row_salvar = $vo_search_result[0];
-                    } elseif ($va_parametros_importacao["import_mode"] == "update")
+                        $va_dados_row_salvar[$ps_objeto_de_importacao . "_codigo"] = $vo_search_result[0][$ps_objeto_de_importacao . "_codigo"];
+                    } elseif ($va_parametros_importacao["import_mode"] == "update") {
                         $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto não existente na aplicação."];
-                    continue;
-                }
+                        continue;
+                    }
+
 
             }
             // Codigos nesse pitfall referem a itens que não são de acervo
@@ -290,7 +300,7 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                 }
                 $va_dados_row_salvar[$vs_chave_campo_destino] = $col_data;
                 // TODO: remover hardcoding, obter essas informacoes corretamente do contexto
-                $va_dados_row_salvar["item_acervo_identificador"] = "";
+//                $va_dados_row_salvar["item_acervo_identificador"] = "";
                 $va_dados_row_salvar["item_acervo_acervo_codigo"] = "1";
 
                 $va_dados_row_salvar["texto_publicado_online"] = "1";
@@ -300,7 +310,8 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
         }
         if (isset($va_parametros_importacao["import_debug"]))
         {
-            $va_log_importacao["operacoes"][] = ["codigo_objeto" => $va_dados_row_salvar, "result" => "Positivo"];
+            $va_log_importacao["operacoes"][] = ["result" => "Positivo (Debug)"];
+
         }
         else
         {
@@ -464,9 +475,13 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                     (<?= $relacionamento["campo_destino"] ?>)
                                                 </td>
                                                 <td>
-                                                    <?php if ($relacionamento["campo_destino_parametros"][0] == "html_combo_input" || $relacionamento["campo_destino_parametros"][0] == "html_autocomplete"): ?>
-                                                        <?php
+                                                    <?php
+                                                    $vs_tipo_input = $relacionamento["campo_destino_parametros"][0];
+                                                    if ((in_array($vs_tipo_input, ["html_combo_input", "html_autocomplete"]))) {
                                                         $vo_objeto_relacionamento = new $relacionamento["campo_destino_parametros"]["objeto"];
+                                                    }
+                                                    if (isset($vo_objeto_relacionamento) && ($vo_objeto_relacionamento->ler_numero_registros([""])) < 100): ?>
+                                                        <?php
                                                         $va_relacionamento_lista_controlada = $vo_objeto_relacionamento->ler_lista();
                                                         ?>
                                                         <label>
@@ -481,7 +496,7 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                                     <option value="<?= $dado[$vs_dado_codigo] ?>">
                                                                         <?= $dado[$vs_dado_nome] ?>
                                                                     </option>
-                                                                <?php endforeach; ?>
+                                                                <?php unset($vo_objeto_relacionamento);  endforeach; ?>
                                                             </select>
                                                         </label>
 
@@ -543,6 +558,7 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                         <tr>
                                             <th>Numero</th>
                                             <th>Resultado</th>
+                                            <th>Acesso</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -554,7 +570,16 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                     <?= $va_operacao + 1 ?>
                                                 </td>
                                                 <td>
-                                                    <?= $va_dados_operacao["placeholder"] ?? $va_dados_operacao["result"] ?>                                                </td>
+                                                   <?= $va_dados_operacao["placeholder"] ?? $va_dados_operacao["result"] ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    echo isset($va_dados_operacao["codigo_objeto"]) ?
+                                                        '<a href="editar.php?obj=' . $vs_id_objeto_importacao . '&cod=' . $va_dados_operacao["codigo_objeto"] . '">' . $va_dados_operacao["codigo_objeto"] . '</a>' :
+                                                        '';
+                                                    ?>
+                                                </td>
+
                                             </tr>
                                         <?php endforeach; ?>
                                         </tbody>
