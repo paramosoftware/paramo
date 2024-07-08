@@ -32,7 +32,7 @@ switch ($vn_step)
 
         $va_header_import = montar_header_import($va_ponteiros_relacionamento, $va_campos_valor_padrao, $va_campos_separador);
         $va_data_csv = get_data_csv($vs_caminho_arquivo, ',', 0, true, false);
-        $va_resultado_importacao = process_import($vs_id_objeto_importacao, $va_data_csv, $va_header_import, $va_usuario["usuario_codigo"]);
+        $va_resultado_importacao = process_import($vs_id_objeto_importacao, $va_data_csv, $va_header_import);
         break;
 }
 function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_valor_busca, $ps_atributo_busca, $ps_atributo_retorno)
@@ -215,10 +215,13 @@ function is_item_acervo($pa_import_header): bool
 
 }
 
-function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_import, $ps_usuario_codigo): array
+function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_import): array
 {
+    // TODO: Deal with date values, multi_input fields, hierarchical objects, list-control-related (non-acervo) items, institution-targetting and required fields
 
-    global $va_parametros_importacao;
+    global $va_parametros_importacao, $va_usuario, $vn_usuario_logado_instituicao_codigo, $vb_usuario_logado_instituicao_admin;
+    $vs_usuario_codigo = $va_usuario["usuario_codigo"];
+
     $vo_objeto_de_importacao = new $ps_objeto_de_importacao;
     $vo_timezone = new DateTImeZone('America/Sao_Paulo');
     $vo_datetime_inicio_importacao = new DateTime('now', $vo_timezone);
@@ -260,11 +263,6 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
 
                     }
                 }
-
-
-
-
-
                     if (isset($vo_search_result) && count($vo_search_result) > 0)
                     {
                         if ($va_parametros_importacao["import_mode"] == "create")
@@ -273,21 +271,21 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                             continue;
                         }
                         $va_dados_row_salvar[$ps_objeto_de_importacao . "_codigo"] = $vo_search_result[0][$ps_objeto_de_importacao . "_codigo"];
-                    } elseif ($va_parametros_importacao["import_mode"] == "update") {
+                    } elseif ($va_parametros_importacao["import_mode"] == "update")
+                    {
                         $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto não existente na aplicação."];
                         continue;
                     }
-
-
             }
             // Codigos nesse pitfall referem a itens que não são de acervo
+
         }
         foreach ($row_data as $col => $col_data)
         {
             if (array_key_exists($col, $pa_header_import))
             {
                 $vs_chave_campo_destino = $pa_header_import[$col]["campo_destino"];
-                $va_dados_row_salvar["usuario_logado_codigo"] = $ps_usuario_codigo;
+                $va_dados_row_salvar["usuario_logado_codigo"] = $vs_usuario_codigo;
                 if (strpos($vs_chave_campo_destino, "_codigo"))
                 {
                     // Exportacao sempre traz o NOME ao invés do código. essa parte do código trata de retornar essa identificacao caso o campo seja de relacionamento
@@ -299,10 +297,14 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                     $col_data = $vs_resultado_busca;
                 }
                 $va_dados_row_salvar[$vs_chave_campo_destino] = $col_data;
-                // TODO: remover hardcoding, obter essas informacoes corretamente do contexto
-//                $va_dados_row_salvar["item_acervo_identificador"] = "";
-                $va_dados_row_salvar["item_acervo_acervo_codigo"] = "1";
+                if (!isset($va_dados_row_salvar["item_acervo_identificador"])) {
+                    $va_dados_row_salvar["item_acervo_identificador"] = "";
+                }
+                // TODO: Em ultima instancia onde o usuário nao selecionou instituicao, ver qual é admin e passar como default selecionada
+                $va_dados_row_salvar["instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
 
+                $va_dados_row_salvar["item_acervo_acervo_codigo"] = $va_dados_row_salvar["instituicao_codigo"];
+                // Talvez transformar em uma opcao de checkbox pra saber se o usuário quer que os dados importados estejam publicados ou não?
                 $va_dados_row_salvar["texto_publicado_online"] = "1";
                 $va_dados_row_salvar["texto_publicado_online_chk"] = "1";
 
@@ -325,6 +327,7 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
     $va_log_importacao["duracao"] = $va_log_importacao["inicio"]->diff($va_log_importacao["fim"]);
     $va_log_importacao["duracao_string"] = $va_log_importacao["duracao"]->format('%i minutos, %s segundos');
     return $va_log_importacao;
+
 }
 
 ?>
@@ -349,11 +352,6 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                         <div class="card-header">Importar <?= $vs_recurso_sistema_nome_plural; ?></div>
                         <div class="card-body">
                             <?php if ($vn_step == 1) : ?>
-                                <?php
-
-                                $vo_combo_teste = new html_combo_input($_GET["obj"], "livro_genero_textual_codigo");
-                                $vo_objeto_teste = new $_GET["obj"];
-                                ?>
                                 <form method="post" enctype="multipart/form-data" action="importar.php">
                                     <input type="hidden" name="obj" value="<?= $vs_id_objeto_importacao; ?>">
                                     <input type="hidden" name="step" value="2">
