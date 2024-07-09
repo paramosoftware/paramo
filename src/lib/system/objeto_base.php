@@ -1368,7 +1368,17 @@ class objeto_base
                     }
                 }
 
-                if ($vb_filtro_relacionamento_objeto && isset($po_objeto->relacionamentos[$va_filtro[0]]["tabela_relacionamento"])) 
+                $vb_aplicou_filtro = false;
+
+                if (
+                    $vb_filtro_relacionamento_objeto 
+                    && 
+                    isset($po_objeto->relacionamentos[$va_filtro[0]]["tabela_relacionamento"])
+                    &&
+                    isset($va_campos_relacionamento)
+                    &&
+                    !in_array($va_filtro[1], array_keys($va_campos_relacionamento))
+                )
                 {
                     $vs_tabela_relacionamento = $po_objeto->relacionamentos[$va_filtro[0]]["tabela_relacionamento"];
 
@@ -1393,10 +1403,82 @@ class objeto_base
                             $pa_joins_select[$vs_alias_tabela_relacionamento] = " JOIN " . $vs_tabela_relacionamento . " as " . $vs_alias_tabela_relacionamento . " ON " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join . " = " . $vs_alias_tabela_relacionamento . "." . $vo_objeto_relacionamento->chave_primaria["coluna_tabela"];
                             $pa_tabelas_adicionadas[$vs_tabela_relacionamento][] = $vs_alias_tabela_relacionamento;
                         }
+                    }                  
+                }
+                elseif (
+                    $vb_filtro_relacionamento_objeto 
+                    &&
+                    isset($va_campos_relacionamento) 
+                    && 
+                    in_array($va_filtro[1], array_keys($va_campos_relacionamento))
+                )
+                {
+                    // Se o filtro recai sobre uma coluna da tabela intermediária
+                    /////////////////////////////////////////////////////////////
+
+                    $vn_index_tipo_campo = array_search($va_filtro[1], array_keys($va_campos_relacionamento));
+                    $vs_tipo_dado_campo = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$vn_index_tipo_campo];
+
+                    if (is_array($va_campos_relacionamento[$va_filtro[1]]))
+                        $vs_campo_tabela = reset($va_campos_relacionamento[$va_filtro[1]]);
+                    else
+                        $vs_campo_tabela = $va_campos_relacionamento[$va_filtro[1]];
+
+                    if ($ps_operador_logico != "OR")
+                    {
+                        if ($ps_operador == "_EXISTS_") {
+                            $vb_valor_busca = reset($pa_valores_busca);
+    
+                            if (!$vb_valor_busca)
+                                $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NULL ";
+                            else
+                                $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " IS NOT NULL ";
+
+                            unset($pa_valores_busca);
+                        }
+                        else
+                            $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " " . $ps_interrogacoes;
                     }
+
+                    $va_or_conditions = array();
+                    
+                    if (isset($pa_valores_busca))
+                    {
+                        foreach ($pa_valores_busca as $va_valor_busca) 
+                        {
+                            if (is_array($va_valor_busca))
+                            {
+                                $va_and_conditions = array();
+
+                                foreach ($va_valor_busca as $vs_valor_busca)
+                                {
+                                    $va_and_conditions[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                                    $pa_parametros_select[] = $vs_valor_busca;
+                                    $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                                }
+
+                                $va_or_conditions[] = implode(" AND ", $va_and_conditions);
+                            }
+                            else
+                            {
+                                if ($ps_operador_logico == "OR")
+                                    $va_or_conditions[] = $vs_alias_tabela_join . "." . $vs_campo_tabela . " " . $ps_operador . " (?)";
+
+                                $pa_parametros_select[] = $va_valor_busca;
+                                $pa_tipos_parametros_select[] = $vs_tipo_dado_campo;
+                            }
+                        }
+                    }
+
+                    if ($ps_operador_logico == "OR")
+                        $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
+
+                    $vb_aplicou_filtro = true;
                 }
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico);
+                if (!$vb_aplicou_filtro)
+                    $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico);
             }
         } else {
             // Se o filtro for chave primária ou atributo da tabela do objeto, a montagem é simples
