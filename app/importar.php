@@ -1,14 +1,62 @@
 <?php
 global $vs_recurso_sistema_nome_plural, $vs_id_objeto_importacao, $va_usuario;
-
+require_once dirname(__FILE__) . "/components/entry_point.php";
 $vs_id_objeto_importacao = $_POST["obj"] ?? $_GET["obj"] ?? null;
 $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
-
-
 $vb_montar_menu = true;
-require_once dirname(__FILE__) . "/components/entry_point.php";
 $vn_step = $_POST["step"] ?? 1;
 $va_parametros_importacao = ($vn_step) > 2 ? json_decode($_POST["parametros_importacao"], true) : $_POST["parametros_importacao"] ?? null;
+
+
+class LogImportacao
+{
+    private $inicio;
+    private $fim;
+    private $duracao;
+    private $id_objeto_importacao;
+    private $operacoes;
+    private $timezone;
+    private $modo_importacao;
+
+    private $debug;
+    private $tolerancia_erros;
+
+    public function __construct($ps_id_objeto_importacao, $ps_modo_importacao, $pb_debug, $pb_tolerancia_erros)
+    {
+        $this->timezone = new DateTimeZone('America/Sao_Paulo');
+        $this->inicio = new DateTime('now', $this->timezone);
+        $this->id_objeto_importacao = $ps_id_objeto_importacao;
+        $this->modo_importacao = $ps_modo_importacao;
+        $this->debug = $pb_debug;
+        $this->tolerancia_erros = $pb_tolerancia_erros;
+        $this->operacoes = array();
+
+    }
+
+    public function adicionar_operacao($ps_resultado, $ps_mensagem, $ps_tipo_operacao, $ps_codigo_registro = null): void
+    {
+        $this->operacoes[] = [
+            "resultado" => $ps_resultado, "mensagem" => $ps_mensagem, "tipo_operacao" => $ps_tipo_operacao, "codigo_registro" => $ps_codigo_registro
+        ];
+    }
+
+    public function finalizar_relatorio(): array
+    {
+        $this->fim = new DateTime('now', $this->timezone);
+        $this->duracao = $this->fim->diff($this->inicio);
+
+        return [
+            "operacoes" => $this->operacoes,
+            "modo_import" => $this->modo_importacao,
+            "duracao" => $this->duracao->format('%i minutos, %s segundos'),
+            "debug" => $this->debug,
+            "tolerancia_erros" => $this->tolerancia_erros,
+
+        ];
+    }
+
+}
+
 switch ($vn_step)
 {
     case 1:
@@ -19,22 +67,26 @@ switch ($vn_step)
         $va_campos_edicao = get_campos_edicao($vs_id_objeto_importacao);
         break;
     case 3:
-        $va_campos_edicao = get_campos_edicao($vs_id_objeto_importacao);
+        $va_campos_edicao = json_decode($_POST["campos_edicao"], true);
         $va_campos_destino_selecao = $_POST["campos_destino_selecao"];
         $va_campos_origem = $_POST["campos_origem"];
-        $va_header_origem = json_decode($_POST["header_origem"], true);
         $va_ponteiros_relacionamento = relacionar_dados_input($va_campos_destino_selecao, $va_campos_origem, $va_campos_edicao);
         break;
     case 4:
         $va_ponteiros_relacionamento = json_decode($_POST["ponteiros_relacionamento"], true);
-        $va_campos_valor_padrao = $_POST["campos_valor_padrao"];
-        $va_campos_separador = $_POST["campos_separador"];
 
-        $va_header_import = montar_header_import($va_ponteiros_relacionamento, $va_campos_valor_padrao, $va_campos_separador);
+        $va_campos_valor_padrao = $_POST["campos_valor_padrao"] + ["tipo_variante" => "campo_valor_padrao"] ?? [];
+        $va_campos_separador = $_POST["campos_separador"] + ["tipo_variante" => "campo_separador"] ?? [];
+        $va_campos_subcampos_separador = $_POST["campos_subcampos_separador"] ?? [];
+        $va_campos_criar_itens_relacionados = $_POST["campos_criar_itens_relacionados"] ?? [];
+
+        $va_header_import = montar_header_importacao($va_ponteiros_relacionamento, [$va_campos_valor_padrao, $va_campos_separador, $va_campos_subcampos_separador, $va_campos_criar_itens_relacionados], $vs_id_objeto_importacao, $va_parametros_importacao);
+
         $va_data_csv = get_data_csv($vs_caminho_arquivo, ',', 0, true, false);
-        $va_resultado_importacao = process_import($vs_id_objeto_importacao, $va_data_csv, $va_header_import);
+        $va_resultado_importacao = process_import($va_header_import, $va_data_csv);
         break;
 }
+
 function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_valor_busca, $ps_atributo_busca, $ps_atributo_retorno)
 {
     $vo_objeto_de_busca = new $ps_id_objeto_busca;
@@ -43,32 +95,40 @@ function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_valor_busca, $ps_a
     return $va_retorno_busca[0][$ps_atributo_retorno];
 }
 
-function montar_header_import($pa_ponteiros_relacionamento, $pa_campos_valor_padrao, $pa_campos_separador): array
+function validar_parametros_importacao($pa_parametros_importacao)
 {
-    return relacionar_valor_padrao($pa_campos_valor_padrao, relacionar_separador($pa_campos_separador, $pa_ponteiros_relacionamento));
+    $pa_parametros_importacao["import_debug"] = isset($pa_parametros_importacao["import_debug"]);
+    $pa_parametros_importacao["import_allow_errors"] = isset($pa_parametros_importacao["import_allow_errors"]);
 
+    return $pa_parametros_importacao;
 }
 
-;
-function relacionar_valor_padrao($pa_valores_padrao, $pa_objeto_import): array
+
+function montar_header_importacao($pa_campos_importacao, $pa_variantes_importacao, $ps_id_objeto_importacao, $pa_parametros_importacao): array
 {
-    foreach (array_keys($pa_valores_padrao) as $pa_valor_padrao_key)
+    $va_header_importacao = [
+        "campos" => $pa_campos_importacao,
+        "id_objeto" => $ps_id_objeto_importacao,
+        "parametros" => validar_parametros_importacao($pa_parametros_importacao),
+        "is_item_acervo" => is_item_acervo($pa_campos_importacao)
+    ];
+
+    // Variante de importacao = valores padrão de campo, separador de campo, separador de subcampo e demais valores atribuídos no step 3
+    foreach ($pa_variantes_importacao as $va_variante_importacao)
     {
-        $pa_objeto_import[$pa_valor_padrao_key]["campo_valor_padrao"] = $pa_valores_padrao[$pa_valor_padrao_key];
+        foreach ($va_variante_importacao as $vn_index_variante_importacao => $va_dado_variante_importacao)
+        {
+            if ($vn_index_variante_importacao != "tipo_variante")
+            {
+                $va_header_importacao["campos"][$vn_index_variante_importacao][$va_variante_importacao["tipo_variante"]] = $va_dado_variante_importacao;
+
+            }
+        }
     }
 
-    return $pa_objeto_import;
+    return $va_header_importacao;
 }
 
-
-function relacionar_separador($pa_valores_separador, $pa_objeto_import): array
-{
-    foreach (array_keys($pa_valores_separador) as $pa_valor_separador_key)
-    {
-        $pa_objeto_import[$pa_valor_separador_key]["campo_separador"] = $pa_valores_separador[$pa_valor_separador_key];
-    }
-    return $pa_objeto_import;
-}
 
 function relacionar_dados_input($pa_destino, $pa_origem, $pa_campos_edicao): array
 {
@@ -81,7 +141,6 @@ function relacionar_dados_input($pa_destino, $pa_origem, $pa_campos_edicao): arr
                 "campo_origem" => $pa_origem[$index],
                 "campo_destino" => $campo_destino,
                 "campo_destino_parametros" => $pa_campos_edicao[$campo_destino],
-                "campo_posicao" => $index
             ];
         }
     }
@@ -95,8 +154,7 @@ function get_header_file($ps_caminho_arquivo, $ps_extensao): array
     if ($ps_extensao == "csv")
     {
         $va_rows = get_data_csv($ps_caminho_arquivo, ',', 1);
-    }
-    else
+    } else
     {
 //        if ($xlsx = SimpleXLSX::parse($ps_caminho_arquivo))
 //        {
@@ -145,8 +203,7 @@ function get_data_csv($ps_file_path, $ps_delimiter = ",", $pn_limit_num_rows = 0
             if ($pb_assign_header_labels_on_cols && !$pb_remove_header && $row != 0)
             {
                 $rows[] = array_combine($rows[0], $data);
-            }
-            else
+            } else
             {
                 $rows[] = $data;
             }
@@ -196,7 +253,23 @@ function get_identifier_parameters_from_import_header($pa_import_header, $ps_att
     {
         if (str_contains($va_header_column_data["campo_destino"], $ps_attribute))
         {
-            return ["destino" => $va_header_column_data["campo_destino"], "origem" => $va_header_column_data["campo_origem"], "posicao" => $va_header_column_data["campo_posicao"]];
+            return ["destino" => $va_header_column_data["campo_destino"], "origem" => $va_header_column_data["campo_origem"], "posicao" => $vn_header_column]; // !!
+        }
+    }
+    return [];
+}
+
+function get_parametros_identificacao($pa_campos_importacao, $ps_atributo, $pb_is_item_acervo): array
+{
+    if ($pb_is_item_acervo)
+    {
+        foreach ($pa_campos_importacao as $vn_campo_importacao => $va_dados_campo_importacao)
+        {
+            if (str_contains($va_dados_campo_importacao["campo_destino"], $ps_atributo))
+            {
+                return ["campo_destino" => $va_dados_campo_importacao["campo_destino"], "campo_origem" => $va_dados_campo_importacao["campo_origem"], "posicao" => $vn_campo_importacao]; // !!
+
+            }
         }
     }
     return [];
@@ -215,118 +288,142 @@ function is_item_acervo($pa_import_header): bool
 
 }
 
-function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_import): array
+function get_existencia_registro($po_objeto_busca, $ps_valor_busca_registro, $pa_parametros_identificacao_registro, $pb_is_item_acervo)
 {
-    // TODO: Deal with date values, multi_input fields, hierarchical objects, list-control-related (non-acervo) items, institution-targetting and required fields
+    $po_objeto_busca->inicializar_campos_importacao();
+    $va_campos_importacao = $po_objeto_busca->get_campos_importacao();
+    $va_resultado_busca = array();
+    if ($pb_is_item_acervo)
+    {
+        $vs_campo_identificador_registro = $va_campos_importacao["identificador_registro"][0];
+        $va_parametros_busca_registro[$vs_campo_identificador_registro] = [
+            $ps_valor_busca_registro
+        ];
+        $va_resultado_busca = $po_objeto_busca->ler_lista($va_parametros_busca_registro);
+    }
 
-    global $va_parametros_importacao, $va_usuario, $vn_usuario_logado_instituicao_codigo, $vb_usuario_logado_instituicao_admin;
+    return $va_resultado_busca;
+}
+
+function get_campo_tem_relacionamento($ps_atributo_destino): bool
+{
+    return strpos($ps_atributo_destino, "_codigo");
+
+}
+
+function process_import($pa_header_importacao, $pa_dados_importacao): array
+{
+    global $va_parametros_importacao, $va_usuario, $vn_usuario_logado_instituicao_codigo;
     $vs_usuario_codigo = $va_usuario["usuario_codigo"];
 
-    $vo_objeto_de_importacao = new $ps_objeto_de_importacao;
-    $vo_timezone = new DateTImeZone('America/Sao_Paulo');
-    $vo_datetime_inicio_importacao = new DateTime('now', $vo_timezone);
-    $va_log_importacao = [
-        "objeto_importacao" => $ps_objeto_de_importacao,
-        "modo_importacao" => $va_parametros_importacao["import_mode"],
-        "operacoes" => array(),
-        "inicio" => $vo_datetime_inicio_importacao,
-    ];
-
-    foreach ($pa_dados_csv as $row => $row_data)
+    // Um header de importacao deve ter os campos que serão importados, o objeto de importacao e os parametros de importacao
+    // A funcao, por consequencia recebe esse header e os dados que serão processados com base no header
+    $vo_objeto_de_importacao = new $pa_header_importacao["id_objeto"];
+    $vo_relatorio_importacao = new LogImportacao(
+        $pa_header_importacao["id_objeto"],
+        $pa_header_importacao["parametros"]["import_mode"],
+        $pa_header_importacao["parametros"]["import_debug"],
+        $pa_header_importacao["parametros"]["import_allow_errors"]
+    );
+    foreach ($pa_dados_importacao as $dados_row_importacao)
     {
-        $va_dados_row_salvar = array();
-        if (in_array($va_parametros_importacao["import_mode"], ["upsert", "update", "create"]))
+        $va_dados_row_insercao = array();
+        if (in_array($pa_header_importacao["parametros"]["import_mode"], ["upsert", "update", "create"]))
         {
-            if (is_item_acervo($pa_header_import))
+            if ($pa_header_importacao["is_item_acervo"])
             {
+                $va_parametros_identificacao_registro = get_parametros_identificacao(
+                    $pa_header_importacao["campos"],
+                    "identificador",
+                    $pa_header_importacao["is_item_acervo"]);
 
-                $va_identifier_search_pointers = get_identifier_parameters_from_import_header($pa_header_import, "identificador");
-                if (!$va_identifier_search_pointers && $va_parametros_importacao["import_mode"] == "update")
+                if (!empty($va_parametros_identificacao_registro))
                 {
-                    $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto sem identificador em importação de atualização."];
-                    continue;
-                }
-                elseif ($va_identifier_search_pointers)
-                {
-                    $vo_objeto_de_importacao->inicializar_campos_importacao();
-                    $va_campos_importacao = $vo_objeto_de_importacao->get_campos_importacao();
-                    $vs_identificacao_objeto_busca = $row_data[$va_identifier_search_pointers["posicao"]];
-                    $vs_campo_identificador_busca = $va_campos_importacao["identificador_registro"][0];
-                    if (isset($vs_identificacao_objeto_busca)) {
-                        $va_search_parameters[$vs_campo_identificador_busca] = [
-                            $vs_identificacao_objeto_busca
-                        ];
-                        $vo_search_result = $vo_objeto_de_importacao->ler_lista($va_search_parameters);
-                    } elseif ($va_parametros_importacao["import_mode"] == "update")
+                    $va_resultado_busca_registro = get_existencia_registro(
+                        $vo_objeto_de_importacao,
+                        $dados_row_importacao[$va_parametros_identificacao_registro["posicao"]],
+                        $va_parametros_identificacao_registro, $pa_header_importacao["is_item_acervo"]);
+                    if (empty($va_resultado_busca_registro))
                     {
-                        $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto sem valor de identificação em importação de atualização."];
-
-                    }
-                }
-                    if (isset($vo_search_result) && count($vo_search_result) > 0)
-                    {
-                        if ($va_parametros_importacao["import_mode"] == "create")
+                        if ($pa_header_importacao["parametros"]["import_mode"] == "update")
                         {
-                            $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto já existente na aplicação."];
+                            $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto não encontrado em operação de atualização.", "Atualização");
                             continue;
                         }
-                        $va_dados_row_salvar[$ps_objeto_de_importacao . "_codigo"] = $vo_search_result[0][$ps_objeto_de_importacao . "_codigo"];
-                    } elseif ($va_parametros_importacao["import_mode"] == "update")
+
+                    } elseif ($pa_header_importacao["parametros"]["import_mode"] == "create" && !$pa_header_importacao["parametros"]["import_allow_+errors"])
                     {
-                        $va_log_importacao["operacoes"][] = ["result" => "Negativo", "placeholder" => "Objeto não existente na aplicação."];
+                        $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto já existente em operação de criação sem tolerância de erros.", "Criação");
                         continue;
+                    } else
+                    {
+                        $va_dados_row_insercao[$pa_header_importacao["id_objeto"] . "_codigo"] = $va_resultado_busca_registro[0][$pa_header_importacao["id_objeto"] . "_codigo"];
                     }
+                } elseif ($pa_header_importacao["parametros"]["import_mode"] == "update")
+                {
+                    $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto sem identificador em operação de atualização.", "Atualização");
+                    continue;
+                }
             }
-            // Codigos nesse pitfall referem a itens que não são de acervo
+            // Tratamento de itens de lista controlada: checagem por nome e não  por código
 
         }
-        foreach ($row_data as $col => $col_data)
+        foreach ($dados_row_importacao as $vn_col_importacao => $vs_dado_col_importacao)
         {
-            if (array_key_exists($col, $pa_header_import))
+            if (array_key_exists($vn_col_importacao, $pa_header_importacao["campos"]))
             {
-                $vs_chave_campo_destino = $pa_header_import[$col]["campo_destino"];
-                $va_dados_row_salvar["usuario_logado_codigo"] = $vs_usuario_codigo;
-                if (strpos($vs_chave_campo_destino, "_codigo"))
-                {
-                    // Exportacao sempre traz o NOME ao invés do código. essa parte do código trata de retornar essa identificacao caso o campo seja de relacionamento
-                    $vs_id_objeto_busca = $pa_header_import[$col]["campo_destino_parametros"]["objeto"];
-                    $vs_atributo_objeto_busca = $pa_header_import[$col]["campo_destino_parametros"]["atributos"][1];
-                    $vs_valor_objeto_busca = $col_data;
-                    $vs_atributo_objeto_retorno = $pa_header_import[$col]["campo_destino_parametros"]["atributos"][0];
-                    $vs_resultado_busca = get_codigo_objeto_from_nome($vs_id_objeto_busca, $vs_valor_objeto_busca, $vs_atributo_objeto_busca, $vs_atributo_objeto_retorno);
-                    $col_data = $vs_resultado_busca;
-                }
-                $va_dados_row_salvar[$vs_chave_campo_destino] = $col_data;
-                if (!isset($va_dados_row_salvar["item_acervo_identificador"])) {
-                    $va_dados_row_salvar["item_acervo_identificador"] = "";
-                }
-                // TODO: Em ultima instancia onde o usuário nao selecionou instituicao, ver qual é admin e passar como default selecionada
-                $va_dados_row_salvar["instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
+                $va_campo_atual = $pa_header_importacao["campos"][$vn_col_importacao];
+                $vs_chave_campo_destino = $va_campo_atual["campo_destino"];
+                $va_dados_row_insercao[$pa_header_importacao["campos"][$vn_col_importacao]["campo_destino"]] = $vs_dado_col_importacao;
 
-                $va_dados_row_salvar["item_acervo_acervo_codigo"] = $va_dados_row_salvar["instituicao_codigo"];
-                // Talvez transformar em uma opcao de checkbox pra saber se o usuário quer que os dados importados estejam publicados ou não?
-                $va_dados_row_salvar["texto_publicado_online"] = "1";
-                $va_dados_row_salvar["texto_publicado_online_chk"] = "1";
+                if (get_campo_tem_relacionamento($vs_chave_campo_destino))
+                {
+                    // Exportacao traz o NOME, precisamos do CÓDIGO
+                    $vs_objeto_campo_busca = $va_campo_atual["campo_destino_parametros"]["objeto"];
+                    $vs_valor_busca = $vs_dado_col_importacao;
+                    $vs_atributo_busca = $va_campo_atual["campo_destino_parametros"]["atributos"][1];
+                    $vs_atributo_retorno = $va_campo_atual["campo_destino_parametros"]["atributos"][0];
+
+                    $vs_codigo_atributo = get_codigo_objeto_from_nome($vs_objeto_campo_busca, $vs_valor_busca, $vs_atributo_busca, $vs_atributo_retorno);
+                    if (empty($vs_codigo_atributo))
+                    {
+                        if ($pa_header_importacao["parametros"]["import_allow_errors"])
+                        {
+                            unset($pa_header_importacao["campos"][$vn_col_importacao]);
+                            unset($dados_row_importacao[$vn_col_importacao]);
+                            // Adicionar sublog aqui avisando que na operacao X o valor Y foi desconsiderado por motivo Z
+                        }
+                        continue;
+                    }
+                    $vs_dado_col_importacao = $vs_codigo_atributo;
+                }
+                // Feeding da array de insercao atual
+                $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_dado_col_importacao;
+
+                if (!isset($va_dados_row_insercao["item_acervo_identificador"]) && $pa_header_importacao["is_item_acervo"])
+                {
+                    $va_dados_row_insercao["item_acervo_identificador"] = "";
+                }
+
+                $va_dados_row_insercao["instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
 
             }
         }
         if (isset($va_parametros_importacao["import_debug"]))
         {
-            $va_log_importacao["operacoes"][] = ["result" => "Positivo (Debug)"];
+            $vo_relatorio_importacao->adicionar_operacao("Positivo", "Objeto debugado.", "Debug");
 
-        }
-        else
+        } else
         {
+            $va_dados_row_insercao["usuario_logado_codigo"] = $vs_usuario_codigo;
+
             $vo_objeto_de_importacao->iniciar_transacao();
-            $va_log_importacao["operacoes"][] = ["codigo_objeto" => $vo_objeto_de_importacao->salvar($va_dados_row_salvar), "result" => "Positivo"];
+            $vo_relatorio_importacao->adicionar_operacao("Positivo", "Objeto manipulado com sucesso. ", "Main", $vo_objeto_de_importacao->salvar($va_dados_row_insercao));
             $vo_objeto_de_importacao->finalizar_transacao();
         }
-
     }
-    $va_log_importacao["fim"] = new DateTime('now', $vo_timezone);
-    $va_log_importacao["duracao"] = $va_log_importacao["inicio"]->diff($va_log_importacao["fim"]);
-    $va_log_importacao["duracao_string"] = $va_log_importacao["duracao"]->format('%i minutos, %s segundos');
-    return $va_log_importacao;
+
+    return $vo_relatorio_importacao->finalizar_relatorio();
 
 }
 
@@ -400,8 +497,8 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                         <input type="hidden" name="caminho_arquivo" value="<?= $vs_caminho_arquivo; ?>">
                                         <input type="hidden" name="parametros_importacao"
                                                value="<?= htmlentities(json_encode($va_parametros_importacao), ENT_QUOTES, "UTF-8", false); ?>">
-                                        <input type="hidden" name="header_origem"
-                                               value="<?= htmlentities(json_encode($va_rows), ENT_QUOTES, "UTF-8", false) ?>">
+                                        <input type="hidden" name="campos_edicao"
+                                               value="<?= htmlentities(json_encode($va_campos_edicao), ENT_QUOTES, "UTF-8", false) ?>">
                                         <h2>Relacionamento de campos</h2>
                                         <table class="table table-bordered table-striped">
                                             <thead>
@@ -462,21 +559,26 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                             <th>Coluna de origem</th>
                                             <th>Campo de destino selecionado</th>
                                             <th>Valor padrão</th>
+                                            <th>Criar novos itens relacionados?</th>
+                                            <th>Tipo de relação padrão</th>
                                             <th>Separador de valores</th>
+                                            <th>Separador de subcampos</th>
+
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <?php foreach ($va_ponteiros_relacionamento as $ponteiro_relacionamento => $relacionamento) : ?>
+                                        <?php foreach ($va_ponteiros_relacionamento as $vn_index_ponteiro_relacionamento => $va_relacionamento) : ?>
                                             <tr>
-                                                <td><?= $relacionamento["campo_origem"] ?></td>
-                                                <td><?= $relacionamento["campo_destino_parametros"]["label"] ?>
-                                                    (<?= $relacionamento["campo_destino"] ?>)
+                                                <td><?= $va_relacionamento["campo_origem"] ?></td>
+                                                <td><?= $va_relacionamento["campo_destino_parametros"]["label"] ?>
+                                                    (<?= $va_relacionamento["campo_destino"] ?>)
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    $vs_tipo_input = $relacionamento["campo_destino_parametros"][0];
-                                                    if ((in_array($vs_tipo_input, ["html_combo_input", "html_autocomplete"]))) {
-                                                        $vo_objeto_relacionamento = new $relacionamento["campo_destino_parametros"]["objeto"];
+                                                    $vs_tipo_input = $va_relacionamento["campo_destino_parametros"][0];
+                                                    if ((in_array($vs_tipo_input, ["html_combo_input", "html_autocomplete"])))
+                                                    {
+                                                        $vo_objeto_relacionamento = new $va_relacionamento["campo_destino_parametros"]["objeto"];
                                                     }
                                                     if (isset($vo_objeto_relacionamento) && ($vo_objeto_relacionamento->ler_numero_registros([""])) < 100): ?>
                                                         <?php
@@ -484,17 +586,17 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                         ?>
                                                         <label>
                                                             <select class="form-control"
-                                                                    name="campos_valor_padrao[<?= $relacionamento["campo_posicao"]; ?>]">
+                                                                    name="campos_valor_padrao[<?= $vn_index_ponteiro_relacionamento ?>]">
                                                                 <option value="">Selecione</option>
-                                                                <?php foreach ($va_relacionamento_lista_controlada as $registro => $dado): ?>
+                                                                <?php foreach ($va_relacionamento_lista_controlada as $vn_index_registro => $va_dado_registro): ?>
                                                                     <?php
-                                                                    $vs_dado_nome = get_chave_parametro("nome", $dado);
-                                                                    $vs_dado_codigo = get_chave_parametro("codigo", $dado);
+                                                                    $vs_dado_nome = get_chave_parametro("nome", $va_dado_registro);
+                                                                    $vs_dado_codigo = get_chave_parametro("codigo", $va_dado_registro);
                                                                     ?>
-                                                                    <option value="<?= $dado[$vs_dado_codigo] ?>">
-                                                                        <?= $dado[$vs_dado_nome] ?>
+                                                                    <option value="<?= $va_dado_registro[$vs_dado_codigo] ?>">
+                                                                        <?= $va_dado_registro[$vs_dado_nome] ?>
                                                                     </option>
-                                                                <?php unset($vo_objeto_relacionamento);  endforeach; ?>
+                                                                    <?php unset($vo_objeto_relacionamento); endforeach; ?>
                                                             </select>
                                                         </label>
 
@@ -502,17 +604,35 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                     <?php else: ?>
                                                         <label>
                                                             <input type="text"
-                                                                   name="campos_valor_padrao[<?= $relacionamento["campo_posicao"] ?>]"
+                                                                   name="campos_valor_padrao[<?= $vn_index_ponteiro_relacionamento ?>]"
                                                                    class="form-control form-control-sm">
                                                         </label>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <label>
+                                                        <input type="checkbox" class="check-selecao"
+                                                               name="campos_criar_itens_relacionados[<?= $vn_index_ponteiro_relacionamento ?>]"
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <!--                                                      Tipo de relacao padrao -->
+                                                </td>
+                                                <td>
+                                                    <label>
                                                         <input type="text"
-                                                               name="campos_separador[<?= $relacionamento["campo_posicao"] ?>]"
+                                                               name="campos_separador[<?= $vn_index_ponteiro_relacionamento ?>]"
                                                                class="form-control form-control-sm">
                                                     </label>
+                                                </td>
+                                                <td>
+                                                    <?php if ($va_relacionamento["campo_destino_parametros"][0] === "html_multi_itens_input"): ?>
+                                                        <label>
+                                                            <input type="text"
+                                                                   name="campos_subcampos_separador[<?= $vn_index_ponteiro_relacionamento ?>]"
+                                                                   class="form-control form-control-sm">
+                                                        </label>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>
@@ -568,7 +688,7 @@ function process_import($ps_objeto_de_importacao, $pa_dados_csv, $pa_header_impo
                                                     <?= $va_operacao + 1 ?>
                                                 </td>
                                                 <td>
-                                                   <?= $va_dados_operacao["placeholder"] ?? $va_dados_operacao["result"] ?>
+                                                    <?= $va_dados_operacao["placeholder"] ?? $va_dados_operacao["result"] ?>
                                                 </td>
                                                 <td>
                                                     <?php
