@@ -36,8 +36,11 @@ class LogImportacao
     public function adicionar_operacao($ps_resultado, $ps_mensagem, $ps_tipo_operacao, $ps_codigo_registro = null): void
     {
         $this->operacoes[] = [
-            "resultado" => $ps_resultado, "mensagem" => $ps_mensagem, "tipo_operacao" => $ps_tipo_operacao, "codigo_registro" => $ps_codigo_registro
+            "resultado" => $ps_resultado, "mensagens" => [$ps_mensagem], "tipo_operacao" => $ps_tipo_operacao, "codigo_registro" => $ps_codigo_registro
         ];
+    }
+    public function complementar_operacao_atual($ps_mensagem): void {
+        $this->operacoes[array_key_last($this->operacoes)]["mensagens"][] =  $ps_mensagem;
     }
 
     public function finalizar_relatorio(): array
@@ -46,6 +49,7 @@ class LogImportacao
         $this->duracao = $this->fim->diff($this->inicio);
 
         return [
+            "objeto_importado" => $this->id_objeto_importacao,
             "operacoes" => $this->operacoes,
             "modo_import" => $this->modo_importacao,
             "duracao" => $this->duracao->format('%i minutos, %s segundos'),
@@ -310,7 +314,9 @@ function get_campo_tem_relacionamento($ps_atributo_destino): bool
     return strpos($ps_atributo_destino, "_codigo");
 
 }
+function process_item() {
 
+}
 function process_import($pa_header_importacao, $pa_dados_importacao): array
 {
     global $va_parametros_importacao, $va_usuario, $vn_usuario_logado_instituicao_codigo;
@@ -351,10 +357,14 @@ function process_import($pa_header_importacao, $pa_dados_importacao): array
                             continue;
                         }
 
-                    } elseif ($pa_header_importacao["parametros"]["import_mode"] == "create" && !$pa_header_importacao["parametros"]["import_allow_+errors"])
+                    } elseif ($pa_header_importacao["parametros"]["import_mode"] == "create")
                     {
-                        $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto já existente em operação de criação sem tolerância de erros.", "Criação");
-                        continue;
+                        if (!$pa_header_importacao["parametros"]["import_allow_errors"]) {
+                            $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto já existente em operação de criação sem tolerância de erros.", "Criação");
+                            continue;
+                        }
+                        unset($pa_header_importacao["campos"][$va_parametros_identificacao_registro["posicao"]]);
+                        unset($dados_row_importacao[$va_parametros_identificacao_registro["posicao"]]);
                     } else
                     {
                         $va_dados_row_insercao[$pa_header_importacao["id_objeto"] . "_codigo"] = $va_resultado_busca_registro[0][$pa_header_importacao["id_objeto"] . "_codigo"];
@@ -391,7 +401,7 @@ function process_import($pa_header_importacao, $pa_dados_importacao): array
                         {
                             unset($pa_header_importacao["campos"][$vn_col_importacao]);
                             unset($dados_row_importacao[$vn_col_importacao]);
-                            // Adicionar sublog aqui avisando que na operacao X o valor Y foi desconsiderado por motivo Z
+                            $vo_relatorio_importacao->complementar_operacao_atual("Dado " . $dados_row_importacao[$vn_col_importacao] . " ignorado nessa operação, pois o objeto não existe.");
                         }
                         continue;
                     }
@@ -655,18 +665,26 @@ function process_import($pa_header_importacao, $pa_dados_importacao): array
                                             <th>Modo importação</th>
                                             <th>Objeto importação</th>
                                             <th>Duração</th>
+                                            <th>Debug ativo?</th>
+                                            <th>Tolerância de erros?</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <tr>
                                             <td>
-                                                <?= $va_resultado_importacao["modo_importacao"]; ?>
+                                                <?= $va_resultado_importacao["modo_import"]; ?>
                                             </td>
                                             <td>
-                                                <?= $va_resultado_importacao["objeto_importacao"]; ?>
+                                                <?= $va_resultado_importacao["objeto_importado"]; ?>
                                             </td>
                                             <td>
-                                                <?= $va_resultado_importacao["duracao_string"]; ?>
+                                                <?= $va_resultado_importacao["duracao"]; ?>
+                                            </td>
+                                            <td>
+                                                <?= isset($va_resultado_importacao["debug"]) ? ($va_resultado_importacao["debug"] ? 'Ativado' : 'Desativado') : ''; ?>
+                                            </td>
+                                            <td>
+                                                <?= isset($va_resultado_importacao["tolerancia_erros"]) ? ($va_resultado_importacao["tolerancia_erros"] ? 'Ativado' : 'Desativada') : ''; ?>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -675,6 +693,7 @@ function process_import($pa_header_importacao, $pa_dados_importacao): array
                                         <thead>
                                         <tr>
                                             <th>Numero</th>
+                                            <th>Tipo de operação</th>
                                             <th>Resultado</th>
                                             <th>Acesso</th>
                                         </tr>
@@ -688,13 +707,16 @@ function process_import($pa_header_importacao, $pa_dados_importacao): array
                                                     <?= $va_operacao + 1 ?>
                                                 </td>
                                                 <td>
-                                                    <?= $va_dados_operacao["placeholder"] ?? $va_dados_operacao["result"] ?>
+                                                    <?= $va_dados_operacao["tipo_operacao"] ?>
+                                                </td>
+                                                <td>
+                                                    <?= $va_dados_operacao["resultado"] ?>
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    echo isset($va_dados_operacao["codigo_objeto"]) ?
-                                                        '<a href="editar.php?obj=' . $vs_id_objeto_importacao . '&cod=' . $va_dados_operacao["codigo_objeto"] . '">' . $va_dados_operacao["codigo_objeto"] . '</a>' :
-                                                        '';
+                                                    echo isset($va_dados_operacao["codigo_registro"]) ?
+                                                        '<a href="editar.php?obj=' . $vs_id_objeto_importacao . '&cod=' . $va_dados_operacao["codigo_registro"] . '">' . $va_dados_operacao["codigo_registro"] . '</a>' :
+                                                        $va_dados_operacao["mensagens"][0];
                                                     ?>
                                                 </td>
 
