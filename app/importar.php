@@ -38,8 +38,10 @@ class LogImportacao
             "resultado" => $ps_resultado, "mensagens" => [$ps_mensagem], "tipo_operacao" => $ps_tipo_operacao, "codigo_registro" => $ps_codigo_registro
         ];
     }
-    public function complementar_operacao_atual($ps_mensagem): void {
-        $this->operacoes[array_key_last($this->operacoes)]["mensagens"][] =  $ps_mensagem;
+
+    public function complementar_operacao_atual($ps_mensagem): void
+    {
+        $this->operacoes[array_key_last($this->operacoes)]["mensagens"][] = $ps_mensagem;
     }
 
     public function finalizar_relatorio(): array
@@ -86,7 +88,7 @@ switch ($vn_step)
         // Variantes de importacao
         $va_campos_valor_padrao = isset($_POST["campos_valor_padrao"]) ? $_POST["campos_valor_padrao"] + ["tipo_variante" => "campo_valor_padrao"] : [];
         $va_campos_separador = isset($_POST["campos_separador"]) ? $_POST["campos_separador"] + ["tipo_variante" => "campo_separador"] : [];
-        $va_campos_subcampos_separador = isset($_POST["campos_subcampos_separador"]) ? $_POST["campos_subcampos_separador"]  + ["tipo_variante" => "subcampo_separador"] : [];
+        $va_campos_subcampos_separador = isset($_POST["campos_subcampos_separador"]) ? $_POST["campos_subcampos_separador"] + ["tipo_variante" => "subcampo_separador"] : [];
         $va_campos_criar_itens_relacionados = isset($_POST["campos_criar_itens_relacionados"]) ? $_POST["campos_criar_itens_relacionados"] + ["tipo_variante" => "criar_itens_relacionados"] : [];
 
         $va_header_import = montar_header_importacao($va_ponteiros_relacionamento, $vo_objeto_importacao, $va_parametros_importacao, [$va_campos_valor_padrao, $va_campos_separador, $va_campos_subcampos_separador, $va_campos_criar_itens_relacionados]);
@@ -96,7 +98,7 @@ switch ($vn_step)
         break;
 }
 
-function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_valor_busca, $ps_atributo_busca, $ps_atributo_retorno)
+function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_atributo_busca, $ps_atributo_retorno, $ps_valor_busca)
 {
     $vo_objeto_de_busca = new $ps_id_objeto_busca;
     $va_parametro_busca[$ps_atributo_busca] = [$ps_valor_busca];
@@ -198,6 +200,7 @@ function move_import_file(): string
 
     return "";
 }
+
 function get_data_csv($ps_file_path, $ps_delimiter = ",", $pn_limit_num_rows = 0, $pb_remove_header = false, $pb_assign_header_labels_on_cols = false): array
 {
     // TODO: Alguns documentos de entrada podem conter colunas fantasma. Melhorar essa funcao futuramente pra evitar rows de insercao inválidas
@@ -284,10 +287,19 @@ function get_parametros_identificacao($pa_campos_importacao, $ps_atributo, $pb_i
     return [];
 }
 
-function is_item_acervo($ps_id_objeto): bool
+function is_item_acervo($ps_id_objeto = null, $ps_campo_objeto = null)
 {
-    return is_subclass_of(new $ps_id_objeto, "texto");
+    $vs_id_objeto = $ps_id_objeto;
 
+    if ($ps_campo_objeto) {
+        if (isset($ps_campo_objeto["objeto"])) {
+            $vs_id_objeto = $ps_campo_objeto["objeto"];
+        } elseif(get_campo_tem_subcampo($ps_campo_objeto)) {
+            $vs_id_objeto = $ps_campo_objeto["subcampos"][array_key_first($ps_campo_objeto["subcampos"])]["objeto"];
+        }
+    }
+
+    return $vs_id_objeto ? is_subclass_of(new $vs_id_objeto, "texto") : $vs_id_objeto;
 }
 
 function get_existencia_registro($po_objeto_busca, $ps_valor_busca_registro, $pa_parametros_identificacao_registro, $pb_is_item_acervo)
@@ -307,28 +319,181 @@ function get_existencia_registro($po_objeto_busca, $ps_valor_busca_registro, $pa
     return $va_resultado_busca;
 }
 
-function get_campo_tem_relacionamento($ps_atributo_destino): bool
+function get_campo_tem_relacionamento($ps_atributo_destino, $pa_campos_relacionamento): bool
 {
-    return strpos($ps_atributo_destino, "_codigo");
+    return array_key_exists($ps_atributo_destino, $pa_campos_relacionamento);
 
 }
-function get_campos_relacionamento($ps_id_objeto) {
-    global $vn_recurso_sistema_codigo;
-    $vo_objeto = new $ps_id_objeto();
-    return $vo_objeto->inicializar_relacionamentos();
-
+function get_campo_tem_dependencia($ps_campo): bool
+{
+    return isset($ps_campo["dependencia"]);
 }
-function get_campo_tem_subcampo($pa_campo) {
+function get_campo_tem_subcampo($pa_campo)
+{
     return (isset($pa_campo["subcampos"]));
 
 }
+function get_propriedades_busca_objeto($pa_campo_destino)
+{
+    return [
+        "objeto" => $pa_campo_destino["objeto"],
+        "atributo_busca" => $pa_campo_destino["atributos"][1],
+        "atributo_retorno" => $pa_campo_destino["atributos"][0]
+    ];
+}
+
+
+// TODO: Converter em interface, simplificar todo o processo nessas funcoes e chamá-las em processar_import sequencialmente
+function processar_col_importacao($pa_campos_importacao, $pa_campos_relacionamento, $pn_col_importacao, $ps_dado_col_importacao)
+{
+    if (array_key_exists($pn_col_importacao, $pa_campos_importacao)) {
+
+        $vs_id_campo_destino_atual = $pa_campos_importacao[$pn_col_importacao]["campo_destino"];
+        $va_campo_destino_atual = $va_campos_edicao[$vs_id_campo_destino_atual];
+        $va_campo_importacao_atual = $pa_campos_importacao[$pn_col_importacao];
+        $vs_chave_campo_destino = $va_campo_importacao_atual["campo_destino"];
+
+        $va_dados_row_insercao[$pa_campos_importacao[$pn_col_importacao]["campo_destino"]] = $pn_col_importacao;
+
+        if (get_campo_tem_relacionamento($vs_chave_campo_destino, $pa_campos_relacionamento) || get_campo_tem_dependencia($va_campo_destino_atual))
+        {
+            if (!is_item_acervo(null, $va_campo_destino_atual)) {
+                // Se não é item de acervo, é item de lista controlada, logo precisamos do primeiro subcampo
+                if (!isset($va_campo_destino_atual["objeto"]) && get_campo_tem_subcampo($va_campo_destino_atual)) {
+                    $vs_chave_primeiro_subcampo_destino_atual = array_key_first($va_campo_destino_atual["subcampos"]);
+                    $va_campo_destino_atual = $va_campo_destino_atual["subcampos"][$vs_chave_primeiro_subcampo_destino_atual];
+
+                }
+
+            }
+            // Exportacao traz o NOME, precisamos do CÓDIGO, seja de IDENTIFICAÇAO (item de acervo) ou CODIGO INTERNO (listas controladas)
+            $va_propriedades_busca = get_propriedades_busca_objeto($va_campo_destino_atual);
+            $vs_valor_busca = $vs_dado_col_importacao;
+            $vs_codigo_atributo = get_codigo_objeto_from_nome(
+                $va_propriedades_busca["objeto"],
+                $va_propriedades_busca["atributo_busca"],
+                $va_propriedades_busca["atributo_retorno"],
+                $vs_valor_busca);
+
+            if (empty($vs_codigo_atributo))
+            {
+                if ($pa_header_importacao["parametros"]["import_allow_errors"])
+                {
+                    unset($pa_header_importacao["campos"][$vn_col_importacao]);
+                    unset($dados_row_importacao[$vn_col_importacao]);
+                    $vo_relatorio_importacao->complementar_operacao_atual("Dado " . $dados_row_importacao[$vn_col_importacao] . " ignorado nessa operação, pois o objeto não existe.");
+                }
+                continue;
+            }
+
+        }
+        // Feeding da array de insercao atual
+
+        //TODO: Converter isso em funcao, e considerar tolerancia de erros. chave de código sem atributo presente = falha
+        if (strpos($vs_chave_campo_destino, "_codigo")) {
+            $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_codigo_atributo;
+
+        } else {
+            $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_dado_col_importacao;
+        }
+
+
+        if (!isset($va_dados_row_insercao["item_acervo_identificador"]) && $pa_header_importacao["is_item_acervo"])
+        {
+            $va_dados_row_insercao["item_acervo_identificador"] = "";
+        }
+
+        $va_dados_row_insercao["instituicao_codigo"] = $vn_usuario_logado_instituicao_codigo;
+
+    }
+}
+function processar_row_importacao($pa_header_importacao, $pa_campos_edicao, $pa_dados_row_importacao): array
+{
+    $va_dados_row_insercao = array();
+    $va_validacao_dados_row  = validar_dados_row_importacao($pa_header_importacao, $pa_dados_row_importacao);
+
+    if (!empty($va_validacao_dados_row["operacao"])) {
+        return $va_validacao_dados_row[0]; // Sempre o primeiro index, pois a funcao de validacao só adiciona operacoes negativas e uma vez (pois se fora adicionado, os parametros e dados da row sao inconformes)
+    } elseif (!empty($va_validacao_dados_row["alteracoes_dados_row_insercao"])) {
+        $va_dados_row_insercao = array_merge($va_validacao_dados_row["alteracoes_dados_row_insercao"], $va_dados_row_insercao);
+    }
+
+    foreach ($pa_dados_row_importacao as $vn_col_importacao => $vs_dado_col_importacao) {
+        $va_resultado_validacao_col_importacao = validar_col_importacao($pa_header_importacao["campos"], $pa_campos_edicao, $vs_dado_col_importacao, $vn_col_importacao);
+    }
+
+    return [];
+}
+function validar_dados_row_importacao($pa_header_importacao, $pa_dados_row_importacao): array
+{
+    $va_validacao_dados_row = [
+        "operacao" => array(),
+        "alteracoes_dados_row_insercao" => array(),
+    ];
+    if (in_array($pa_header_importacao["parametros"]["import_mode"], ["upsert", "update", "create"]))
+    {
+        if ($pa_header_importacao["is_item_acervo"])
+        {
+            // TODO: Remover hardcoding aqui. Snippet de desenvolvimento
+            $va_validacao_dados_row["alteracoes_dados_row_insercao"]["texto_publicado_online"] = "1";
+            $va_validacao_dados_row["alteracoes_dados_row_insercao"]["texto_publicado_online_chk"] = "1";
+            $va_validacao_dados_row["alteracoes_dados_row_insercao"]["item_acervo_acervo_codigo"] = "1";
+            //
+
+
+            $va_parametros_identificacao_registro = get_parametros_identificacao(
+                $pa_header_importacao["campos"],
+                "identificador",
+                $pa_header_importacao["is_item_acervo"]);
+
+            if (!empty($va_parametros_identificacao_registro))
+            {
+                $va_resultado_busca_registro = get_existencia_registro(
+                    $pa_header_importacao["objeto_importacao"],
+                    $pa_dados_row_importacao[$va_parametros_identificacao_registro["posicao"]],
+                    $va_parametros_identificacao_registro, $pa_header_importacao["is_item_acervo"]);
+                if (empty($va_resultado_busca_registro))
+                {
+                    if ($pa_header_importacao["parametros"]["import_mode"] == "update")
+                    {
+                        $va_validacao_dados_row["operacao"][] = ["Negativo", "Objeto não encontrado em operação de atualização.", "Atualização"];
+                    }
+
+                } elseif ($pa_header_importacao["parametros"]["import_mode"] == "create")
+                {
+                    if (!$pa_header_importacao["parametros"]["import_allow_errors"])
+                    {
+                        $va_validacao_dados_row["operacao"][] = ["Negativo", "Objeto já existente em operação de criação sem tolerância de erros.", "Criação"];
+                    }
+                    unset($pa_header_importacao["campos"][$va_parametros_identificacao_registro["posicao"]]);
+                    unset($pa_dados_row_importacao[$va_parametros_identificacao_registro["posicao"]]);
+                } else
+                {
+                    $va_validacao_dados_row["alteracoes_dados_row_insercao"][get_class($pa_header_importacao["objeto_importacao"]) . "_codigo"] = $va_resultado_busca_registro[0][get_class($pa_header_importacao["objeto_importacao"]) . "_codigo"];
+                }
+            } elseif ($pa_header_importacao["parametros"]["import_mode"] == "update")
+            {
+                $va_validacao_dados_row["operacao"][] = ["Negativo", "Objeto sem identificador em operação de atualização.", "Atualização"];
+            }
+        }
+    }
+
+    return $va_validacao_dados_row;
+}
+
+function remover_campo_importacao() {
+
+}
+//
 function processar_import($pa_header_importacao, $pa_dados_importacao): array
 {
+    // Um header de importacao deve ter os campos que serão importados, o objeto de importacao e os parametros de importacao
+    // A funcao, por consequencia recebe esse header e os dados que serão processados com base no header
+
     global $va_parametros_importacao, $va_usuario, $vn_usuario_logado_instituicao_codigo;
     $vs_usuario_codigo = $va_usuario["usuario_codigo"];
     $va_campos_edicao = $pa_header_importacao["objeto_importacao"]->get_campos_edicao();
-    // Um header de importacao deve ter os campos que serão importados, o objeto de importacao e os parametros de importacao
-    // A funcao, por consequencia recebe esse header e os dados que serão processados com base no header
+
     $vo_relatorio_importacao = new LogImportacao(
         get_class($pa_header_importacao["objeto_importacao"]),
         $pa_header_importacao["parametros"]["import_mode"],
@@ -340,13 +505,16 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
     {
 
         $va_dados_row_insercao = array();
+
         if (in_array($pa_header_importacao["parametros"]["import_mode"], ["upsert", "update", "create"]))
         {
             if ($pa_header_importacao["is_item_acervo"])
             {
+                // TODO: Remover hardcoding aqui. Snippet de desenvolvimento
                 $va_dados_row_insercao["texto_publicado_online"] = "1";
                 $va_dados_row_insercao["texto_publicado_online_chk"] = "1";
                 $va_dados_row_insercao["item_acervo_acervo_codigo"] = "1";
+                //
 
                 $va_parametros_identificacao_registro = get_parametros_identificacao(
                     $pa_header_importacao["campos"],
@@ -369,7 +537,8 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
 
                     } elseif ($pa_header_importacao["parametros"]["import_mode"] == "create")
                     {
-                        if (!$pa_header_importacao["parametros"]["import_allow_errors"]) {
+                        if (!$pa_header_importacao["parametros"]["import_allow_errors"])
+                        {
                             $vo_relatorio_importacao->adicionar_operacao("Negativo", "Objeto já existente em operação de criação sem tolerância de erros.", "Criação");
                             continue;
                         }
@@ -388,25 +557,39 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
             // Tratamento de itens de lista controlada: checagem por nome e não  por código
 
         }
+
         foreach ($dados_row_importacao as $vn_col_importacao => $vs_dado_col_importacao)
         {
             if (array_key_exists($vn_col_importacao, $pa_header_importacao["campos"]))
             {
                 $vs_id_campo_destino_atual = $pa_header_importacao["campos"][$vn_col_importacao]["campo_destino"];
+
                 $va_campo_destino_atual = $va_campos_edicao[$vs_id_campo_destino_atual];
                 $va_campo_importacao_atual = $pa_header_importacao["campos"][$vn_col_importacao];
                 $vs_chave_campo_destino = $va_campo_importacao_atual["campo_destino"];
+
                 $va_dados_row_insercao[$pa_header_importacao["campos"][$vn_col_importacao]["campo_destino"]] = $vs_dado_col_importacao;
 
-                if (get_campo_tem_relacionamento($vs_chave_campo_destino))
+                if (get_campo_tem_relacionamento($vs_chave_campo_destino, $pa_header_importacao["campos_relacionamento"]) || get_campo_tem_dependencia($va_campo_destino_atual))
                 {
-                    // Exportacao traz o NOME, precisamos do CÓDIGO
-                    $vs_objeto_campo_busca = $va_campo_destino_atual["objeto"];
-                    $vs_valor_busca = $vs_dado_col_importacao;
-                    $vs_atributo_busca = $va_campo_destino_atual["atributos"][1];
-                    $vs_atributo_retorno = $va_campo_destino_atual["atributos"][0];
+                    if (!is_item_acervo(null, $va_campo_destino_atual)) {
+                        // Se não é item de acervo, é item de lista controlada, logo precisamos do primeiro subcampo
+                        if (!isset($va_campo_destino_atual["objeto"]) && get_campo_tem_subcampo($va_campo_destino_atual)) {
+                            $vs_chave_primeiro_subcampo_destino_atual = array_key_first($va_campo_destino_atual["subcampos"]);
+                            $va_campo_destino_atual = $va_campo_destino_atual["subcampos"][$vs_chave_primeiro_subcampo_destino_atual];
 
-                    $vs_codigo_atributo = get_codigo_objeto_from_nome($vs_objeto_campo_busca, $vs_valor_busca, $vs_atributo_busca, $vs_atributo_retorno);
+                        }
+
+                    }
+                    // Exportacao traz o NOME, precisamos do CÓDIGO, seja de IDENTIFICAÇAO (item de acervo) ou CODIGO INTERNO (listas controladas)
+                    $va_propriedades_busca = get_propriedades_busca_objeto($va_campo_destino_atual);
+                    $vs_valor_busca = $vs_dado_col_importacao;
+                    $vs_codigo_atributo = get_codigo_objeto_from_nome(
+                            $va_propriedades_busca["objeto"],
+                            $va_propriedades_busca["atributo_busca"],
+                            $va_propriedades_busca["atributo_retorno"],
+                            $vs_valor_busca);
+
                     if (empty($vs_codigo_atributo))
                     {
                         if ($pa_header_importacao["parametros"]["import_allow_errors"])
@@ -417,13 +600,18 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
                         }
                         continue;
                     }
-                    $vs_dado_col_importacao = $vs_codigo_atributo;
-                } elseif (get_campo_tem_subcampo($va_campo_destino_atual)) {
-                    // TODO: Tratar subcampos aqui, separador de campos e subcampos serao usados
-                    continue;
+
                 }
                 // Feeding da array de insercao atual
-                $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_dado_col_importacao;
+
+                //TODO: Converter isso em funcao, e considerar tolerancia de erros. chave de código sem atributo presente = falha
+                if (strpos($vs_chave_campo_destino, "_codigo")) {
+                    $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_codigo_atributo;
+
+                } else {
+                    $va_dados_row_insercao[$vs_chave_campo_destino] = $vs_dado_col_importacao;
+                }
+
 
                 if (!isset($va_dados_row_insercao["item_acervo_identificador"]) && $pa_header_importacao["is_item_acervo"])
                 {
@@ -445,10 +633,10 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
 
             $pa_header_importacao["objeto_importacao"]->iniciar_transacao();
             $vo_relatorio_importacao->adicionar_operacao(
-                    "Positivo",
-                   "Objeto manipulado com sucesso. ",
-                 "Main", // TODO: Definir com mais especificidade
-                               $pa_header_importacao["objeto_importacao"]->salvar($va_dados_row_insercao));
+                "Positivo",
+                "Objeto manipulado com sucesso. ",
+                "Main", // TODO: Definir com mais especificidade
+                $pa_header_importacao["objeto_importacao"]->salvar($va_dados_row_insercao));
             $pa_header_importacao["objeto_importacao"]->finalizar_transacao();
         }
     }
@@ -528,7 +716,7 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
                                         <input type="hidden" name="parametros_importacao"
                                                value="<?= htmlentities(json_encode($va_parametros_importacao), ENT_QUOTES, "UTF-8", false); ?>">
                                         <input type="hidden" name="objeto_importacao"
-                                               value="<?= htmlentities(base64_encode(serialize($vo_objeto_importacao)), ENT_QUOTES, "UTF-8", false)  ?>">
+                                               value="<?= htmlentities(base64_encode(serialize($vo_objeto_importacao)), ENT_QUOTES, "UTF-8", false) ?>">
                                         <h2>Relacionamento de campos</h2>
                                         <table class="table table-bordered table-striped">
                                             <thead>
@@ -583,7 +771,7 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
                                     <input type="hidden" name="campos_importacao"
                                            value='<?= htmlentities(json_encode($va_campos_importacao), ENT_QUOTES, "UTF-8", false) ?>'>
                                     <input type="hidden" name="objeto_importacao"
-                                           value="<?= htmlentities(base64_encode(serialize($vo_objeto_importacao)), ENT_QUOTES, "UTF-8", false)  ?>">
+                                           value="<?= htmlentities(base64_encode(serialize($vo_objeto_importacao)), ENT_QUOTES, "UTF-8", false) ?>">
                                     <table class="table table-bordered table-striped">
                                         <thead>
                                         <tr>
@@ -599,7 +787,7 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
                                         </thead>
                                         <tbody>
                                         <?php foreach ($va_campos_importacao as $vn_index_campo_importacao => $va_campo_importacao): ?>
-                                        <?php  $va_campo_destino_atual = $va_campos_edicao[$va_campo_importacao["campo_destino"]]; ?>
+                                            <?php $va_campo_destino_atual = $va_campos_edicao[$va_campo_importacao["campo_destino"]]; ?>
                                             <tr>
                                                 <td><?= $va_campo_importacao["campo_origem"] ?></td>
                                                 <td><?= $va_campo_destino_atual["label"] ?>
@@ -644,9 +832,11 @@ function processar_import($pa_header_importacao, $pa_dados_importacao): array
                                                 <td>
 
                                                     <label>
-                                                        <?php if (get_campo_tem_relacionamento($va_campo_importacao["campo_destino"])) :?>
-                                                        <input type="checkbox" class="check-selecao"
-                                                               name="campos_criar_itens_relacionados[<?= $vn_index_campo_importacao ?>]"/>
+<!--                                                        TODO: Eventualmente usar a funcao get_campo_tem_relacionamento para que a checkbox também seja mostrada em  campos de multi input (campos que tem subcampos)-->
+<!--                                                        Abaixo também se checa por relacionamento, mas não na profundidade da funcao citada acima -->
+                                                        <?php if (strpos($va_campo_importacao["campo_destino"], "_codigo")) : ?>
+                                                            <input type="checkbox" class="check-selecao"
+                                                                   name="campos_criar_itens_relacionados[<?= $vn_index_campo_importacao ?>]"/>
                                                         <?php else : ?>
                                                         <?php endif; ?>
                                                     </label>
