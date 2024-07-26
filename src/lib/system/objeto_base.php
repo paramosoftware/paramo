@@ -815,7 +815,7 @@ class objeto_base
 
                 foreach ($va_valores_filtro as $vs_valor_filtro) 
                 {
-                    if (trim($vs_valor_filtro) != "") 
+                    if (trim($vs_valor_filtro ?? "") != "") 
                     {
                         $vb_tem_valor = true;
                         $va_interrogracoes[] = "?";
