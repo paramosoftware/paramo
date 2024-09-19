@@ -8,7 +8,7 @@ class importacao_refatorado
     private $fim;
 
     private $duracao;
-
+    private $logger;
     private $operacoes = array();
 
     // Parametros importacao
@@ -30,7 +30,7 @@ class importacao_refatorado
     private $campos_edicao = array();
 
     private $campos_relacionamento = array();
-
+    private $campos_importacao;
     // Selecoes do usuário & Origem de dados
     private $campos_origem_label = array();
     private $campos_destino_selecao = array();
@@ -38,15 +38,28 @@ class importacao_refatorado
     private $dados_origem = array();
     private $campos_variantes_importacao = array();
 
+    private $usuario_logado_instituicao_codigo;
+
+    private $usuario_logado_codigo;
     private $objeto_importacao_is_item_acervo;
-    function __construct($ps_id_objeto_importacao = null)
+    function __construct($pn_usuario_logado_instituicao_codigo, $ps_usuario_codigo, $ps_id_objeto_importacao = null)
     {
         $this->id_objeto_importacao = $ps_id_objeto_importacao;
+        $this->usuario_logado_instituicao_codigo = $pn_usuario_logado_instituicao_codigo;
+        $this->usuario_logado_codigo = $ps_usuario_codigo;
+
         if ($this->get_id_objeto_importacao()) {
             $this->inicializar_objeto_importacao();
         }
 
+
+
     }
+    public function is_item_acervo($pa_id_objeto) {
+        return is_subclass_of(new $pa_id_objeto, "texto");
+
+    }
+
     public function inicializar_timezone_importacao() {
         $this->timezone = new DateTimeZone('America/Sao_Paulo');
     }
@@ -78,8 +91,18 @@ class importacao_refatorado
         }
         return null;
     }
+    function get_codigo_objeto_from_nome($ps_id_objeto_busca, $ps_atributo_busca, $ps_atributo_retorno, $ps_valor_busca)
+    {
+        $vo_objeto_de_busca = new $ps_id_objeto_busca;
+        $va_parametro_busca[$ps_atributo_retorno] = [$ps_valor_busca];
+        $va_retorno_busca = $vo_objeto_de_busca->ler_lista($va_parametro_busca, "ficha");
+        return  isset($va_retorno_busca[0][$ps_atributo_busca])? $va_retorno_busca[0][$ps_atributo_busca] : false;
+    }
 
     public function importar(): array {
+
+        $this->logger = new logger_importacao($this->id_objeto_importacao, $this->modo_importacao, $this->debug, $this->tolerancia_erros);
+
         $this->objeto_importacao_is_item_acervo = $this->is_item_acervo($this->objeto_importacao);
         $vn_index_identificador_objeto_importacao = $this->get_index_identificador_objeto_importacao($this->is_item_acervo($this->objeto_importacao));
 
@@ -87,7 +110,8 @@ class importacao_refatorado
             $this->processar_linha($va_linha_importacao, $vn_index_identificador_objeto_importacao);
 
         }
-        return $this->operacoes;
+        return $this->logger->finalizar_relatorio();
+
     }
     public function processar_linha($pa_linha_importacao, $pn_index_identificador_objeto_importacao) {
         $va_dados_insercao_linha = array();
@@ -96,9 +120,9 @@ class importacao_refatorado
             if ($this->objeto_importacao_is_item_acervo) {
 
                 // TODO: Remover hardcoding aqui. Snippet de desenvolvimento
-//                $va_dados_insercao_linha["texto_publicado_online"] = "1";
-//                $va_dados_insercao_linha["texto_publicado_online_chk"] = "1";
-//                $va_dados_insercao_linha["item_acervo_acervo_codigo"] = "1";
+                $va_dados_insercao_linha["texto_publicado_online"] = "1";
+                $va_dados_insercao_linha["texto_publicado_online_chk"] = "1";
+                $va_dados_insercao_linha["item_acervo_acervo_codigo"] = "1";
                 //
 
             }
@@ -112,6 +136,8 @@ class importacao_refatorado
                     if (empty($va_resultado_busca) && in_array($this->modo_importacao, ["update"])) {
                         // registro inexistente em update
                         // [adicionar erro de operacao e skipar]
+                        $this->logger->adicionar_operacao("Negativo", "Objeto não encontrado em operação de atualização.", "Atualização");
+                        return;
                     }
 
                     $va_dados_insercao_linha = array_merge($va_dados_insercao_linha, $va_resultado_busca[0]);
@@ -119,67 +145,167 @@ class importacao_refatorado
                 } elseif (in_array($this->modo_importacao, ["update"])) {
                     // id não fornecido
                     // [adicionar erro de operacao e skipar]
+                    $this->logger->adicionar_operacao("Negativo", "Objeto sem identificador em operação de atualização.", "Atualização");
+
                 }
             }
 
+
+            $this->inicializar_campos_objeto_importacao();
             // Processar colunas
-            $this->objeto_importacao->inicializar_relacionamentos();
             foreach($pa_linha_importacao as $vn_index_coluna_importacao => $vs_dado_coluna_importacao) {
 
                 if (array_key_exists($vn_index_coluna_importacao, $this->campos_destino_selecao)) {
                     $vs_chave_campo_destino_atual = $this->campos_destino_selecao[$vn_index_coluna_importacao];
-//                    $va_dados_insercao_linha[$vs_chave_campo_destino_atual] = $this->processar_coluna($vs_chave_campo_destino_atual, $vn_index_coluna_importacao, $vs_dado_coluna_importacao);
-                    $va_dados_insercao_linha[$vs_chave_campo_destino_atual] = $vs_dado_coluna_importacao; // teste (ignorando todas as verificacoes)
+                    if (strpos($this->campos_destino_selecao[$vn_index_coluna_importacao], "data")) {
+                        $va_dados_insercao_linha = array_merge($va_dados_insercao_linha, $this->processar_data($vs_dado_coluna_importacao, ""));
+                    }
+                    $va_dados_insercao_linha[$vs_chave_campo_destino_atual] = $this->processar_coluna($vs_chave_campo_destino_atual, $vs_dado_coluna_importacao);
+//                    $va_dados_insercao_linha[$vs_chave_campo_destino_atual] = $vs_dado_coluna_importacao; // teste (ignorando todas as verificacoes)
                 }
             }
-// ...
-            $this->objeto_importacao->iniciar_transacao();
-            $this->objeto_importacao->salvar($va_dados_insercao_linha);
-            $this->objeto_importacao->finalizar_transacao();
-        }
 
-    }
-    public function validar_campo($ps_chave_campo_destino, $pn_index_linha_importacao) {
-        $va_campo_destino = $this->objeto_importacao->campos_importacao["$ps_chave_campo_destino"];
-        if (get_campo_tem_relacionamento($ps_chave_campo_destino)) {
-            if (get_campo_tem_dependencia($ps_chave_campo_destino)) {
-                
+            //TODO: Converter isso em funcao, e considerar tolerancia de erros. chave de código sem atributo presente = falha
+
+            if (!isset($va_dados_insercao_linha["item_acervo_identificador"]) && $this->objeto_importacao_is_item_acervo)
+            {
+                $va_dados_insercao_linha["item_acervo_identificador"] = "";
             }
 
+            $va_dados_insercao_linha["item_acervo_instituicao_codigo"] = 1;
+            $va_dados_insercao_linha["item_acervo_acervo_codigo"] = 1;
+            $va_dados_insercao_linha["instituicao_codigo"] = $this->usuario_logado_instituicao_codigo;
+            $va_dados_insercao_linha["usuario_logado_codigo"] = $this->usuario_logado_codigo;
+
+
+            $this->objeto_importacao->iniciar_transacao();
+            $this->logger->adicionar_operacao(
+                "Positivo",
+                "Objeto manipulado com sucesso. ",
+                "Main",
+                $this->objeto_importacao->salvar($va_dados_insercao_linha));
+            $this->objeto_importacao->finalizar_transacao();
+
         }
 
     }
 
+    public function processar_coluna($ps_chave_campo_destino, $ps_dado_campo_destino) {
+
+        if ($this->get_campo_tem_relacionamento($ps_chave_campo_destino)) {
+            $va_campo_destino = $this->campos_edicao[$ps_chave_campo_destino];
+            if ($this->campo_is_lista_controlada($va_campo_destino)) {
+                $vs_chave_primeiro_subcampo_destino_atual = array_key_first($va_campo_destino["subcampos"]);
+                $va_campo_destino = $va_campo_destino["subcampos"][$vs_chave_primeiro_subcampo_destino_atual];
+
+            }
+
+            $vs_codigo_atributo_campo = $this->get_codigo_objeto_from_nome(
+                $va_campo_destino["objeto"], // id objeto
+                $va_campo_destino["atributos"][0], // atributo de busca
+                $va_campo_destino["atributos"][1], // atributo de retorno
+                $ps_dado_campo_destino); // valor de busca
+
+
+
+            if (empty($vs_codigo_atributo_campo))
+            {
+                //   TODO: Validar se usuário selecionou  "criar itens relacionados", mas a priori, apenas criar se não existir
+                // [criar entrada em lista já que não existe]
+
+            }
+
+            if (strpos($ps_chave_campo_destino, "_codigo")) {
+                return $vs_codigo_atributo_campo;
+
+            } else {
+                return $ps_dado_campo_destino;
+            }
+        }
+
+        return $ps_dado_campo_destino;
+
+    }
+
+    function processar_data($ps_value, $ps_id)
+    {
+
+        $ps_id = "texto_data";
+        
+        $vo_periodo = new Periodo();
+        if (count(explode("-", $ps_value)) >= 3)
+        {
+            $ps_value = str_replace("-", "/", $ps_value);
+        }
+
+        $vo_periodo->tratar_string($ps_value);
+
+        if ($vo_periodo->validar())
+        {
+
+            return
+                [$ps_id => "_data_",
+                    $ps_id . "_sem_data" => $vo_periodo->get_sem_data(),
+                    $ps_id . "_presumido" => $vo_periodo->get_presumido(),
+                    $ps_id . "_dia_inicial" => $vo_periodo->get_dia_inicial(),
+                    $ps_id . "_mes_inicial" => $vo_periodo->get_mes_inicial(),
+                    $ps_id . "_ano_inicial" => $vo_periodo->get_ano_inicial(),
+                    $ps_id . "_dia_final" => $vo_periodo->get_dia_final(),
+                    $ps_id . "_mes_final" => $vo_periodo->get_mes_final(),
+                    $ps_id . "_ano_final" => $vo_periodo->get_ano_final()];
+        }
+        else
+        {
+            $this->add_error("Valor não é uma data válida: " . $ps_value);
+        }
+    }
     public function get_campo_tem_relacionamento($ps_chave_campo_destino): bool
     {
-        return array_key_exists($ps_chave_campo_destino, $this->objeto_importacao->relacionamentos);
+        return array_key_exists($ps_chave_campo_destino, $this->campos_relacionamento);
 
     }
 
-    function get_campo_tem_dependencia($ps_campo): bool
+    public function campo_is_lista_controlada($pa_campo) {
+        return $this->is_item_acervo($pa_campo["objeto"]);
+
+    }
+
+    function get_campo_tem_subcampo($pa_campo)
     {
-        return isset($ps_campo["dependencia"]);
+        return (isset($pa_campo["subcampos"]));
+
     }
-    public function processar_coluna($ps_chave_campo_destino, $ps_dado_campo_destino, $vn) {
-        return validar_campo();
-    }
-    public function is_item_acervo($pa_id_objeto) {
-        return is_subclass_of(new $pa_id_objeto, "texto");
-    }
+
     public function inicializar_objeto_importacao() {
         $this->objeto_importacao = new $this->id_objeto_importacao;
+
     }
     public function inicializar_campos_edicao_objeto_importacao() {
-        if ($this->get_objeto_importacao()) {
-            $this->set_campos_edicao($this->objeto_importacao->inicializar_campos_edicao());
+        if ($this->objeto_importacao) {
+            $this->campos_edicao = $this->objeto_importacao->inicializar_campos_edicao();
+            return true;
         }
+        return false;
+    }
 
+    public function inicializar_campos_objeto_importacao() {
+        if ($this->objeto_importacao) {
+            // separados pois não dá pra criar objeto por retorno de funcao em runtime
+            $vs_id_objeto_pai = $this->objeto_importacao->get_objeto_pai();
+            $vo_objeto_pai = new $vs_id_objeto_pai;
+
+            $this->objeto_importacao->inicializar_campos_importacao();
+            $this->campos_importacao = $this->objeto_importacao->get_campos_importacao();
+            $this->campos_relacionamento = array_merge($this->objeto_importacao->inicializar_relacionamentos(), $vo_objeto_pai->inicializar_relacionamentos());
+            return true;
+        }
+        return false;
     }
     public function inicializar_variantes_campos_importacao($pa_valores_padrao, $pa_criar_itens_relacionados, $pa_separadores_valores, $pa_separadores_subcampo,): void {
         foreach (array_keys($this->campos_destino_selecao) as $vn_posicao_campo_destino) {
             $this->campos_variantes_importacao[$vn_posicao_campo_destino]  = [
                 "valor_padrao" => $pa_valores_padrao[$vn_posicao_campo_destino],
-                "separador_subcampos" => $pa_separadores_subcampo[$vn_posicao_campo_destino],
+                "separador_subcampos" => $pa_separadores_subcampo[$vn_posicao_campo_destino]  ?? false,
                 "separador_valores" => $pa_separadores_valores[$vn_posicao_campo_destino],
                 "criar_itens_relacionados" => isset($pa_criar_itens_relacionados[$vn_posicao_campo_destino])
                 // [tipo de relacao padrao]
