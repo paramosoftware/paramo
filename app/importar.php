@@ -1,6 +1,12 @@
 <?php
 global $vs_recurso_sistema_nome_plural, $vs_id_objeto_importacao, $va_usuario;
+
 require_once dirname(__FILE__) . "/components/entry_point.php";
+require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSX.php";
+require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSXEx.php";
+
+use Shuchkin\SimpleXLSX;
+
 $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
 $vb_montar_menu = true;
 $vn_step = $_POST["step"] ?? 1;
@@ -61,12 +67,13 @@ function get_header_file($ps_caminho_arquivo, $ps_extensao): array
     if ($ps_extensao == "csv")
     {
         $va_rows = get_data_csv($ps_caminho_arquivo, ',', 1);
-    } else
+    }
+    else
     {
-//        if ($xlsx = SimpleXLSX::parse($ps_caminho_arquivo))
-//        {
-//            $va_rows = iterator_to_array($xlsx->readRows(0, 1));
-//        }
+      if ($xlsx = SimpleXLSX::parse($ps_caminho_arquivo))
+       {
+           $va_rows = iterator_to_array($xlsx->readRows(0, 1));
+       }
     }
 
     return $va_rows;
