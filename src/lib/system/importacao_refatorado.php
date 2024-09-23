@@ -122,11 +122,15 @@ class importacao_refatorado
         $this->objeto_importacao_is_item_acervo = $this->is_item_acervo($this->objeto_importacao);
         $vn_index_identificador_objeto_importacao = $this->get_index_identificador_objeto_importacao($this->is_item_acervo($this->objeto_importacao));
 
-        foreach ($this->dados_origem as $vn_linha_importacao => $va_dados_linha_importacao) {
+        $this->objeto_importacao->iniciar_transacao();
+        foreach ($this->dados_origem as $vn_linha_importacao => $va_dados_linha_importacao)
+        {
             $this->linha_operacao_atual = $vn_linha_importacao;
             $this->processar_linha($va_dados_linha_importacao, $vn_index_identificador_objeto_importacao);
-
         }
+
+        $this->objeto_importacao->finalizar_transacao();
+
         return $this->logger->finalizar_relatorio();
 
     }
@@ -190,14 +194,12 @@ class importacao_refatorado
 
             }
 
-            $this->objeto_importacao->iniciar_transacao();
+
             $this->logger->adicionar_operacao(
                 "Positivo",
                 "Objeto manipulado com sucesso. ",
                 "Main",
                 $this->objeto_importacao->salvar($va_dados_insercao_linha));
-            $this->objeto_importacao->finalizar_transacao();
-
         }
 
     }
