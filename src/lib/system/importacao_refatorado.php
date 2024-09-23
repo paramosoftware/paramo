@@ -325,7 +325,7 @@ class importacao_refatorado
         }
         return false;
     }
-    public function inicializar_variantes_campos_importacao($pa_valores_padrao, $pa_criar_itens_relacionados, $pa_separadores_valores, $pa_separadores_subcampo,): void {
+    public function inicializar_variantes_campos_importacao($pa_valores_padrao, $pa_criar_itens_relacionados, $pa_separadores_valores, $pa_separadores_subcampo): void {
         foreach (array_keys($this->campos_destino_selecao) as $vn_posicao_campo_destino) {
             $this->campos_variantes_importacao[$vn_posicao_campo_destino]  = [
                 "valor_padrao" => $pa_valores_padrao[$vn_posicao_campo_destino],
@@ -407,6 +407,11 @@ class importacao_refatorado
     }
     public function get_caminho_arquivo_importacao(): string
     {
+        if (!isset($this->caminho_arquivo_importacao))
+        {
+            $this->caminho_arquivo_importacao = $_POST["caminho_arquivo_importacao"] ?? "";
+        }
+
         return $this->caminho_arquivo_importacao;
     }
     public function set_dados_origem($dados_origem): void
@@ -476,6 +481,11 @@ class importacao_refatorado
         $this->caminho_arquivo_importacao = $caminho_arquivo_importacao;
     }
 
-
-
+    public function set_parametros_importacao($pa_parametros_importacao): void
+    {
+        $this->modo_importacao = $pa_parametros_importacao["import_mode"] ?? "create";
+        $this->debug = $pa_parametros_importacao["import_debug"] ?? false;
+        $this->tolerancia_erros = $pa_parametros_importacao["import_allow_errors"] ?? false;
+        $this->separador_hierarquia = $pa_parametros_importacao["import_separator_hierarchy"] ?? ">";
+    }
 }

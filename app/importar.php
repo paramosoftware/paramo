@@ -1,79 +1,83 @@
 <?php
-global $vs_recurso_sistema_nome_plural, $vs_id_objeto_importacao, $va_usuario;
-
 require_once dirname(__FILE__) . "/components/entry_point.php";
 require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSX.php";
 require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSXEx.php";
 
 use Shuchkin\SimpleXLSX;
 
+global $vs_recurso_sistema_nome_plural, $vs_id_objeto_importacao, $va_usuario;
+global $vn_usuario_logado_instituicao_codigo, $va_usuario;
+$vn_usuario_codigo = $va_usuario["usuario_codigo"];
 $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
 $vb_montar_menu = true;
 $vn_step = $_POST["step"] ?? 1;
-
-if (isset($_SESSION["importacao"]) && $_SESSION["importacao"]) {
-    $vo_importacao = &$_SESSION["importacao"];
-}
+$vs_id_objeto_importacao = $_GET["obj"] ?? $_POST["obj"];
+$vs_parametros_importacao_json = isset($_POST["parametros_importacao"]) ? json_encode($_POST["parametros_importacao"]) : $_POST["parametros_importacao_json"] ?? "";
+$vs_campos_destino_selecao_json = isset($_POST["campos_destino_selecao"]) ? json_encode($_POST["campos_destino_selecao"]) : $_POST["campos_destino_selecao_json"] ?? "";
+$vo_importacao = new importacao_refatorado($vn_usuario_logado_instituicao_codigo, $vn_usuario_codigo, $vs_id_objeto_importacao);
+$vo_importacao->inicializar_campos_edicao_objeto_importacao();
 
 switch ($vn_step)
 {
     case 1:
-        $vs_id_objeto_importacao = $_GET["obj"];
-
-        if ($vo_importacao) {
-           unset($_SESSION["importacao"]);
-        }
-
-        global $vn_usuario_logado_instituicao_codigo, $va_usuario;
-        $vs_usuario_codigo = $va_usuario["usuario_codigo"];
-        $_SESSION["importacao"] = new importacao_refatorado($vn_usuario_logado_instituicao_codigo, $vs_usuario_codigo, $vs_id_objeto_importacao);
-
         break;
     case 2:
-       $vo_importacao->set_caminho_arquivo_importacao(move_import_file());
-       $vo_importacao->set_campos_origem_label(get_header_file($_SESSION["importacao"]->get_caminho_arquivo_importacao(), pathinfo($_SESSION["importacao"]->get_caminho_arquivo_importacao(), PATHINFO_EXTENSION))[0]);
-       $vo_importacao->inicializar_campos_edicao_objeto_importacao();
-
-       $vo_importacao->set_modo_importacao($_POST["parametros_importacao"]["import_mode"]);
-       $vo_importacao->set_separador_hierarquia($_POST["parametros_importacao"]["import_separator_hierarchy"]);
-
-       $vo_importacao->set_debug(isset($_POST["parametros_importacao"]["import_debug"]));
-       $vo_importacao->set_tolerancia_erros(isset($_POST["parametros_importacao"]["import_allow_errors"]));
-
-
+        $vo_importacao->set_caminho_arquivo_importacao(move_import_file());
+        $vo_importacao->set_campos_origem_label(get_file_data($vo_importacao->get_caminho_arquivo_importacao(), true)[0]);
         break;
     case 3:
-        $vo_importacao->set_campos_destino_selecao($_POST["campos_destino_selecao"]);
-
+        $vo_importacao->set_campos_origem_label(get_file_data($vo_importacao->get_caminho_arquivo_importacao(),true)[0]);
+        $vo_importacao->set_parametros_importacao($_POST["parametros_importacao"] ?? []);
+        $vo_importacao->set_campos_destino_selecao(json_decode($vs_campos_destino_selecao_json, true));
         break;
     case 4:
+        $vo_importacao->set_campos_origem_label(get_file_data($vo_importacao->get_caminho_arquivo_importacao(),true)[0]);
+        $vo_importacao->set_parametros_importacao($_POST["parametros_importacao"] ?? []);
+        $vo_importacao->set_campos_destino_selecao(json_decode($vs_campos_destino_selecao_json, true));
         $vo_importacao->inicializar_variantes_campos_importacao(
-            isset($_POST["campos_valor_padrao"]) ? $_POST["campos_valor_padrao"] : [],
-            isset($_POST["campos_criar_itens_relacionados"]) ? $_POST["campos_criar_itens_relacionados"] : [],
-            isset($_POST["campos_separador"]) ? $_POST["campos_separador"] : [],
-            isset($_POST["campos_subcampos_separador"]) ? $_POST["campos_subcampos_separador"] : [],
-
+            $_POST["campos_valor_padrao"] ?? [],
+            $_POST["campos_criar_itens_relacionados"] ?? [],
+            $_POST["campos_separador"] ?? [],
+            $_POST["campos_subcampos_separador"] ?? [],
         );
-        global $vn_usuario_logado_instituicao_codigo;
-        $vo_importacao->set_dados_origem(get_data_csv($vo_importacao->get_caminho_arquivo_importacao(), ',', 0, true, false));
-        $va_resultado_importacao = $vo_importacao->importar($vn_usuario_logado_instituicao_codigo);
+        $vo_importacao->set_dados_origem(get_file_data($vo_importacao->get_caminho_arquivo_importacao()));
+        $va_resultado_importacao = $vo_importacao->importar();
         break;
 }
 
-function get_header_file($ps_caminho_arquivo, $ps_extensao): array
+function get_file_data($ps_caminho_arquivo, $pb_return_only_headers = false, $pb_remove_header = true): array
 {
-    $va_rows = array();
+    $vs_extensao_arquivo = pathinfo($ps_caminho_arquivo, PATHINFO_EXTENSION);
+    $va_rows = [];
 
-    if ($ps_extensao == "csv")
+    if ($vs_extensao_arquivo == "xlsx" || $vs_extensao_arquivo == "xls")
     {
-        $va_rows = get_data_csv($ps_caminho_arquivo, ',', 1);
+        $xlsx = SimpleXLSX::parse($ps_caminho_arquivo);
+        if (!$xlsx) { return []; }
+
+        if ($pb_return_only_headers)
+        {
+            $va_rows = iterator_to_array($xlsx->readRows(0, 1));
+        }
+        else
+        {
+            $va_rows = iterator_to_array($xlsx->readRows());
+            if ($pb_remove_header)
+            {
+                unset($va_rows[0]);
+            }
+        }
     }
-    else
+    else if ($vs_extensao_arquivo == "csv")
     {
-      if ($xlsx = SimpleXLSX::parse($ps_caminho_arquivo))
-       {
-           $va_rows = iterator_to_array($xlsx->readRows(0, 1));
-       }
+        if ($pb_return_only_headers)
+        {
+            $va_rows = get_data_csv($ps_caminho_arquivo, ",", 1);
+        }
+        else
+        {
+            $va_rows = get_data_csv($ps_caminho_arquivo, ",", 0, true);
+        }
     }
 
     return $va_rows;
@@ -112,7 +116,8 @@ function get_data_csv($ps_file_path, $ps_delimiter = ",", $pn_limit_num_rows = 0
             if ($pb_assign_header_labels_on_cols && !$pb_remove_header && $row != 0)
             {
                 $rows[] = array_combine($rows[0], $data);
-            } else
+            }
+            else
             {
                 $rows[] = $data;
             }
@@ -165,7 +170,7 @@ function get_chave_parametro($ps_chave, $pa_parametro)
                         <div class="card-body">
                             <?php if ($vn_step == 1) : ?>
                                 <form method="post" enctype="multipart/form-data" action="importar.php">
-                                    <input type="hidden" name="obj" value="<?= $_GET["obj"]; ?>">
+                                    <input type="hidden" name="obj" value="<?= $vs_id_objeto_importacao; ?>">
                                     <input type="hidden" name="step" value="2">
                                     <div class="row no-margin-side" id="filtro">
                                         <div class="col-12">
@@ -207,6 +212,9 @@ function get_chave_parametro($ps_chave, $pa_parametro)
                                 <?php else : ?>
                                     <form method="post" enctype="multipart/form-data" action="importar.php" class="p-4">
                                         <input type="hidden" name="step" value="3">
+                                        <input type="hidden" name="obj" value="<?= $vs_id_objeto_importacao; ?>">
+                                        <input type="hidden" name="parametros_importacao_json"  value="<?= htmlspecialchars($vs_parametros_importacao_json); ?>">
+                                        <input type="hidden" name="caminho_arquivo_importacao" value="<?= $vo_importacao->get_caminho_arquivo_importacao(); ?>">
                                         <h2>Relacionamento de campos</h2>
                                         <table class="table table-bordered table-striped">
                                             <thead>
@@ -255,6 +263,10 @@ function get_chave_parametro($ps_chave, $pa_parametro)
                                 <form method="post" enctype="multipart/form-data" action="importar.php" class="p-4">
                                     <h2>Definição de variáveis de importação</h2>
                                     <input type="hidden" name="step" value="4">
+                                    <input type="hidden" name="obj" value="<?= $vs_id_objeto_importacao; ?>">
+                                    <input type="hidden" name="parametros_importacao_json"  value="<?= htmlspecialchars($vs_parametros_importacao_json); ?>">
+                                    <input type="hidden" name="campos_destino_selecao_json" value="<?= htmlspecialchars($vs_campos_destino_selecao_json); ?>">
+                                    <input type="hidden" name="caminho_arquivo_importacao" value="<?= $vo_importacao->get_caminho_arquivo_importacao(); ?>">
                                     <table class="table table-bordered table-striped">
                                         <thead>
                                         <tr>
