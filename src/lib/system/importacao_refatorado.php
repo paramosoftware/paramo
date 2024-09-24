@@ -234,9 +234,15 @@ class importacao_refatorado
             $ps_separador_valores = $pa_campo_config["separador_valores"] ?? "";
             $va_valores_celula = empty($ps_separador_valores) ? [$ps_valor_celula] : explode($ps_separador_valores, $ps_valor_celula);
             $va_relacionamentos = [];
+            $va_valores_celula = array_map('trim', $va_valores_celula);
 
             foreach ($va_valores_celula as $vs_valor_celula)
             {
+                if (empty($vs_valor_celula))
+                {
+                    continue;
+                }
+
                 $va_relacionamento = $this->processar_relacionamento($ps_chave_campo_destino, $pa_campo_destino, $vs_valor_celula);
                 $va_keys_comuns = array_intersect_key($va_relacionamento, $va_relacionamentos);
                 foreach ($va_keys_comuns as $vs_key_comum => $vs_valor_comum)
@@ -256,6 +262,11 @@ class importacao_refatorado
 
     public function processar_relacionamento($ps_chave_campo_destino, $pa_campo_destino, $ps_dado_campo_destino)
     {
+        if (empty($ps_dado_campo_destino))
+        {
+            return [];
+        }
+
         $va_relacionamento = array();
         $vs_objeto_relacionamento = $pa_campo_destino["objeto"];
         $vb_entidade = $vs_objeto_relacionamento === "entidade"; // TODO: Hardcodado por enquanto
@@ -284,7 +295,8 @@ class importacao_refatorado
             $vo_item_relacionado = new $vs_objeto_relacionamento;
             $vo_item_relacionado->inicializar_campos_edicao();
             $va_insercao_item_relacionado = array_fill_keys(array_keys($vo_item_relacionado->get_campos_edicao()), "");
-            $va_insercao_item_relacionado[$vs_obj_relacionamento_atributo_busca] = $ps_dado_campo_destino;
+            $vs_campo_salvar = $pa_campo_destino["campo_salvar"] ?? $vs_obj_relacionamento_atributo_busca;
+            $va_insercao_item_relacionado[$vs_campo_salvar] = $ps_dado_campo_destino;
             $va_insercao_item_relacionado["instituicao_codigo"] = $this->usuario_logado_instituicao_codigo;
             $va_insercao_item_relacionado["usuario_logado_codigo"] = $this->usuario_logado_codigo;
             $vn_codigo_objeto_relacionamento = $vo_item_relacionado->salvar($va_insercao_item_relacionado);
