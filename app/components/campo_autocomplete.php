@@ -698,6 +698,20 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
         clearTimeout(timeout_campo_<?php print $vs_nome_campo_lookup ?>);
         timeout_campo_<?php print $vs_nome_campo_lookup ?> = setTimeout(function()
         {
+            vb_valor_no_input = false;
+            
+            <?php
+            if ($vb_valor_no_input)
+            {
+            ?>
+                vb_valor_no_input = true;
+            <?php
+            }
+            ?>
+
+            if (vb_valor_no_input)
+                $("#<?php print $vs_id_campo_codigos ?>").val('');
+
             vs_termo = $("#<?php print $vs_nome_campo_lookup ?>").val();
 
             // Primeiro, vamos verificar se se trata de uma adição em lote
