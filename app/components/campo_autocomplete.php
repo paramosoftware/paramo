@@ -192,7 +192,7 @@
                 {
                     $vs_linha_valor = ler_valor1($vs_nome_campo_lookup, $va_valor_campo, null);
 
-                    if (!$vs_linha_valor && $vn_valor_campo_codigo)
+                    if (empty($vs_linha_valor) && $vn_valor_campo_codigo)
                     {
                         // Se não veio o valor de exibição da linha, tem que ler do banco
                         // (caso do formulário vazio que abre a patir da ficha do pai)
@@ -200,12 +200,37 @@
                         $vo_objeto_filho = new $vs_objeto_campo('');
                         $va_objeto_filho = $vo_objeto_filho->ler($vn_valor_campo_codigo, "lista");
 
-                        if (isset($pa_parametros_campo["atributos"][1]))
+                        if (isset($pa_parametros_campo["atributos"][1]) && !is_array($pa_parametros_campo["atributos"][1]))
                             $vs_linha_valor = $this->ler_valor_textual($va_objeto_filho, $pa_parametros_campo["atributos"][1]);
+                        else
+                        {
+                            $vb_ler_hierarquia = true;
+                            $vs_campo_hierarquia = $pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"];
+                            $va_item_lista_value = array();
+
+                            //$vs_linha_valor = $this->ler_valor_textual($va_objeto_filho, $va_keys_atributos[1]);
+
+                            while ($vb_ler_hierarquia)
+                            {
+                                $vs_valor_item_lista = $this->ler_valor_textual($va_objeto_filho, $va_keys_atributos[1]);
+
+                                array_unshift($va_item_lista_value, $vs_valor_item_lista);
+                                
+                                if (isset($va_objeto_filho[$vs_campo_hierarquia]))
+                                {
+                                    $va_objeto_filho = $va_objeto_filho[$vs_campo_hierarquia];
+                                    $vs_valor_item_lista = $va_objeto_filho;
+                                }
+                                else
+                                    $vb_ler_hierarquia = false;
+                            }
+
+                            $vs_linha_valor = join(" >  ", $va_item_lista_value);
+                        }
                     }
                 }
             }
-
+            
             $vs_valor_campo_nome = $vs_linha_valor;
         }
     }

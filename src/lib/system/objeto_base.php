@@ -20,6 +20,7 @@ class objeto_base
     protected $campo_hierarquico = "";
     public $exibir_lista_hierarquica = true;
     public $tipo_hierarquia = "default";
+    public $tipo_hierarquia_codigo;
 
     protected $filtros_selecao = array();
 
@@ -1428,8 +1429,16 @@ class objeto_base
                 $vs_campo_tabela = "codigo";
                 $vs_tipo_dado_campo = "i";
             } 
-            elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]) || $vb_is_attribute) 
+            elseif (isset($po_objeto->atributos[$va_filtro[0]]["coluna_tabela"]) || $vb_is_attribute || ($va_filtro[0] == $po_objeto->campo_hierarquico)) 
             {
+                // Preciso descobrir se é uma chave estrangeira ou um campo simples da tabela do objeto
+                ///////////////////////////////////////////////////////////////////////////////////////
+
+                if (isset($po_objeto->atributos[$va_filtro[0]]["objeto"]))
+                    $vo_objeto_coluna = new $po_objeto->atributos[$va_filtro[0]]["objeto"];
+                else
+                    $vo_objeto_coluna = $po_objeto;
+
                 if ($po_objeto->atributos[$va_filtro[0]]["tipo_dado"] == "dt")
                 {
                     if ($ps_operador == "_EXISTS_") 
@@ -1478,8 +1487,16 @@ class objeto_base
                     else
                         $vs_tabela_banco = $po_objeto->tabela_banco;
 
-                    $vs_campo_tabela = $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"];
-                    $vs_tipo_dado_campo = $po_objeto->atributos[$va_filtro[0]]["tipo_dado"];
+                    if (isset($po_objeto->atributos[$va_filtro[0]]))
+                    {
+                        $vs_campo_tabela = $po_objeto->atributos[$va_filtro[0]]["coluna_tabela"];
+                        $vs_tipo_dado_campo = $po_objeto->atributos[$va_filtro[0]]["tipo_dado"];
+                    }
+                    elseif ($va_filtro[0] == $po_objeto->campo_hierarquico)
+                    {
+                        $vs_campo_tabela = $po_objeto->tabela_banco . "_superior_codigo";
+                        $vs_tipo_dado_campo = "i";
+                    }
 
                     if ($ps_operador == "_EXISTS_") 
                     {
@@ -1490,33 +1507,60 @@ class objeto_base
                         else
                             $pa_wheres_select[] = $vs_tabela_banco . "." . $vs_campo_tabela . " IS NOT NULL ";
                     }
+                    elseif (($pb_retornar_ramos_inferiores = true) && $vo_objeto_coluna->campo_hierarquico && ($va_filtro[0] != $po_objeto->campo_hierarquico))
+                    {
+                        $this->adicionar_ramos_hierarquicos($po_objeto, $vo_objeto_coluna, $vs_campo_tabela, $vs_tipo_dado_campo, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $ps_operador_logico);
+                    }
                 }
-            } elseif (isset($po_objeto->relacionamentos[$va_filtro[0]])) {
+            } 
+            elseif (isset($po_objeto->relacionamentos[$va_filtro[0]])) 
+            {
                 $vs_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["tabela_intermediaria"];
                 $vs_campo_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["chave_exportada"];
+                $va_campos_relacionamento = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"];
+                $va_filtros_relacionamento = $po_objeto->relacionamentos[$va_filtro[0]]["filtros"] ?? array();
+
+                if (isset($po_objeto->relacionamentos[$va_filtro[0]]["objeto"]))
+                {
+                    if (class_exists($po_objeto->relacionamentos[$va_filtro[0]]["objeto"]))
+                        $vo_objeto_tabela_intermediaria = new $po_objeto->relacionamentos[$va_filtro[0]]["objeto"];
+                    else
+                        $vo_objeto_tabela_intermediaria = new base_class($po_objeto->relacionamentos[$va_filtro[0]]["objeto"]);
+                }
 
                 if (isset($pa_tabelas_adicionadas[$vs_tabela_join]))
                     $vs_alias_tabela_join = $vs_tabela_join . "_" . (count($pa_tabelas_adicionadas[$vs_tabela_join]) + 1);
                 else
                     $vs_alias_tabela_join = $vs_tabela_join . "_1";
 
-                if (!in_array($vs_alias_tabela_join, $pa_joins_select)) {
+                if (!in_array($vs_alias_tabela_join, $pa_joins_select)) 
+                {
                     $vs_tipo_join = " JOIN ";
 
-                    if ($ps_operador == "_EXISTS_") {
+                    if ($ps_operador == "_EXISTS_") 
+                    {
                         // Se o operador de busca for "_EXISTS_" os JOINS são diferentes
                         ////////////////////////////////////////////////////////////////
 
                         $vb_valor_busca = reset($pa_valores_busca);
 
-                        if (!$vb_valor_busca) {
+                        if (!$vb_valor_busca) 
+                        {
                             $vs_tipo_join = " LEFT JOIN ";
 
                             $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela_join . " IS NULL ";
                         }
                     }
+                    elseif (($pb_retornar_ramos_inferiores = true) && isset($vo_objeto_tabela_intermediaria) && $vo_objeto_tabela_intermediaria->campo_hierarquico)
+                    {
+                        $vs_campo = "codigo";
+                        $vs_tipo_campo = "i";
+                        
+                        $this->adicionar_ramos_hierarquicos($this, $vo_objeto_tabela_intermediaria, $vs_campo, $vs_tipo_campo, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $ps_operador_logico);
+                    }
 
                     $pa_joins_select[$vs_alias_tabela_join] = $vs_tipo_join . $vs_tabela_join . " AS " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $po_objeto->chave_primaria["coluna_tabela"] . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
+                    $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
 
                     $contador = 0;
 
@@ -1534,8 +1578,7 @@ class objeto_base
                         $contador++;
                     }
 
-
-                    $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
+                    
                 }
 
                 $vs_tabela_banco = $vs_alias_tabela_join;
@@ -1624,6 +1667,123 @@ class objeto_base
                     $pa_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
             }
         }
+    }
+
+    private function adicionar_ramos_hierarquicos($po_objeto, $po_objeto_coluna, &$ps_campo_tabela, &$ps_tipo_dado_campo, &$pa_valores_busca, &$ps_operador, &$ps_interrogacoes, $ps_operador_logico, $pb_tabela_dados_textuais = false)
+    {
+        $this->banco_dados = $this->get_banco();
+
+        $va_tipos_parametros_select = array();
+        $va_parametros_select = array();
+        $va_campos_select = array();
+        $va_wheres_select = array();
+
+        if (!$pb_tabela_dados_textuais)
+        {
+            $vs_tabela_objeto = $po_objeto_coluna->tabela_banco;
+            $vs_coluna_chave_primaria = "codigo";
+        }
+        else
+        {
+            $vs_tabela_objeto = $po_objeto_coluna->tabela_banco . "_dados_textuais";
+            $vs_coluna_chave_primaria = $po_objeto_coluna->get_id() . "_codigo";
+        }
+
+        $va_campos_select[] = $vs_tabela_objeto . "." . $vs_coluna_chave_primaria . " as codigo";
+
+        $vs_campo_tabela_objeto_coluna = $ps_campo_tabela;
+
+        if ( ($po_objeto_coluna->tabela_banco != $po_objeto->tabela_banco) && !$pb_tabela_dados_textuais)
+        {
+            $vs_campo_tabela_objeto_coluna = "codigo";
+        }
+        
+        if ($ps_operador == "NOT")
+            $va_wheres_select[] = $ps_operador . " " . $vs_tabela_objeto . "." . $vs_campo_tabela_objeto_coluna . "<=>" . $ps_interrogacoes;
+
+        elseif ($ps_operador_logico != "OR")
+            $va_wheres_select[] = $vs_tabela_objeto . "." . $vs_campo_tabela_objeto_coluna . " " . $ps_operador . " " . $ps_interrogacoes;
+
+        $va_or_conditions = array();
+
+        foreach ($pa_valores_busca as $va_valor_busca) 
+        {
+            if (is_array($va_valor_busca))
+            {
+                $va_and_conditions = array();
+
+                foreach ($va_valor_busca as $vs_valor_busca)
+                {
+                    $va_and_conditions[] = $vs_tabela_objeto . "." . $vs_campo_tabela_objeto_coluna . " " . $ps_operador . " (?)";
+
+                    $va_parametros_select[] = $vs_valor_busca;
+                    $va_tipos_parametros_select[] = $ps_tipo_dado_campo;
+                }
+
+                $va_or_conditions[] = implode(" AND ", $va_and_conditions);
+            }
+            else
+            {
+                if ($ps_operador_logico == "OR")
+                    $va_or_conditions[] = $vs_tabela_objeto . "." . $vs_campo_tabela_objeto_coluna . " " . $ps_operador . " (?)";
+
+                $va_parametros_select[] = $va_valor_busca;
+                $va_tipos_parametros_select[] = $ps_tipo_dado_campo;
+            }
+        }
+
+        if ($ps_operador_logico == "OR")
+            $va_wheres_select[] = " (" . implode(" OR ", $va_or_conditions) . ") ";
+
+        $va_selects[] = [
+            "tabela" => $vs_tabela_objeto,
+            "campos" => $va_campos_select,
+            "wheres" => $va_wheres_select,
+        ];
+
+        $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select);
+
+        $pa_valores_busca = array();
+        $va_interrogracoes = array();
+
+        if (!count($va_objetos_match_filtro_busca))
+        {
+            $pa_valores_busca[] = 0;
+            $va_interrogracoes[] = "?";
+        }
+
+        foreach ($va_objetos_match_filtro_busca as $va_objeto_match)
+        {                            
+            $pa_valores_busca[] = $va_objeto_match["codigo"];
+            $va_interrogracoes[] = "?";
+
+            $va_codigos_ramo_inferior = array();
+            $va_codigos_ramo_superior = array();
+
+            $va_codigos_ramo_inferior = $po_objeto_coluna->ler_codigos_ramo_inferior($va_objeto_match["codigo"], $po_objeto_coluna->campo_hierarquico);
+
+            if ($po_objeto_coluna->tipo_hierarquia_codigo == 3)
+                $va_codigos_ramo_superior = $po_objeto_coluna->ler_codigos_ramo_superior($va_objeto_match["codigo"], $po_objeto_coluna->campo_hierarquico);
+
+            $va_codigos_ramos = array_merge($va_codigos_ramo_inferior, $va_codigos_ramo_superior);
+
+            foreach ($va_codigos_ramos as $vn_codigo_no)
+            {
+                $pa_valores_busca[] = $vn_codigo_no;
+                $va_interrogracoes[] = "?";
+            }
+        }
+
+        if ($po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco)
+        {
+            $ps_campo_tabela = $vs_coluna_chave_primaria;
+            $ps_tipo_dado_campo = "i";
+        }
+
+        $ps_interrogacoes = "(" . join(",", $va_interrogracoes) . ")";
+
+        if ($ps_operador != "NOT IN")
+            $ps_operador = "IN";
     }
 
     private function montar_parametros_log($pa_log_info, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array())
