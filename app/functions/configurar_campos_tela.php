@@ -244,8 +244,18 @@
             {
                 if (isset($vs_novo_id_campo))
                 {
-                    $va_campos[$vs_id_campo]["nome"] = $vs_novo_id_campo;
+                    if ($va_campos[$vs_id_campo][0] == "html_autocomplete")
+                    {
+                        $vs_autocomplete_lookup_id = str_replace("_codigo_F_", "_F_", $vs_novo_id_campo);
+
+                        $va_campos[$vs_id_campo]["nome"] = [$vs_autocomplete_lookup_id, $vs_novo_id_campo];
+                    }
+                    else
+                        $va_campos[$vs_id_campo]["nome"] = $vs_novo_id_campo;
+                    
+                    
                     $va_campos[$vs_id_campo]["busca_combinada"] = true;
+
                     //$va_campos[$vs_id_campo]["id"] = $vs_novo_id_campo;
                 }
             }

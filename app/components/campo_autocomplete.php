@@ -192,7 +192,7 @@
                 {
                     $vs_linha_valor = ler_valor1($vs_nome_campo_lookup, $va_valor_campo, null);
 
-                    if (!$vs_linha_valor && $vn_valor_campo_codigo)
+                    if (empty($vs_linha_valor) && $vn_valor_campo_codigo)
                     {
                         // Se não veio o valor de exibição da linha, tem que ler do banco
                         // (caso do formulário vazio que abre a patir da ficha do pai)
@@ -200,12 +200,37 @@
                         $vo_objeto_filho = new $vs_objeto_campo('');
                         $va_objeto_filho = $vo_objeto_filho->ler($vn_valor_campo_codigo, "lista");
 
-                        if (isset($pa_parametros_campo["atributos"][1]))
+                        if (isset($pa_parametros_campo["atributos"][1]) && !is_array($pa_parametros_campo["atributos"][1]))
                             $vs_linha_valor = $this->ler_valor_textual($va_objeto_filho, $pa_parametros_campo["atributos"][1]);
+                        else
+                        {
+                            $vb_ler_hierarquia = true;
+                            $vs_campo_hierarquia = $pa_parametros_campo["atributos"][$va_keys_atributos[1]]["hierarquia"];
+                            $va_item_lista_value = array();
+
+                            //$vs_linha_valor = $this->ler_valor_textual($va_objeto_filho, $va_keys_atributos[1]);
+
+                            while ($vb_ler_hierarquia)
+                            {
+                                $vs_valor_item_lista = $this->ler_valor_textual($va_objeto_filho, $va_keys_atributos[1]);
+
+                                array_unshift($va_item_lista_value, $vs_valor_item_lista);
+                                
+                                if (isset($va_objeto_filho[$vs_campo_hierarquia]))
+                                {
+                                    $va_objeto_filho = $va_objeto_filho[$vs_campo_hierarquia];
+                                    $vs_valor_item_lista = $va_objeto_filho;
+                                }
+                                else
+                                    $vb_ler_hierarquia = false;
+                            }
+
+                            $vs_linha_valor = join(" >  ", $va_item_lista_value);
+                        }
                     }
                 }
             }
-
+            
             $vs_valor_campo_nome = $vs_linha_valor;
         }
     }
@@ -224,7 +249,7 @@
 >
 
     <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
-        <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+        <?php if ($vs_modo == "lote")
         {
         ?>
             <input type="checkbox" class="check-campo form-check-input" id="chk_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>">
@@ -412,6 +437,7 @@
             <svg class="icon autocomplete-icon">
                 <use xlink:href="assets/libraries/@coreui/icons/svg/free.svg#cil-search"></use>
             </svg>
+
             <input type="text" class="form-control lookup input"
                    maxlength="<?php print $vn_tamanho_maximo; ?>"
                    name="<?php print $vs_nome_campo_lookup ?>"
@@ -420,7 +446,7 @@
                    ?>"
     <?php
             if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
-                print ' disabled style="display:none"';
+                print ' disabled';
 
             elseif ($vb_valor_nulo)
                 print 'disabled';
@@ -434,8 +460,28 @@
             }
 
             print '></div>';
+
+            if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]))
+            {
+            ?>
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo_codigos; ?>_com_valor" id="<?php print $vs_id_campo_codigos ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo_codigos; ?>(this.checked, 'com_valor')"
+                <?php
+                if ($vb_marcar_com_valor)
+                    print " checked";
+                ?>
+                > preenchido
+
+                <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo_codigos; ?>_sem_valor" id="<?php print $vs_id_campo_codigos ?>_sem_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo_codigos; ?>(this.checked, 'sem_valor')"
+                <?php
+                if ($vb_marcar_sem_valor)
+                    print " checked";
+                ?>
+                > não preenchido
+            <?php
+            }
         }
     ?>
+
     <div id="div_sugestoes_<?php print $vs_nome_campo_lookup ?>"></div>
 
     <input type="hidden" class="input" id="<?php print $vs_id_campo_codigos; ?>" name="<?php print $vs_nome_campo_codigos; ?>" value="<?php print $vn_valor_campo_codigo; ?>"
@@ -510,6 +556,20 @@
 ?>
 
 <script>
+
+function alterar_valor_filtro_<?php print $vs_id_campo_codigos ?>(pb_checked, ps_valor)
+{
+    if (ps_valor == "sem_valor")
+        $("#<?php print $vs_id_campo_codigos ?>_com_valor").prop("checked", false);
+    else if (ps_valor == "com_valor")
+        $("#<?php print $vs_id_campo_codigos ?>_sem_valor").prop("checked", false);
+
+    $("#<?php print $vs_id_campo_codigos ?>").val("");
+    $("#<?php print $vs_nome_campo_lookup ?>").val("");
+
+    $("#<?php print $vs_id_campo_codigos ?>").prop("disabled", pb_checked);
+    $("#<?php print $vs_nome_campo_lookup ?>").prop("disabled", pb_checked);
+};
 
 $(document).on('click', "#chk_nulo_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>", function()
 {
@@ -673,6 +733,20 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
         clearTimeout(timeout_campo_<?php print $vs_nome_campo_lookup ?>);
         timeout_campo_<?php print $vs_nome_campo_lookup ?> = setTimeout(function()
         {
+            vb_valor_no_input = false;
+            
+            <?php
+            if ($vb_valor_no_input)
+            {
+            ?>
+                vb_valor_no_input = true;
+            <?php
+            }
+            ?>
+
+            if (vb_valor_no_input)
+                $("#<?php print $vs_id_campo_codigos ?>").val('');
+
             vs_termo = $("#<?php print $vs_nome_campo_lookup ?>").val();
 
             // Primeiro, vamos verificar se se trata de uma adição em lote

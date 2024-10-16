@@ -7,12 +7,26 @@ class html_autocomplete extends html_input
 public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $pa_recursos_sistema_permissao_edicao=array())
 {
     $vs_tela = $this->get_tela();
+    $vs_modo = $this->get_modo_form();
     $va_valor_campo = $pa_valores_form;
+
+    $vb_marcar_sem_valor = false;
+    $vb_marcar_com_valor = false;
+
+    if (isset($pa_valores_form[$pa_parametros_campo["nome"][1] . "_sem_valor"]))
+        $vb_marcar_sem_valor = true;
+    elseif (isset($pa_valores_form[$pa_parametros_campo["nome"][1] . "_com_valor"]))
+        $vb_marcar_com_valor = true;
+    
+    if ($vb_marcar_sem_valor || $vb_marcar_com_valor)
+        $pa_parametros_campo["desabilitar"] = true;
 
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
-        $vb_pode_exibir = $vb_pode_exibir && (isset($va_valor_campo[$pa_parametros_campo["nome"][1]]) && $va_valor_campo[$pa_parametros_campo["nome"][1]] != "") && $pa_parametros_campo["exibir_quando_preenchido"];
+        $vb_pode_exibir = $vb_pode_exibir 
+            && ((isset($va_valor_campo[$pa_parametros_campo["nome"][1]]) && $va_valor_campo[$pa_parametros_campo["nome"][1]] != "") || $vb_marcar_sem_valor || $vb_marcar_com_valor)
+            && $pa_parametros_campo["exibir_quando_preenchido"];
 
     $vb_pode_editar = 0;
     if (in_array("_all_", $pa_recursos_sistema_permissao_edicao) || (isset($pa_parametros_campo["objeto"]) && in_array($pa_parametros_campo["objeto"], $pa_recursos_sistema_permissao_edicao)))
