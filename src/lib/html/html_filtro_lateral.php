@@ -4,6 +4,7 @@ class html_filtro_lateral extends html_input
 {
 
 private $itens;
+private $objects = [];
 
 public function get_itens()
 {
@@ -11,6 +12,11 @@ public function get_itens()
         $this->itens = array();
 
     return $this->itens;
+}
+
+public function get_objects()
+{
+    return $this->objects;
 }
 
 public function preencher($pa_filtro_listagem, $pa_parametros_campo)
@@ -86,12 +92,12 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
         //var_dump(get_class($vo_objeto), $va_filtro);
 
-        $va_itens = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens);
+        $this->objects = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens);
 
         //var_dump($va_itens);
     }
     
-    foreach($va_itens as $va_item)
+    foreach($this->objects as $va_item)
     {
         if (isset($pa_parametros_campo["atributos"]))
         {
@@ -169,7 +175,7 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
     // e o objeto que ele filtra
     ////////////////////////////////////////////////////////
 
-    if (isset($pa_parametros_campo["objeto_filtrado"]) && (!isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]])) && count($va_itens))
+    if (isset($pa_parametros_campo["objeto_filtrado"]) && (!isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]])) && count($this->objects))
     {
         $vo_objeto_filtrado = new $pa_parametros_campo["objeto_filtrado"]('');
 
