@@ -228,27 +228,27 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             <div class="container-lg" id="div-image-container">
             </div>
         </div>
-    </form>
 
-    <div id="modal-imprimir" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="btn-group" role="group" aria-label="First group">
-                        <button class="btn btn-tab-rel btn-outline-primary active" id="tab_lista" type="button">Ficha</button>
+        <div id="modal-imprimir" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="btn-group" role="group" aria-label="First group">
+                            <button class="btn btn-tab-rel btn-outline-primary active" id="tab_lista" type="button">Ficha</button>
+                        </div>
+                        <button class="btn-close" data-modal-id="imprimir"></button>
                     </div>
-                    <button class="btn-close" data-modal-id="imprimir"></button>
-                </div>
 
-                <div class="modal-body">
-                    <div class="tab" id="div_tab_lista">
-                        <?php require_once dirname(__FILE__)."/components/barra_opcoes_lista.php"; ?>
+                    <div class="modal-body">
+                        <div class="tab" id="div_tab_lista">
+                            <?php require_once dirname(__FILE__)."/components/barra_opcoes_lista.php"; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+    </form>
 </div>
 <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
 
