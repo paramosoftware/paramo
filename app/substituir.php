@@ -22,7 +22,7 @@
 
             $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
 
-            if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+            if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso) || in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
             {
                 print "Sem permissão para substituir este registro.";
                 exit();

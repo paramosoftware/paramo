@@ -45,6 +45,7 @@ class objeto_base
     protected $va_order_by;
 
     public $controlador_acesso = array();
+    public $registros_protegidos = array();
 
     // Eu posso criar um objeto que vai armazenar informações
     // de vários tipos de objetos
@@ -5141,8 +5142,10 @@ class objeto_base
                     $vb_registro_filho = false;
                     $vb_pode_excluir = true;
 
-                    if (count($this->registros_filhos) && isset($va_relacionamento['objeto'])) {
-                        if (in_array($va_relacionamento['objeto'], array_keys($this->registros_filhos))) {
+                    if (count($this->registros_filhos) && isset($va_relacionamento['objeto'])) 
+                    {
+                        if (in_array($va_relacionamento['objeto'], array_keys($this->registros_filhos))) 
+                        {
                             $vb_registro_filho = true;
 
                             if (isset($this->registros_filhos[$va_relacionamento['objeto']]["pode_excluir_pai"]) && !$this->registros_filhos[$va_relacionamento['objeto']]["pode_excluir_pai"] && $pb_excluir_objeto)
