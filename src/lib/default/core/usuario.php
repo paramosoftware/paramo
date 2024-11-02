@@ -346,20 +346,20 @@ class usuario extends usuario_base
         $this->visualizacoes["senha"]["campos"]["usuario_data_expiracao_senha_provisoria"] = ["nome" => "usuario_data_expiracao_senha_provisoria"];
     }
 
-    public function ler_numero_registros($pa_filtros_busca = null, $pa_log_info = null)
+    public function ler_numero_registros($pa_filtros_busca = null, $pa_log_info = null, $pb_retornar_ramos_inferiores = true)
     {
         if (isset($pa_filtros_busca["instituicao_codigo"]))
             $pa_filtros_busca["usuario_instituicao_codigo"] = $pa_filtros_busca["instituicao_codigo"];
 
-        return parent::ler_numero_registros($pa_filtros_busca, $pa_log_info);
+        return parent::ler_numero_registros($pa_filtros_busca, $pa_log_info, $pb_retornar_ramos_inferiores);
     }
 
-    public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", $pn_primeiro_registro = 0, $pn_numero_registros = 20, $pa_order_by = null, $ps_order = null, $pa_log_info = null, $pn_idioma_codigo = 1, $pb_login = false)
+    public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", $pn_primeiro_registro = 0, $pn_numero_registros = 20, $pa_order_by = null, $ps_order = null, $pa_log_info = null, $pn_idioma_codigo = 1, $pb_retornar_ramos_inferiores = true)
     {
         if (isset($pa_filtros_busca["instituicao_codigo"]))
             $pa_filtros_busca["usuario_instituicao_codigo"] = $pa_filtros_busca["instituicao_codigo"];
 
-        return parent::ler_lista($pa_filtros_busca, $ps_visualizacao, $pn_primeiro_registro, $pn_numero_registros, $pa_order_by, $ps_order, $pa_log_info, $pn_idioma_codigo);
+        return parent::ler_lista($pa_filtros_busca, $ps_visualizacao, $pn_primeiro_registro, $pn_numero_registros, $pa_order_by, $ps_order, $pa_log_info, $pn_idioma_codigo, $pb_retornar_ramos_inferiores);
     }
 }
 

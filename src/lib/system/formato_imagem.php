@@ -27,7 +27,7 @@ public function ler($pn_codigo, $ps_visualizacao = 'lista', $pn_idioma_codigo = 
     return $va_resultado;
 }
 
-public function ler_lista($pa_filtros_busca=null, $ps_visualizacao="lista", $pn_primeiro_registro=0, $pn_numero_registros=20, $pa_order_by=null, $ps_order=null, $pa_log_info=null, $pn_idioma_codigo=1)
+public function ler_lista($pa_filtros_busca=null, $ps_visualizacao="lista", $pn_primeiro_registro=0, $pn_numero_registros=20, $pa_order_by=null, $ps_order=null, $pa_log_info=null, $pn_idioma_codigo=1, $pb_retornar_ramos_inferiores = true)
 {
     $va_itens = array();
     $va_resultado = array();
