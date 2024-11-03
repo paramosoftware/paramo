@@ -91,10 +91,10 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         }
 
         //var_dump(get_class($vo_objeto), $va_filtro);
+        
+        $this->objects = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens, ($pa_parametros_campo["ordenacao"] ?? null), null, null, 1, false);
 
-        $this->objects = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens);
-
-        //var_dump($va_itens);
+        //var_dump($this->objects);
     }
     
     foreach($this->objects as $va_item)
@@ -207,7 +207,6 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $ps_
 
     $vb_pode_exibir = $this->verificar_exibicao($pa_valores_form, $pa_parametros_campo);
 
-    //var_dump($pa_parametros_campo);
     $this->preencher($pa_valores_form, $pa_parametros_campo);
     $va_itens_campo = $this->get_itens();
 
@@ -219,7 +218,6 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $ps_
         else
             $vs_valor_campo = $pa_valores_form[$pa_parametros_campo["atributo"]];
     }
-    
     
     if ($ps_path_campo_filtro != "")
     {
