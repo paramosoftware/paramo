@@ -76,6 +76,7 @@ if (!isset($pa_parametros_campo["tipo"])) {
             'on.soundcloud.com',
             'drive.google.com',
             'docs.google.com',
+            'spotify.com',
         ]
 
         try {
