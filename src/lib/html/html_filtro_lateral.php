@@ -139,22 +139,39 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
             foreach ($va_items_hierarquia as $va_item)
             {
                 $vb_adicionar_item_lista = false;
-                $vb_verificou_filtro = false;
+                $vb_verificou_filtros = false;
 
                 foreach ($va_dependencias as $va_dependencia)
                 {
                     if (!in_array($va_dependencia["campo"], $va_filtros_pos_aplicacao))
                         continue;
 
-                    $vs_atributo = $va_dependencia["atributo_pos_aplicacao"] ?? $va_dependencia["atributo"];
+                    if (!isset($pa_filtro_listagem[$va_dependencia["campo"]]) && isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
+                    {
+                        $vb_verificou_filtros = true;
+                        $vb_adicionar_item_lista = false;
 
+                        break;
+                    }
+
+                    if (!isset($pa_filtro_listagem[$va_dependencia["campo"]]) && (!isset($va_dependencia["obrigatoria"]) || !$va_dependencia["obrigatoria"]))
+                        continue;
+
+                    $vs_atributo = $va_dependencia["atributo_pos_aplicacao"] ?? $va_dependencia["atributo"];
+    
                     if (ler_valor1($vs_atributo, $va_item) == $pa_filtro_listagem[$va_dependencia["campo"]])
                         $vb_adicionar_item_lista = true;
+                    else
+                    {
+                        $vb_adicionar_item_lista = false;
+                    }
 
-                    $vb_verificou_filtro = true;
+                    $vb_verificou_filtros = true;
+
+                    if (!$vb_adicionar_item_lista) break;
                 }
 
-                if ($vb_verificou_filtro && !$vb_adicionar_item_lista) continue;
+                if ($vb_verificou_filtros && !$vb_adicionar_item_lista) continue;
                 
                 foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
                 {
