@@ -22,7 +22,10 @@ public function get_objects()
 public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 {
     $va_itens = array();
+
+    $va_dependencias = array();
     $va_filtro = array();
+    $va_filtros_pos_aplicacao = array();
 
     $vb_aplicar_filtro_banco_dados = true;
 
@@ -43,7 +46,15 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         {
             if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]])
             {
+                if (in_array($va_dependencia["campo"], $va_filtros_pos_aplicacao))
+                    continue;
+
                 $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
+
+                if (isset($va_dependencia["forcar_pos_aplicacao"]))
+                {
+                    $va_filtros_pos_aplicacao = array_merge($va_filtros_pos_aplicacao, $va_dependencia["forcar_pos_aplicacao"]);
+                }
             }
             else
             {
@@ -61,10 +72,13 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         }
     }
 
-    if (isset($pa_parametros_campo["filtro"]) && $vb_aplicar_filtro_banco_dados)
+    if (isset($pa_parametros_campo["filtro"]))
     {
         foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
         {
+            if (in_array($va_filtro_combo["atributo"], $va_filtros_pos_aplicacao))
+                continue;
+
             if (isset($va_filtro_combo["operador"]))
                 $va_filtro[$va_filtro_combo["atributo"]] = [$va_filtro_combo["valor"], $va_filtro_combo["operador"]];
             else
@@ -100,13 +114,13 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
             $vn_numero_maximo_itens = $pa_parametros_campo["numero_maximo_itens"];
         }
 
-var_dump(get_class($vo_objeto), $va_filtro);
+//var_dump(get_class($vo_objeto), $va_filtro);
         
         $this->objects = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens, ($pa_parametros_campo["ordenacao"] ?? null), null, null, 1, false);
 
         //var_dump($this->objects);
 
-        if (isset($pa_parametros_campo["filtro"]) && !$vb_aplicar_filtro_banco_dados)
+        if (count($va_filtros_pos_aplicacao))
         {
             foreach($this->objects as $va_item)
             {
@@ -125,9 +139,28 @@ var_dump(get_class($vo_objeto), $va_filtro);
             foreach ($va_items_hierarquia as $va_item)
             {
                 $vb_adicionar_item_lista = false;
+                $vb_verificou_filtro = false;
+
+                foreach ($va_dependencias as $va_dependencia)
+                {
+                    if (!in_array($va_dependencia["campo"], $va_filtros_pos_aplicacao))
+                        continue;
+
+                    $vs_atributo = $va_dependencia["atributo_pos_aplicacao"] ?? $va_dependencia["atributo"];
+
+                    if (ler_valor1($vs_atributo, $va_item) == $pa_filtro_listagem[$va_dependencia["campo"]])
+                        $vb_adicionar_item_lista = true;
+
+                    $vb_verificou_filtro = true;
+                }
+
+                if ($vb_verificou_filtro && !$vb_adicionar_item_lista) continue;
                 
                 foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
                 {
+                    if (!in_array($pa_parametros_campo["atributo"], $va_filtros_pos_aplicacao))
+                        continue;
+
                     if ($va_filtro_combo["operador"] == "<=>")
                     {
                         if (!isset($va_item[$va_filtro_combo["atributo"]]))
@@ -135,8 +168,7 @@ var_dump(get_class($vo_objeto), $va_filtro);
                     }
                     else
                     {
-                        var_dump(ler_valor1($va_filtro_combo["atributo"]));
-                        if (ler_valor1($va_filtro_combo["atributo"], $va_item) == $va_filtro_combo["valor"])
+                        if (ler_valor1($va_filtro_combo["atributo_pos_aplicacao"], $va_item) == $va_filtro_combo["valor"])
                             $vb_adicionar_item_lista = true;
                     }
                 }
