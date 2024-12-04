@@ -24,6 +24,8 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
     $va_itens = array();
     $va_filtro = array();
 
+    $vb_aplicar_filtro_banco_dados = true;
+
     if (isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]]) && is_array($pa_filtro_listagem[$pa_parametros_campo["atributo"]]))
     {
         $this->adicionar_item("_NO_", "[Sem atribução]");
@@ -41,18 +43,25 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         {
             if (isset($pa_filtro_listagem[$va_dependencia["campo"]]) && $pa_filtro_listagem[$va_dependencia["campo"]])
             {
-                    $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
+                $va_filtro[$va_dependencia["atributo"]] = $pa_filtro_listagem[$va_dependencia["campo"]];
             }
             else
             {
                 // Se a dependência "obrigatória" existe e nenhum valor é passado, não gera a lista
+
                 if (isset($va_dependencia["obrigatoria"]) && $va_dependencia["obrigatoria"])
                     return false;
+            }
+
+            if (isset($va_dependencia["relacao_hierarquica"]))
+            {
+                $vs_atributo_hierarquico = $va_dependencia["relacao_hierarquica"];
+                $vb_aplicar_filtro_banco_dados = false;
             }
         }
     }
 
-    if (isset($pa_parametros_campo["filtro"]))
+    if (isset($pa_parametros_campo["filtro"]) && $vb_aplicar_filtro_banco_dados)
     {
         foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
         {
@@ -84,17 +93,60 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
         $vn_primeiro_registro = 0;
         $vn_numero_maximo_itens = 0;
+
         if (isset($pa_parametros_campo["numero_maximo_itens"]))
         {
             $vn_primeiro_registro = 1;
             $vn_numero_maximo_itens = $pa_parametros_campo["numero_maximo_itens"];
         }
 
-        //var_dump(get_class($vo_objeto), $va_filtro);
+var_dump(get_class($vo_objeto), $va_filtro);
         
         $this->objects = $vo_objeto->ler_lista($va_filtro, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_maximo_itens, ($pa_parametros_campo["ordenacao"] ?? null), null, null, 1, false);
 
         //var_dump($this->objects);
+
+        if (isset($pa_parametros_campo["filtro"]) && !$vb_aplicar_filtro_banco_dados)
+        {
+            foreach($this->objects as $va_item)
+            {
+                $va_items_hierarquia[] = $va_item;
+
+                while (isset($va_item[$vs_atributo_hierarquico]))
+                {
+                    $va_items_hierarquia[] = $va_item[$vs_atributo_hierarquico];
+
+                    $va_item = $va_item[$vs_atributo_hierarquico];
+                }
+            }
+
+            $va_itens_lista = array();
+
+            foreach ($va_items_hierarquia as $va_item)
+            {
+                $vb_adicionar_item_lista = false;
+                
+                foreach ($pa_parametros_campo["filtro"] as $va_filtro_combo)
+                {
+                    if ($va_filtro_combo["operador"] == "<=>")
+                    {
+                        if (!isset($va_item[$va_filtro_combo["atributo"]]))
+                            $vb_adicionar_item_lista = true;
+                    }
+                    else
+                    {
+                        var_dump(ler_valor1($va_filtro_combo["atributo"]));
+                        if (ler_valor1($va_filtro_combo["atributo"], $va_item) == $va_filtro_combo["valor"])
+                            $vb_adicionar_item_lista = true;
+                    }
+                }
+
+                if ($vb_adicionar_item_lista)
+                    $va_itens_lista[] = $va_item;
+            }
+
+            $this->objects = $va_itens_lista;
+        }
     }
     
     foreach($this->objects as $va_item)
