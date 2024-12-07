@@ -673,7 +673,8 @@ class objeto_base
         $vn_numero_registros = 0;
         $vo_banco = $this->get_banco();
 
-        foreach ($va_objetos as $vs_objeto) {
+        foreach ($va_objetos as $vs_objeto)
+        {
             $contador = 0;
             $va_resultados_objeto = array();
 
@@ -756,7 +757,7 @@ class objeto_base
 
     public function ler($pn_codigo, $ps_visualizacao = 'lista', $pn_idioma_codigo = 1)
     {
-        $va_resultado = $this->ler_lista([$this->chave_primaria[0] => $pn_codigo], $ps_visualizacao, 0, 1, null, null, null, $pn_idioma_codigo);
+        $va_resultado = $this->ler_lista([$this->chave_primaria[0] => $pn_codigo], $ps_visualizacao, 0, 1, null, null, null, $pn_idioma_codigo, false);
 
         if (count($va_resultado)) {
             $va_resultado = $va_resultado[0];
@@ -885,7 +886,7 @@ class objeto_base
         return $vb_tem_valor;
     }
 
-    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true)
+    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array())
     {
         if (isset($pa_filtros_busca)) 
         {
@@ -894,6 +895,8 @@ class objeto_base
 
             foreach ($pa_filtros_busca as $vs_parametro_nome => $va_parametro) 
             {
+                $pa_joins_trail["current_trail"] = $pa_tabelas_adicionadas[0];
+
                 // Tentativa: restringir pela existência de um relacionamento (hardcoded)
                 /////////////////////////////////////////////////////////////////////////
 
@@ -1045,7 +1048,7 @@ class objeto_base
                             // O terceiro parâmetro vazio quer dizer que ainda não foi feito nenhum join para este filtro
                             /////////////////////////////////////////////////////////////////////////////////////////////
                             
-                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores);
+                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
                         }
                     }
                 }
@@ -1053,7 +1056,7 @@ class objeto_base
         }
     }
 
-    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true)
+    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array())
     {
         // A partir daqui, vamos procurar o campo/atributo ao qual o filtro se refere
         ////////////////////////////////////////////////////////////////////////////
@@ -1094,7 +1097,7 @@ class objeto_base
 
                 $vo_objeto_pai = new $po_objeto->objeto_pai($po_objeto->objeto_pai);
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]) || isset($po_objeto->chave_primaria[$va_filtro[0]])) 
             {
@@ -1327,24 +1330,39 @@ class objeto_base
                 }
 
                 $vs_tabela_filtro = $ps_ultima_tabela_filtro;
+
                 if (!$vs_tabela_filtro)
                     $vs_tabela_filtro = $po_objeto->tabela_banco;
 
-                if (isset($pa_tabelas_adicionadas[$vs_tabela_join]))
+                $vs_current_trail = $pa_joins_trail["current_trail"];
+
+                if ($vs_current_trail)
+                    $vs_new_trail_candidate = $vs_current_trail . ":" . $vs_tabela_join;
+                else
+                    $vs_new_trail_candidate = $vs_tabela_filtro . ":" . $vs_tabela_join;
+
+                if (isset($pa_joins_trail[$vs_new_trail_candidate]))
                 {
-                    //if ($ps_ultima_tabela_filtro != "")
-                        $vs_alias_tabela_join = $vs_tabela_join . "_" . (count($pa_tabelas_adicionadas[$vs_tabela_join]) + 1);
-                    //else
-                        //$vs_alias_tabela_join = $vs_tabela_join;
+                    $vs_alias_tabela_join = $pa_joins_trail[$vs_new_trail_candidate];
                 }
                 else
-                    $vs_alias_tabela_join = $vs_tabela_join . "_1";
+                {
+                    if (isset($pa_tabelas_adicionadas[$vs_tabela_join]))
+                        $vs_alias_tabela_join = $vs_tabela_join . "_" . (count($pa_tabelas_adicionadas[$vs_tabela_join]) + 1);
+                    else
+                        $vs_alias_tabela_join = $vs_tabela_join . "_1";
+
+                    $pa_joins_trail[$vs_new_trail_candidate] = $vs_alias_tabela_join;
+                }
+
+                $pa_joins_trail["current_trail"] = $vs_new_trail_candidate;
 
                 $vs_ultima_tabela_filtro = $vs_alias_tabela_join;
 
                 if (!in_array($vs_alias_tabela_join, $pa_joins_select)) 
                 {
                     $pa_joins_select[$vs_alias_tabela_join] = " JOIN " . $vs_tabela_join . " as " . $vs_alias_tabela_join . " ON " . $vs_tabela_filtro . "." . $vs_campo_chave_importada . " = " . $vs_alias_tabela_join . "." . $vs_campo_tabela_join;
+
                     $pa_tabelas_adicionadas[$vs_tabela_join][] = $vs_alias_tabela_join;
                 }
 
@@ -1400,7 +1418,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
             }
         } else {
             // Se o filtro for chave primária ou atributo da tabela do objeto, a montagem é simples
@@ -1941,6 +1959,8 @@ class objeto_base
                 $va_tabelas_adicionadas = array();
                 $va_tabelas_adicionadas[$vs_tabela_banco][] = $vs_tabela_banco;
 
+                $va_joins_trail = [$vs_tabela_banco => $vs_tabela_banco];
+
                 // Adiciono um campo na mão para identificar a qual objeto o registro pertence
                 $va_campos_select["_objeto"] = "'" . $vs_objeto . "' as _objeto";
 
@@ -2012,12 +2032,16 @@ class objeto_base
                         if (!$vb_achou_campo)
                             $va_campos_select[$ps_key_campo_visualizacao] = "NULL as " . $ps_key_campo_visualizacao;
 
-                        if (!$vb_achou_campo) {
+                        if (!$vb_achou_campo) 
+                        {
                             $va_campo = explode(".", $va_campo_visualizacao["nome"]);
 
-                            if (count($va_campo) > 1) {
-                                if (isset($va_atributos_objeto[$va_campo[0]])) {
-                                    if (isset($va_atributos_objeto[$va_campo[0]]["objeto"])) {
+                            if (count($va_campo) > 1) 
+                            {
+                                if (isset($va_atributos_objeto[$va_campo[0]])) 
+                                {
+                                    if (isset($va_atributos_objeto[$va_campo[0]]["objeto"])) 
+                                    {
                                         $vs_id_objeto = $va_atributos_objeto[$va_campo[0]]["objeto"];
                                         $vo_objeto_relacionamento = new $vs_id_objeto($vs_id_objeto);
 
@@ -2026,7 +2050,8 @@ class objeto_base
 
                                         $va_atributos_objeto_relacionamento = $vo_objeto_relacionamento->get_atributos();
 
-                                        if (isset($va_atributos_objeto_relacionamento[$va_campo[1]])) {
+                                        if (isset($va_atributos_objeto_relacionamento[$va_campo[1]])) 
+                                        {
                                             if (!in_array($vs_tabela_join, $va_joins_select))
                                                 $va_joins_select[$vs_tabela_join] = " JOIN " . $vs_tabela_join . " ON " . $vs_tabela_banco . "." . $va_atributos_objeto[$va_campo[0]]["coluna_tabela"] . " = " . $vs_tabela_join . "." . $vs_campo_tabela_join;
 
@@ -2048,7 +2073,8 @@ class objeto_base
 
                         // Precisamos adicionar o campo de relacionamento do pai,
                         // mesmo se ele não vier na visualização
-                        if ($this->campo_relacionamento_pai && !$vb_achou_campo_relacionamento_pai) {
+                        if ($this->campo_relacionamento_pai && !$vb_achou_campo_relacionamento_pai) 
+                        {
                             $va_campos_select[$this->campo_relacionamento_pai] = $vs_tabela_banco . "." . $va_atributos_objeto[$this->campo_relacionamento_pai]["coluna_tabela"];
                             $vb_achou_campo_relacionamento_pai = true;
                             $vb_achou_campo = true;
@@ -2073,14 +2099,14 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores);
+                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores, $va_joins_trail);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
                 $this->montar_parametros_fluxos($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
                 $va_order_by = $this->montar_ordenacao($vo_objeto, $pa_order_by, $va_campos_select, $va_joins_select, $ps_order, $va_tabelas_adicionadas);
-
+    
                 $va_selects[] = [
                     "tabela" => $vo_objeto->tabela_banco,
                     "campos" => $va_campos_select,
