@@ -271,6 +271,8 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         $this->adicionar_item($vn_item_lista_option, $vs_item_lista_value);
     }
 
+    asort($this->itens);
+
     // Se atributo_inverso está configurado, vamos verificar
     // se existem relacionamentos não criados entre o filtro 
     // e o objeto que ele filtra
