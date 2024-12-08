@@ -3,7 +3,7 @@
 class html_filtro_lateral extends html_input
 {
 
-private $itens;
+private $itens = array();
 private $objects = [];
 
 public function get_itens()
@@ -29,7 +29,11 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
     $vb_aplicar_filtro_banco_dados = true;
 
-    if (isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]]) && is_array($pa_filtro_listagem[$pa_parametros_campo["atributo"]]))
+    if (
+        isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]]) 
+        && 
+        (is_array($pa_filtro_listagem[$pa_parametros_campo["atributo"]]) || $pa_filtro_listagem[$pa_parametros_campo["atributo"]] == 0)
+    )
     {
         $this->adicionar_item("_NO_", "[Sem atribução]");
         return true;
@@ -271,26 +275,27 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
         $this->adicionar_item($vn_item_lista_option, $vs_item_lista_value);
     }
 
-    asort($this->itens);
+    if (count($this->itens))
+        asort($this->itens);
 
     // Se atributo_inverso está configurado, vamos verificar
     // se existem relacionamentos não criados entre o filtro 
     // e o objeto que ele filtra
     ////////////////////////////////////////////////////////
 
-    if (isset($pa_parametros_campo["objeto_filtrado"]) && (!isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]])) && count($this->objects))
-    {
-        $vo_objeto_filtrado = new $pa_parametros_campo["objeto_filtrado"]('');
+    // if (isset($pa_parametros_campo["objeto_filtrado"]) && (!isset($pa_filtro_listagem[$pa_parametros_campo["atributo"]])) && count($this->objects))
+    // {
+    //     $vo_objeto_filtrado = new $pa_parametros_campo["objeto_filtrado"]('');
 
-        $va_atributos = explode(",", $pa_parametros_campo["atributo"]);
+    //     $va_atributos = explode(",", $pa_parametros_campo["atributo"]);
 
-        $pa_filtro_listagem[$va_atributos[0]] = ["0", "_EXISTS_"];
+    //     $pa_filtro_listagem[$va_atributos[0]] = ["0", "_EXISTS_"];
 
-        $vn_numero_relacionamentos = $vo_objeto_filtrado->ler_numero_registros($pa_filtro_listagem);
+    //     $vn_numero_relacionamentos = $vo_objeto_filtrado->ler_numero_registros($pa_filtro_listagem);
     
-        if ($vn_numero_relacionamentos)
-            $this->adicionar_item("_NO_", "[Sem atribução]");
-    }
+    //     if ($vn_numero_relacionamentos)
+    //         $this->adicionar_item("_NO_", "[Sem atribução]");
+    // }
     
     ////////////////////////////////////////////////////////
 }
@@ -316,7 +321,7 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array(), $ps_
     $vs_valor_campo = "";
     if (isset($pa_valores_form[$pa_parametros_campo["atributo"]]))
     {
-        if (is_array($pa_valores_form[$pa_parametros_campo["atributo"]]))
+        if (is_array($pa_valores_form[$pa_parametros_campo["atributo"]]) || ($pa_valores_form[$pa_parametros_campo["atributo"]] == 0))
             $vs_valor_campo = "_NO_";
         else
             $vs_valor_campo = $pa_valores_form[$pa_parametros_campo["atributo"]];
