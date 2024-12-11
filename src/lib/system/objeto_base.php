@@ -703,6 +703,8 @@ class objeto_base
                     }
                 }
 
+                $va_tabelas_adicionadas[$vo_objeto->tabela_banco][] = $vo_objeto->tabela_banco;
+
                 $va_campos_select[] = " DISTINCT " . $vo_objeto->tabela_banco . ".Codigo as " . $vo_objeto->tabela_banco . "_codigo";
 
                 // Se algum atributo do objeto tiver um valor padrão, tem que filtrar por ele
@@ -895,7 +897,7 @@ class objeto_base
 
             foreach ($pa_filtros_busca as $vs_parametro_nome => $va_parametro) 
             {
-                $pa_joins_trail["current_trail"] = $pa_tabelas_adicionadas[0];
+                $pa_joins_trail["current_trail"] = $pa_tabelas_adicionadas[0] ?? "";
 
                 // Tentativa: restringir pela existência de um relacionamento (hardcoded)
                 /////////////////////////////////////////////////////////////////////////
@@ -1965,7 +1967,7 @@ class objeto_base
                 $va_campos_select["_objeto"] = "'" . $vs_objeto . "' as _objeto";
 
                 $vb_achou_campo_relacionamento_pai = false;
-                
+
                 foreach ($va_visualizacao as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
                 {
                     $vb_achou_campo = false;
