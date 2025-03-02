@@ -12,6 +12,12 @@
                 "campo" => "recurso_sistema_codigo",
                 "atributo" => "visualizacao_recurso_sistema_codigo"
             ]
+        ],
+        "filtro" => [
+            [
+                "atributo" => "visualizacao_habilitado",
+                "valor" => 1
+            ]
         ]
     ];
    
