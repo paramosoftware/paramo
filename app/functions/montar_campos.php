@@ -180,7 +180,7 @@
                 {
                     if ( $vb_aplicar_controle_acesso && (in_array($va_parametros_campo["atributo"], array_keys($va_parametros_controle_acesso))) )
                     {
-                        if ($va_parametros_controle_acesso[$va_parametros_campo["atributo"]] != "")
+                        if (!in_array($va_parametros_controle_acesso[$va_parametros_campo["atributo"]], ["", "_ALL_"]))
                             $va_objeto[$va_parametros_campo["atributo"]] = $va_parametros_controle_acesso[$va_parametros_campo["atributo"]];
                     }
                     elseif (isset($va_objeto[$va_parametros_campo["nome"]]))

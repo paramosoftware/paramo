@@ -6081,6 +6081,8 @@ class objeto_base
         {
             if (isset($pa_parametros_acesso[$vs_parametro_controlador]))
             {
+                if ($pa_parametros_acesso[$vs_parametro_controlador] == "_ALL_") continue;
+
                 if ($vs_parametro_controlador == $this->get_chave_primaria()[0])
                 {
                     if (!in_array($pn_objeto_codigo, explode("|", $pa_parametros_acesso[$vs_parametro_controlador])))
@@ -6126,6 +6128,8 @@ class objeto_base
         {
             if (isset($pa_parametros_acesso[$vs_parametro_controlador]) && trim($pa_parametros_acesso[$vs_key_controlador]) != "")
             {
+                if ($pa_parametros_acesso[$vs_parametro_controlador] == "_ALL_") continue;
+
                 $va_atributo_controlador = explode("_0_", $vs_atributo_controlador);
 
                 if (count($va_atributo_controlador) > 1) 
