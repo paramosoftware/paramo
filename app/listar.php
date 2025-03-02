@@ -143,7 +143,7 @@
                                                 }
                                             ?>
 
-                                            <?php if ($vb_usuario_administrador)
+                                            <?php if ($vb_usuario_administrador && false)
                                             {
                                             ?>
                                                 <button class="btn btn-outline-primary" type="button" id="btn_importar">Importar</button>
