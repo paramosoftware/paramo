@@ -180,9 +180,9 @@
             $vs_atributo_codigo = "unidade_armazenamento_codigo";
             $vs_atributo_nome = "unidade_armazenamento_nome";
             $vb_permitir_cadastro = false;
-            
+
             break;
-    
+
         default:
             $vb_substituir_disponivel = false;
     }
@@ -261,7 +261,7 @@
                                                 "multiplos_valores" => false, 
                                                 "procurar_por" => $vs_procurar_por, 
                                                 "visualizacao" => "lista",
-                                                "permitir_cadastro" => $vb_permitir_cadastro, 
+                                                "permitir_cadastro" => $vb_permitir_cadastro,
                                                 "campo_salvar" => $vs_atributo_nome,
                                                 "excluir" => $vn_objeto_codigo
                                             ];
