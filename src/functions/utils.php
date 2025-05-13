@@ -88,6 +88,15 @@ class utils
 
             return '<iframe width="' . $width . '" height="' . $height . '" src="' . $src . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
         }
+        else if (in_array($url["host"], ["open.spotify.com", "spotify.com", "spotify"]))
+        {
+            
+            $parts = explode("/", $url["path"]);
+            $type = $parts[count($parts) - 2];
+            $id = $parts[count($parts) - 1];
+            
+            return '<iframe width="215" height="120" src="https://open.spotify.com/embed/' . $type . '/'  . $id . '?utm_source=oembed" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
+        }
         else if (in_array($url["host"], ["soundcloud.com", "on.soundcloud.com"]))
         {
             $soundcloud_api_url = "https://soundcloud.com/oembed?url=" . $url["scheme"] . "://" . $url["host"] . $url["path"] . "&format=json" . "&maxwidth=" . $width . "&maxheight=" . $height;

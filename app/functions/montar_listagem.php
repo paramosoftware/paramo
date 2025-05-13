@@ -65,6 +65,9 @@
     if (!isset($vs_ordem))
         $vs_ordem = "";
 
+    if (!isset($vb_retornar_valores_vazios))
+        $vb_retornar_valores_vazios = false;
+
     // Eis aqui: onde o objeto_base vai montar automaticamente os atributos, campos e visualizações do
     // objeto passado por parâmetro no construtor
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +115,7 @@
                     $vs_visualizacao = $_POST['visualizacao_codigo'];
             }
 
-            if (!$vs_visualizacao)//
+            if (!$vs_visualizacao)
                 $vs_visualizacao = "navegacao";
 
             // Se tem um campo hierárquico e ele não vem no filtro,
@@ -312,24 +315,24 @@
                         if ($vb_id_field)
                         {
                             $va_item_listagem["id_field"] = $vs_valor_atributo;
-                            $va_item_listagem["id_field_label"] = $vs_label_campo;    
+                            $va_item_listagem["id_field_label"] = $vs_label_campo;
                         }
 
                         elseif ($vb_main_field)
                         {
                             if (!isset($va_item_listagem["main_field"]) && $vs_valor_atributo != "")
                                 $va_item_listagem["main_field"] = $vs_valor_atributo;
-                            elseif ($vs_valor_atributo != "") 
+                            elseif ($vs_valor_atributo != "")
                                 $va_item_listagem["main_field"] = $va_item_listagem["main_field"] . ": " . $vs_valor_atributo;
 
-                            $va_item_listagem["main_field_label"] = $vs_label_campo;        
+                            $va_item_listagem["main_field_label"] = $vs_label_campo;
                         }
                         elseif ($vb_descriptive_field)
                         {
                             $va_item_listagem["descriptive_field"] = $vs_valor_atributo;
 
-                            $va_item_listagem["descriptive_field_label"] = $vs_label_campo;  
-                        }        
+                            $va_item_listagem["descriptive_field_label"] = $vs_label_campo;
+                        }
 
                         if ( ($vs_output == "out") || (!$vb_id_field && !$vb_main_field && !$vb_descriptive_field) )
                         {

@@ -294,6 +294,8 @@
             {
                 if ( (in_array($vs_key_controlador, array_keys($va_parametros_controle_acesso))) )
                 {
+                    if ($va_parametros_controle_acesso[$vs_key_controlador] == "_ALL_") continue;
+
                     if ($va_parametros_controle_acesso[$vs_key_controlador] != "")
                     {
                         if (count(explode("|", $va_parametros_controle_acesso[$vs_key_controlador])) == 1 && isset($va_campos[$vs_atributo_controlador]))

@@ -137,7 +137,7 @@
                 </div>
 
                 <div class="col-6 text-left">
-                <button class="btn btn-outline-primary px-4" type="button" id="btn_limpar">Limpar</button>
+                <button class="btn btn-outline-primary px-4" type="button" id="btn_limpar_filtro_combinado">Limpar</button>
                 </div>
             </div>
         </div>
@@ -247,7 +247,16 @@ $(document).on('click', "#btn_buscar_combinado", function()
     $("#form_lista").attr('action', '<?php print $vs_form_action; ?>');
     $("#form_lista").attr('method', 'get');
     $("#form_lista").submit();
-}
-);
+});
+
+$(document).on('click', "#btn_limpar_filtro_combinado", function()
+{
+    $("#filtros_disponiveis").empty();
+    va_filtros_busca.push = [];
+    va_contador_filtros_busca = [];
+
+    $("#form_lista").submit();
+
+});
 
 </script>

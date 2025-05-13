@@ -29,12 +29,13 @@ if (!isset($pa_parametros_campo["tipo"])) {
         Certifique-se que o link tenha um dos seguintes formatos (com ou sem www): <br><br>
         <b>Google Drive:</b>https://{drive|docs}.google.com/{file|documents}/d/XXXXXXXXXXXXXXXXXX/{preview|edit|view} <br><br>
         <b>SoundCloud:</b> https://soundcloud.com/XXXXXXXXX ou https://on.soundcloud.com/XXXXXXXXX <br><br>
+        <b>Spotify:</b> https://open.spotify.com/track/XXXXXXXXX <br><br>
         <b>Vimeo:</b> https://vimeo.com/XXXXXXXXX <br><br>
         <b>YouTube:</b> https://youtube.com/watch?v=XXXXXXXXXXX ou https://youtu.be/XXXXXXXXXXX
     </div>
 
     <p class="small">
-        <b>Sites suportados:</b> Google Drive, SoundCloud, Vimeo e YouTube. <br>
+        <b>Sites suportados:</b> Google Drive, SoundCloud, Spotify, Vimeo e YouTube. <br>
         Os arquivos devem ser públicos para serem visualizados no sistema.
     </p>
     <div class="modal-footer">
@@ -76,6 +77,7 @@ if (!isset($pa_parametros_campo["tipo"])) {
             'on.soundcloud.com',
             'drive.google.com',
             'docs.google.com',
+            'spotify.com',
         ]
 
         try {

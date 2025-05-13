@@ -20,6 +20,8 @@ if ($vs_modo == "ficha")
 }
 
 $vn_pagina_atual = 1;
+$vb_retornar_valores_vazios = true;
+
 
 $vs_visualizacao = "ficha";
 
@@ -49,8 +51,10 @@ utils::callback_progress($vs_file_name, 100);
 utils::clear_temp_folder("-5 minutes");
 exit();
 
-function add_to_csv($pr_file, $pa_itens_listagem)
+function add_to_csv($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false)
 {
+    $vn_contador = 1;
+
     foreach ($pa_itens_listagem as $va_item_listagem)
     {
         $va_atributos = array();
@@ -68,6 +72,8 @@ function add_to_csv($pr_file, $pa_itens_listagem)
         }
 
         fputcsv($pr_file, $va_atributos);
+
+        $vn_contador++;
     }
 }
 
@@ -87,7 +93,7 @@ function create_header($pr_file, $pa_itens_listagem)
             {
                 $va_labels[] = $va_atributos_item_listagem["label"];
             }
-                
+
         }
 
         fputcsv($pr_file, $va_labels);
