@@ -7,7 +7,7 @@ function get_import_config_options(): array
             "name" => "import_debug",
             "label" => "Modo teste",
             "description" => "Nenhuma alteração é feita no banco de dados durante a importação e o relatório da importação é exibido ao final.",
-            "value" => 0,
+            "value" => true,
             "type" => "checkbox"
         ];
 
@@ -15,7 +15,7 @@ function get_import_config_options(): array
             "name" => "import_allow_errors",
             "label" => "Tolerância a erros",
             "description" => "Caso alguma célula possua um valor inválido e não possa ser processada, o item será criado sem o valor da célula.",
-            "value" => 1,
+            "value" => true,
             "type" => "checkbox"
         ];
 
@@ -69,8 +69,6 @@ function get_import_config_options(): array
             "type" => "checkbox",
             "fields" => [
                 "html_autocomplete",
-//                "multi_check_input",
-//                "multi_fields_input"
             ]
         ];
 
@@ -142,23 +140,9 @@ function get_import_config_options(): array
                         <input
                                 class="<?= in_array($va_option["type"], ["checkbox", "radio"]) ? "form-check-input" : "form-control-sm form-control" ?>"
                                 type="<?= $va_option["type"]; ?>"
-                                name="<?= $va_option["name"]; ?>"
-                                value=""
-<!--                            --><?php
-//                            if (isset($_GET["obj"]) && ($va_option["value"] == "1" || isset($va_option["checked"])))
-//                            {
-//                                print "checked";
-//                            }
-//                            elseif (str_replace("import_", "", $vs_option_id) == $_GET[("*" . $va_option["name"])])
-//                            {
-//                                print "checked";
-//                            }
-//                            elseif ($_GET[("*" . $va_option["name"])] != null && $va_option["type"] == "checkbox")
-//                            {
-//                                print "checked";
-//                            }
-//                            ?>
-
+                                name="parametros_importacao[<?= $va_option["name"]; ?>]"
+                                value="<?= $va_option["value"]; ?>" <?= isset($va_option["checked"]) ? "checked" : ""; ?>
+                        >
                     </td>
                 </tr>
             <?php endif; ?>

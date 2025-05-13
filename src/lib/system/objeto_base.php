@@ -2095,7 +2095,7 @@ class objeto_base
 
                 foreach ($va_atributos_objeto as $va_atributo_objeto) 
                 {
-                    if (isset($va_atributo_objeto["valor_padrao"]) && !in_array(reset($va_atributo_objeto), $va_filtros_busca))
+                    if (isset($va_atributo_objeto["valor_padrao"]) && !in_array(reset($va_atributo_objeto), $va_filtros_busca ?? []))
                     {
                         $va_filtros_busca[reset($va_atributo_objeto)] = $va_atributo_objeto["valor_padrao"];
                     }
