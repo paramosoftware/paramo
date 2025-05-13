@@ -204,6 +204,14 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
 
                         $vs_expressao_montada = '<a href="'. $vs_url . '">' . $vs_expressao_montada . '</a>';
                     }
+                    elseif (isset($pa_opcoes_campo["formato"]["link"]["get_link"]))
+                    {
+                        $vo_objeto = new $pa_opcoes_campo["formato"]["link"]["objeto"];
+
+                        $vn_objeto_link_codigo = $va_atributo_temp[$pa_opcoes_campo["formato"]["link"]["codigo"]];
+
+                        $vs_expressao_montada = $vo_objeto->get_link($vn_objeto_link_codigo, $vs_expressao_montada);
+                    }
                     else
                     {
                         $vs_expressao_montada = '<a target="_blank" href="'. $vs_expressao_montada . '">' . $vs_expressao_montada . '</a>';

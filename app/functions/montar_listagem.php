@@ -65,6 +65,9 @@
     if (!isset($vs_ordem))
         $vs_ordem = "";
 
+    if (!isset($vb_retornar_valores_vazios))
+        $vb_retornar_valores_vazios = false;
+
     // Eis aqui: onde o objeto_base vai montar automaticamente os atributos, campos e visualizações do
     // objeto passado por parâmetro no construtor
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,8 +205,8 @@
         }
         else
             $vn_numero_registros_lista = $vn_numero_registros;
-        
-        $va_objetos_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_registros_lista, $vn_ordenacao, $vs_ordem, $va_log_info);
+
+        $va_objetos_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_registros_lista, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
 
         if ($vs_formato_listagem == "default")
         {
@@ -310,7 +313,10 @@
                         $vs_valor_atributo = ler_valor1($vs_key_campo_visualizacao, $va_item, $va_campo_visualizacao);
 
                         if ($vb_id_field)
+                        {
                             $va_item_listagem["id_field"] = $vs_valor_atributo;
+                            $va_item_listagem["id_field_label"] = $vs_label_campo;
+                        }
 
                         elseif ($vb_main_field)
                         {
@@ -318,14 +324,20 @@
                                 $va_item_listagem["main_field"] = $vs_valor_atributo;
                             elseif ($vs_valor_atributo != "")
                                 $va_item_listagem["main_field"] = $va_item_listagem["main_field"] . ": " . $vs_valor_atributo;
+
+                            $va_item_listagem["main_field_label"] = $vs_label_campo;
                         }
                         elseif ($vb_descriptive_field)
+                        {
                             $va_item_listagem["descriptive_field"] = $vs_valor_atributo;
+
+                            $va_item_listagem["descriptive_field_label"] = $vs_label_campo;
+                        }
 
                         if ( ($vs_output == "out") || (!$vb_id_field && !$vb_main_field && !$vb_descriptive_field) )
                         {
-                            if ($vs_valor_atributo != "")
-                            {
+                            /* if ($vs_valor_atributo != "")
+                            { */
 
                                 $va_atributo_item_listagem["label"] = $vs_label_campo;
                                 $va_atributo_item_listagem["valor"] = $vs_valor_atributo;
@@ -341,7 +353,7 @@
 
 
                                 $va_atributos_item_listagem[] = $va_atributo_item_listagem;
-                            }
+                           // }
                         }
                     }
 

@@ -343,6 +343,7 @@
 
 
         $va_usuario_logado_especies_documentais = array();
+
         if (isset($va_usuario["usuario_especie_documental_codigo"]))
         {
             foreach ($va_usuario["usuario_especie_documental_codigo"] as $va_especie_documental)
@@ -350,6 +351,8 @@
                 $va_usuario_logado_especies_documentais[] = $va_especie_documental["usuario_especie_documental_codigo"]['especie_documental_codigo'];
             }
         }
+        elseif ($vn_usuario_logado_acervo_codigo)
+            $va_usuario_logado_especies_documentais[] = "_ALL_";
 
         $vn_usuario_logado_especie_documental_codigo = join("|", $va_usuario_logado_especies_documentais);
 

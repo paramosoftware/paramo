@@ -22,7 +22,7 @@
 
             $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
 
-            if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso))
+            if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso) || in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
             {
                 print "Sem permissão para substituir este registro.";
                 exit();
@@ -85,6 +85,7 @@
     $vs_atributo_codigo = "";
     $vs_atributo_nome = "";
     $vs_procurar_por = "";
+    $vb_permitir_cadastro = true;
 
     switch($vs_id_objeto_tela)
     {
@@ -92,6 +93,7 @@
             $vs_campo_nome = "agrupamento";
             $vs_atributo_codigo = "agrupamento_codigo";
             $vs_atributo_nome = "agrupamento_dados_textuais_0_agrupamento_nome";
+            $vb_permitir_cadastro = false;
 
             break;
 
@@ -174,6 +176,13 @@
             
             break;
 
+        case "unidade_armazenamento":
+            $vs_atributo_codigo = "unidade_armazenamento_codigo";
+            $vs_atributo_nome = "unidade_armazenamento_nome";
+            $vb_permitir_cadastro = false;
+
+            break;
+
         default:
             $vb_substituir_disponivel = false;
     }
@@ -252,7 +261,7 @@
                                                 "multiplos_valores" => false, 
                                                 "procurar_por" => $vs_procurar_por, 
                                                 "visualizacao" => "lista",
-                                                "permitir_cadastro" => true, 
+                                                "permitir_cadastro" => $vb_permitir_cadastro,
                                                 "campo_salvar" => $vs_atributo_nome,
                                                 "excluir" => $vn_objeto_codigo
                                             ];

@@ -429,7 +429,7 @@ class conjunto_documental extends acervo
         ];
     }
 
-    public function ler_numero_registros($pa_filtros_busca = null, $pa_log_info = null)
+    public function ler_numero_registros($pa_filtros_busca = null, $pa_log_info = null, $pb_retornar_ramos_inferiores = true)
     {
         if (isset($pa_filtros_busca["instituicao_codigo"]))
             $pa_filtros_busca["acervo_codigo_0_acervo_instituicao_codigo"] = $pa_filtros_busca["instituicao_codigo"];
@@ -437,7 +437,7 @@ class conjunto_documental extends acervo
         return parent::ler_numero_registros($pa_filtros_busca, $pa_log_info);
     }
 
-    public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", $pn_primeiro_registro = 0, $pn_numero_registros = 20, $pa_order_by = null, $ps_order = null, $pa_log_info = null, $pn_idioma_codigo = 1)
+    public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", $pn_primeiro_registro = 0, $pn_numero_registros = 20, $pa_order_by = null, $ps_order = null, $pa_log_info = null, $pn_idioma_codigo = 1, $pb_retornar_ramos_inferiores = true)
     {
         if (isset($pa_filtros_busca["instituicao_codigo"]))
             $pa_filtros_busca["acervo_codigo_0_acervo_instituicao_codigo"] = $pa_filtros_busca["instituicao_codigo"];

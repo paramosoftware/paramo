@@ -427,7 +427,7 @@
     
     if ( $vb_aplicar_controle_acesso && (in_array($va_parametros_campo["atributos"][0], array_keys($va_parametros_controle_acesso))) )
     {
-        if ($va_parametros_controle_acesso[$va_parametros_campo["atributos"][0]] != "")
+        if (!in_array($va_parametros_controle_acesso[$va_parametros_campo["atributos"][0]], ["", "_ALL_"]))
             $va_termo_busca[$va_parametros_campo["atributos"][0]] = $va_parametros_controle_acesso[$va_parametros_campo["atributos"][0]];
     }
     //elseif (isset($va_termo_busca[$va_parametros_campo["nome"]]))

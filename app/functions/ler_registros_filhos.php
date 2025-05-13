@@ -24,7 +24,7 @@
         $vn_objeto_codigo = $va_parametros['cod'];
 
     $vo_objeto = new $vs_id_objeto;
-    $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $vn_objeto_codigo], "navegacao");
+    $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $vn_objeto_codigo], "navegacao", null, null, null, null, null, 1, false);
 
     $va_visualizacao_lista = $vo_objeto->get_visualizacao("navegacao");
     
