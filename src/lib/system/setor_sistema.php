@@ -47,6 +47,12 @@ class setor_sistema extends objeto_base
             'objeto' => 'recurso_sistema'
         ];
 
+        if (class_exists('setor_sistema_business'))
+        {
+            $vo_setor_sistema_business = new setor_sistema_business();
+            $va_atributos = array_merge_recursive($va_atributos, $vo_setor_sistema_business->inicializar_atributos() ?? []);
+        }
+
         return $va_atributos;
     }
 
@@ -101,6 +107,11 @@ class setor_sistema extends objeto_base
             'alias' => "acervos"
         ];
 
+        if (class_exists('setor_sistema_business')) {
+            $vo_setor_sistema_business = new setor_sistema_business();
+            $va_relacionamentos = array_merge_recursive($va_relacionamentos, $vo_setor_sistema_business->inicializar_relacionamentos() ?? []);
+        }
+
         return $va_relacionamentos;
     }
 
@@ -146,6 +157,12 @@ class setor_sistema extends objeto_base
             ]
         ];
 
+        if (class_exists('setor_sistema_business'))
+        {
+            $vo_setor_sistema_business = new setor_sistema_business();
+            $va_campos_edicao = array_merge_recursive($va_campos_edicao, $vo_setor_sistema_business->inicializar_campos_edicao());
+        }
+
         return $va_campos_edicao;
     }
 
@@ -184,6 +201,25 @@ class setor_sistema extends objeto_base
         $this->visualizacoes["publica"]["ordem_campos"] = [
             "setor_sistema_nome" => ["label" => "Nome", "main_field" => true],
         ];
+
+        if (class_exists('setor_sistema_business'))
+        {
+            $vo_setor_sistema_business = new setor_sistema_business();
+            $this->visualizacoes = array_merge_recursive($this->visualizacoes, $vo_setor_sistema_business->inicializar_visualizacoes() ?? []);
+        }
+
+        return $this->visualizacoes;
+    }
+
+    public function salvar($pa_valores, $pb_logar_operacao = true, $pn_idioma_codigo = 1, $pb_salvar_objeto_pai = true, $ps_id_objeto_filho = '', $pb_sobrescrever = true)
+    {
+        if (class_exists('setor_sistema_business'))
+        {
+            $vo_setor_sistema_business = new setor_sistema_business();
+            $vo_setor_sistema_business->salvar($pa_valores, $pb_logar_operacao, $pn_idioma_codigo, $pb_salvar_objeto_pai, $ps_id_objeto_filho, $pb_sobrescrever);
+        }
+
+        return parent::salvar($pa_valores, $pb_logar_operacao, $pn_idioma_codigo, $pb_salvar_objeto_pai, $ps_id_objeto_filho, $pb_sobrescrever);
     }
 
 }
