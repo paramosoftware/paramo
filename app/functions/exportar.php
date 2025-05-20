@@ -61,7 +61,7 @@ function add_to_csv($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fals
 
         $va_atributos[] = $va_item_listagem["id_field"] ?? "";
         $va_atributos[] = $va_item_listagem["main_field"] ?? "";
-        /*$va_atributos[] = $va_item_listagem["descriptive_field"] ?? "";*/
+        $va_atributos[] = $va_item_listagem["descriptive_field"] ?? "";
 
         foreach($va_item_listagem["atributos"] as $va_atributos_item_listagem)
         {
@@ -85,7 +85,7 @@ function create_header($pr_file, $pa_itens_listagem)
 
         $va_labels[] = $va_item_listagem["id_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["main_field_label"] ?? "";
-        /*$va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";*/
+        $va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";
 
         foreach($va_item_listagem["atributos"] as $key => $va_atributos_item_listagem)
         {
