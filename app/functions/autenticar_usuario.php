@@ -97,7 +97,7 @@
             if (isset($va_recurso_sistema["recurso_sistema_nome_plural"]))
 	            $vs_recurso_sistema_nome_plural = $va_recurso_sistema["recurso_sistema_nome_plural"];
             
-            if (isset($va_recurso_sistema["recurso_sistema_genero_gramatical_codigo"]))
+            if (isset($va_recurso_sistema["recurso_sistema_genero_gramatical_codigo"]["genero_gramatical_codigo"]))
                 $vn_recurso_sistema_genero_gramatical_codigo = $va_recurso_sistema["recurso_sistema_genero_gramatical_codigo"]["genero_gramatical_codigo"];
 
         }

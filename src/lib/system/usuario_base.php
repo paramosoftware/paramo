@@ -211,6 +211,9 @@ public function salvar($pa_valores, $pb_logar_operacao = true, $pn_idioma_codigo
     if (isset($pa_valores["usuario_alterar_senha"]) && ($pa_valores["usuario_alterar_senha"]))
         $pa_valores["usuario_senha"] = password_hash($pa_valores["usuario_senha"], PASSWORD_DEFAULT);
 
+    if (!isset($pa_valores["usuario_ativo"]))
+        $pa_valores["usuario_ativo"] = 1;
+
     return parent::salvar($pa_valores, $pb_logar_operacao, $pn_idioma_codigo, true, "", $pb_sobrescrever);
 }
 
