@@ -888,7 +888,7 @@ class objeto_base
         return $vb_tem_valor;
     }
 
-    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array())
+    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
     {
         if (isset($pa_filtros_busca)) 
         {
@@ -1050,7 +1050,7 @@ class objeto_base
                             // O terceiro parâmetro vazio quer dizer que ainda não foi feito nenhum join para este filtro
                             /////////////////////////////////////////////////////////////////////////////////////////////
                             
-                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
+                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
                         }
                     }
                 }
@@ -1058,7 +1058,7 @@ class objeto_base
         }
     }
 
-    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array())
+    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
     {
         // A partir daqui, vamos procurar o campo/atributo ao qual o filtro se refere
         ////////////////////////////////////////////////////////////////////////////
@@ -1534,7 +1534,7 @@ class objeto_base
                     //elseif (($pb_retornar_ramos_inferiores) && $vo_objeto_coluna->campo_hierarquico && ($va_filtro[0] != $po_objeto->campo_hierarquico))
                     elseif (($pb_retornar_ramos_inferiores) && $vo_objeto_coluna->campo_hierarquico && !is_null($pa_valores_busca[0]))
                     {
-                        $this->adicionar_ramos_hierarquicos($po_objeto, $vo_objeto_coluna, $vs_campo_tabela, $vs_tipo_dado_campo, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $ps_operador_logico);
+                        $this->adicionar_ramos_hierarquicos($po_objeto, $vo_objeto_coluna, $vs_campo_tabela, $vs_tipo_dado_campo, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $ps_operador_logico, false, $pn_primeiro_registro, $pn_numero_registros);
                     }
                 }
             } 
@@ -1694,7 +1694,7 @@ class objeto_base
         }
     }
 
-    private function adicionar_ramos_hierarquicos($po_objeto, $po_objeto_coluna, &$ps_campo_tabela, &$ps_tipo_dado_campo, &$pa_valores_busca, &$ps_operador, &$ps_interrogacoes, $ps_operador_logico, $pb_tabela_dados_textuais = false)
+    private function adicionar_ramos_hierarquicos($po_objeto, $po_objeto_coluna, &$ps_campo_tabela, &$ps_tipo_dado_campo, &$pa_valores_busca, &$ps_operador, &$ps_interrogacoes, $ps_operador_logico, $pb_tabela_dados_textuais = false, $pn_primeiro_registro = 0, $pn_numero_registros = 0)
     {
         $this->banco_dados = $this->get_banco();
 
@@ -1766,7 +1766,11 @@ class objeto_base
             "wheres" => $va_wheres_select,
         ];
 
-        $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select);
+        $vs_limit = "";
+        if ($pn_primeiro_registro)
+            $vs_limit = " LIMIT " . ($pn_primeiro_registro - 1) . ", " . $pn_numero_registros;
+
+        $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, $vs_limit);
 
         $pa_valores_busca = array();
         $va_interrogracoes = array();
@@ -2101,7 +2105,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores, $va_joins_trail);
+                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores, $va_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
