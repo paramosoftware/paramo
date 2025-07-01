@@ -396,115 +396,178 @@ $(document).on('click', ".btn-back", function()
     $("#div_atual").val(vn_div_anterior);
 });
 
+
+
 <?php
-foreach($va_campos_upload as $vs_key_campo => $va_parametros_campo)
+
+$va_all_campos = array_merge($va_campos, $va_campos_upload);
+
+foreach($va_all_campos as $vs_key_campo => $va_parametros_campo)
 {
 
 if (isset($va_parametros_campo["regra_exibicao"]))
 {
-?>
-
-function atualizar_exibicao_<?php print $vs_key_campo; ?>(ps_valor)
-{
-    vb_exibir_campo = false;
-
-<?php
-    $vs_campo_desabilitar = $vs_key_campo;
-    if ($va_parametros_campo[0] == "html_multi_itens_input")
-        $vs_campo_desabilitar = "numero_" . $vs_key_campo;
-
     foreach($va_parametros_campo["regra_exibicao"] as $vs_campo => $va_valores_desejados)
     {
         if (!is_array($va_valores_desejados))
             $va_valores_desejados = array($va_valores_desejados);
 
-        foreach($va_valores_desejados as $v_valor_desejado)
-        {
-            if ($v_valor_desejado == "nao_vazio")
-            {
-                $v_valor_desejado_campo = "''";
-                $vs_operador = "!=";
-            }
-            elseif (substr($v_valor_desejado, 0, 2) == "<>")
-            {
-                $v_valor_desejado_campo = str_replace("<>", "", $v_valor_desejado);
-                $vs_operador = "!=";
-            }
-            else
-            {
-                $v_valor_desejado_campo = $v_valor_desejado;
-                $vs_operador = "==";
-            }
-        ?>
-            if ( (typeof ps_valor) == "string" )
-                va_valores = ps_valor.split("|");
-            else if ((typeof ps_valor) == "boolean")
-            {
-                if (ps_valor)
-                    va_valores = ['1'];
-                else
-                    va_valores = ['0'];
-            }
-
-            for (v_valor in va_valores)
-            {
-                ps_valor = va_valores[v_valor];
-
-                if (ps_valor <?php print $vs_operador . " " . $v_valor_desejado_campo; ?>)
-                    vb_exibir_campo = true;
-            }
-
-        <?php
-        }
-        ?>
-
-        if (vb_exibir_campo)
-        {
-            $("#div_<?php print $vs_key_campo; ?>").show();
-            desabilitar_campo('<?php print $vs_campo_desabilitar; ?>', false, '<?php print $va_parametros_campo[0]; ?>');
-        }
-        else
-        {
-            $("#div_<?php print $vs_key_campo; ?>").hide();
-            desabilitar_campo('<?php print $vs_campo_desabilitar; ?>', true, '<?php print $va_parametros_campo[0]; ?>');
-        }
-
-    <?php
+        $vs_valores_desejados = implode("|", $va_valores_desejados);
     }
-    ?>
+?>
+
+function atualizar_exibicao_<?php print $vs_key_campo; ?>(ps_valor)
+{
+    atualizar_exibicao_campo('<?php print $vs_key_campo; ?>', ps_valor, '<?php print $vs_valores_desejados; ?>', '<?php print $va_parametros_campo[0]; ?>');
 }
 
 <?php
 }
 
+// Vamos verificar se os subcampos do campo contém regras de exibição
+/////////////////////////////////////////////////////////////////////
+
+if (isset($va_parametros_campo["subcampos"]))
+{
+foreach ($va_parametros_campo["subcampos"] as $vs_key_subcampo => $va_subcampo)
+{
+if (isset($va_subcampo["regra_exibicao"]))
+{
+?>
+
+function atualizar_exibicao_<?php print $vs_key_subcampo; ?>(ps_sufixo, ps_valor)
+{
+    <?php
+    foreach($va_subcampo["regra_exibicao"] as $vs_campo => $va_valores_desejados)
+    {
+        if (!is_array($va_valores_desejados))
+            $va_valores_desejados = array($va_valores_desejados);
+
+        $vs_valores_desejados = implode("|", $va_valores_desejados);
+    }
+    ?>
+
+    //console.log()
+    atualizar_exibicao_campo('<?php print $vs_key_subcampo; ?>'+ps_sufixo, ps_valor, '<?php print $vs_valores_desejados; ?>', '<?php print $va_subcampo[0]; ?>');
+}
+
+<?php
+}
+}
+}
+
 }
 ?>
 
+function atualizar_exibicao_campo(ps_campo, ps_valor, ps_valores_desejados, ps_tipo_campo)
+{
+    vb_exibir_campo = false;
+
+    vs_campo_desabilitar = ps_campo;
+    if (ps_tipo_campo == "html_multi_itens_input")
+        vs_campo_desabilitar = "numero_" + ps_campo;
+
+    pa_valores_desejados = ps_valores_desejados.split("|");
+
+    let i = 0;
+    while (i < pa_valores_desejados.length)
+    {
+        v_valor_desejado = pa_valores_desejados[i];
+
+        if (v_valor_desejado == "nao_vazio")
+        {
+            v_valor_desejado_campo = "''";
+            vs_operador = "!=";
+        }
+        else if (v_valor_desejado.substring(0, 2) == "<>")
+        {
+            v_valor_desejado_campo = v_valor_desejado.replace("<>", "");
+            vs_operador = "!=";
+        }
+        else
+        {
+            v_valor_desejado_campo = v_valor_desejado;
+            vs_operador = "==";
+        }
+
+        if ( (typeof ps_valor) == "string" )
+            va_valores = ps_valor.split("|");
+
+        else if ((typeof ps_valor) == "boolean")
+        {
+            if (ps_valor)
+                va_valores = ['1'];
+            else
+                va_valores = ['0'];
+        }
+
+        for (v_valor in va_valores)
+        {
+            ps_valor = va_valores[v_valor];
+
+            switch (vs_operador)
+            {
+                case "==":
+                    if (ps_valor == v_valor_desejado_campo)
+                        vb_exibir_campo = true;
+
+                    break;
+
+                case "!=":
+                    if (ps_valor != v_valor_desejado_campo)
+                        vb_exibir_campo = true;
+
+                    break;
+            }
+        }
+
+        i++;
+    }
+
+    if (vb_exibir_campo)
+    {
+        $("#div_"+ps_campo).show();
+        desabilitar_campo(vs_campo_desabilitar, false, ps_tipo_campo);
+    }
+    else
+    {
+        $("#div_"+ps_campo).hide();
+        desabilitar_campo(vs_campo_desabilitar, true, ps_tipo_campo);
+    }
+}
+
 function desabilitar_campo(ps_campo, pb_desabilitar, ps_tipo_campo)
 {
-    vs_tipo_campo = $("#"+ps_campo).attr("class");
+    vs_tipo_campo = $("#" + ps_campo).attr("class");
 
     switch (vs_tipo_campo)
     {
         case "lookup":
-            $("#"+ps_campo+"_codigo").prop("disabled", pb_desabilitar);
+            $("#" + ps_campo + "_codigo").prop("disabled", pb_desabilitar);
             break;
 
         default:
-            $("#"+ps_campo).prop("disabled", pb_desabilitar);
+            $("#" + ps_campo).prop("disabled", pb_desabilitar);
             break;
     }
 
     if (ps_tipo_campo == 'html_date_input')
     {
-        $("#"+ps_campo+"_dia_inicial").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_mes_inicial").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_ano_inicial").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_dia_final").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_mes_final").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_ano_final").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_presumido").prop("disabled", pb_desabilitar);
-        $("#"+ps_campo+"_sem_data").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_dia_inicial").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_mes_inicial").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_ano_inicial").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_dia_final").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_mes_final").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_ano_final").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_presumido").prop("disabled", pb_desabilitar);
+        $("#" + ps_campo + "_sem_data").prop("disabled", pb_desabilitar);
+    }
+    else if (ps_tipo_campo == "html_multi_itens_input")
+    {
+        $("#" + ps_campo).prop("disabled", false);
+
+        if (pb_desabilitar)
+            $("#" + ps_campo).val(0);
     }
 }
 

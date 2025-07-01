@@ -1148,7 +1148,13 @@ function atualizar_dependencias_<?php print $vs_nome_campo_lookup; ?>(pn_valor_s
                 $("#ids_<?php print $v_conectar["campo"]; ?>").val('');
             }
 
-            vs_filtro = $("#form_cadastro").serialize();
+            let formId = 'form_cadastro';
+
+            if (!$("#" + formId).length) {
+                formId = 'form_upload';
+            }
+
+            vs_filtro = $("#" + formId).serialize();
             
             vs_url_campo_atualizado = 'functions/montar_campos.php?obj=<?php print $vs_tela; ?>&campo=<?php print $v_conectar["campo"] ?>&modo=edicao&atualizacao=1&valor_campo_correlato=1&cod='+pn_valor_selecionado+"&"+vs_filtro;
                 
