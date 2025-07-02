@@ -138,6 +138,11 @@ class conexao_pdo
 
     }
 
+    function get_last_inserted_id()
+    {
+        return $this->con->lastInsertId();
+    }
+
 }
 
 ?>

@@ -53,6 +53,8 @@ class objeto_base
     protected $objetos = array();
     protected $numero_registros_por_objeto = array();
 
+    protected $autoincrement_codigo = false;
+
     function __construct($ps_recurso_sistema_id = '')
     {
         $this->banco_dados = $this->get_banco();
@@ -4608,20 +4610,22 @@ class objeto_base
 
         $this->inicializar_variaveis_banco();
 
-        $vn_novo_codigo = $this->ler_proximo_codigo($this->tabela_banco);
-
-        $this->va_campos[] = $this->chave_primaria["coluna_tabela"];
-        $this->va_tipos_parametros[] = "i";
-        $this->va_parametros[] = $vn_novo_codigo;
+        if (!$this->autoincrement_codigo)
+        {
+            $vn_novo_codigo = $this->ler_proximo_codigo($this->tabela_banco);
+            $this->va_campos[] = $this->chave_primaria["coluna_tabela"];
+            $this->va_tipos_parametros[] = "i";
+            $this->va_parametros[] = $vn_novo_codigo;
+        }
 
         $this->montar_campos_salvamento($pa_valores_form, $ps_id_objeto_filho);
 
-        $this->banco_dados->inserir($this->tabela_banco, $this->va_campos, $this->va_tipos_parametros, $this->va_parametros);
+        $vn_autoincrement_codigo = $this->banco_dados->inserir($this->tabela_banco, $this->va_campos, $this->va_tipos_parametros, $this->va_parametros);
 
         if ($vb_iniciada_transacao)
             $this->banco_dados->finalizar_transacao();
 
-        return $vn_novo_codigo;
+        return empty($vn_novo_codigo) ? $vn_autoincrement_codigo : $vn_novo_codigo;
     }
 
     public function atualizar($pa_valores_form, $ps_id_objeto_filho = '')
