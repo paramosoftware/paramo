@@ -12,6 +12,7 @@ class log extends objeto_base
         $this->relacionamentos = $this->inicializar_relacionamentos();
 
         $this->inicializar_visualizacoes();
+        $this->autoincrement_codigo = true;
     }
 
     public function inicializar_tabela_banco()

@@ -126,8 +126,10 @@ class Banco
             . " VALUES "
             . "(" . implode(", ", array_fill(0, count($pa_columns), "?")) . ")";
 
-        if ($this->salvar)
+        if ($this->salvar) {
             $this->conexao_banco->executar($vs_select, $pa_tipos_valores, $pa_valores);
+            return $this->conexao_banco->get_last_inserted_id();
+        }
         else
             var_dump($vs_select, $pa_tipos_valores, $pa_valores);
     }

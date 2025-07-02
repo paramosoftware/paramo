@@ -136,4 +136,9 @@ class conexao_mysqli
         $this->con->close();
     }
 
+    function get_last_inserted_id()
+    {
+        return $this->con->insert_id;
+    }
+
 }
