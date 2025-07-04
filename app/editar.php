@@ -389,7 +389,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                                     <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
                                                 <?php } ?>
 
-                                                <button class="btn btn-outline-primary" type="button" style="display:none">Excluir</button>
+                                                <button class="btn btn-outline-primary" type="button" id="btn_excluir">Excluir</button>
                                             <?php
                                             }
                                             ?>
@@ -719,10 +719,7 @@ $(document).on('click', "#btn_representantes_digitais", function()
 
 $(document).on('click', "#btn_excluir", function()
 {
-    if (confirm('Tem certeza de que deseja excluir este registro?')) 
-    {
-        window.location.href = "functions/excluir.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
-    }
+    window.location.href = "confirmar_exclusao.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
 });
 
 <?php

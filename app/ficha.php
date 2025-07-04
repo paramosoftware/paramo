@@ -102,6 +102,8 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             ?>
 
                                             <button class="btn btn-outline-primary" type="button" id="btn_fechar_imagem" style="display:none">Fechar imagem</button>
+
+                                            <button class="btn btn-outline-primary" type="button" id="btn_excluir">Excluir</button>
                                             <button class="btn btn-outline-primary" type="button" id="btn_voltar_lista" onClick="history.back(-1);">Voltar</button>
                                         </div>                           
                                     </div>
@@ -154,6 +156,11 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                                 getProgress(data, true);
                                             }
                                         });
+                                    });
+
+                                    $(document).on('click', "#btn_excluir", function()
+                                    {
+                                        window.location.href = "confirmar_exclusao.php?obj=<?php print $vs_id_objeto_tela; ?>&cod=<?php print $vn_objeto_codigo; ?>";
                                     });
                                 </script>
 
