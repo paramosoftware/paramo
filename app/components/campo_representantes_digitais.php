@@ -75,7 +75,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                 <?php if (!$vs_preview_only)
                 {
                 ?>
-                    <div class="mb-3">
+                    <div class="mb-3 d-flex gap-1 align-items-center">
                         <?php if ($vb_pode_editar) { ?>
                             <button class="btn btn-outline-primary px-4" type="button" id="btn_adicionar_campo_<?php print $vs_nome_campo; ?>">Adicionar</button>
                         <?php } ?>
@@ -92,7 +92,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 
 
                         <?php if (isset($va_valor_campo) && (count($va_valor_campo) > 0) && $vb_pode_editar) : ?>
-                            <button class="btn btn-outline-primary px-4" type="button" id="btn_remover_todos_<?php print $vs_nome_campo; ?>">Remover todos</button>
+                            <button class="btn btn-outline-primary px-4" type="button" id="btn_baixar_todos_<?php print $vs_nome_campo; ?>">Baixar todos</button>
                             
                             <?php 
                             $vb_todos_publicados_online = true;
@@ -111,6 +111,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
 
                                 <input type="checkbox" class="form-check-input" id="chk_publicar_todos_online"<?= ($vb_todos_publicados_online) ? " checked" : "" ?>
                                 > Publicar todos online
+                                <button class="btn btn-outline-primary px-4 ml-auto" type="button" id="btn_remover_todos_<?php print $vs_nome_campo; ?>">Remover todos</button>
                         <?php endif; ?>
 
                         <br>
@@ -621,6 +622,12 @@ $(document).on('click', ".chk-publicar-online", function()
 ?>
 
 <script>
+$(document).on('click', "#btn_baixar_todos_<?php print $vs_nome_campo; ?>", function()
+{
+    let obj = $("#obj").val();
+    let cod = $("#documento_codigo").val();
+    window.open('functions/download.php?obj='+obj+'&cod='+cod+"&tipo_rd=<?=$vs_nome_campo?>", '_blank');
+});
 
 $(document).on('click', "#btn_remover_todos_<?php print $vs_nome_campo; ?>", function()
 {
