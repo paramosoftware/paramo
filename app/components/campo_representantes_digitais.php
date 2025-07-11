@@ -391,10 +391,23 @@ $(document).on('click', ".image-viewer, .iframe-viewer", function () {
 
         $.get(vs_url_campo_atualizado, function (data, status) {
             $("#div_<?php print $vs_nome_campo ?>").hide();
-            $("#div-image-container").html(data);
+
+            let div = document.createElement('div');
+            let close_btn = document.createElement('button');
+            close_btn.type = 'button';
+            close_btn.classList.add('btn_fechar_imagem');
+            close_btn.classList.add('btn');
+            close_btn.classList.add('btn-outline-primary');
+            close_btn.classList.add('close-media-viewer');
+            close_btn.textContent = "X";
+
+            div.appendChild(close_btn);
+
+            $("#div-image-container").html(div);
+            $("#div-image-container").append(data);
 
             $("#div-image-container").show();
-            $("#btn_fechar_imagem").show();
+            $(".btn_fechar_imagem").show();
         });
     } else if ($(this).hasClass('iframe-viewer')) {
         let path = $(this).parent().attr('href');
@@ -405,6 +418,15 @@ $(document).on('click', ".image-viewer, .iframe-viewer", function () {
         iframe.height = $(window).height() * 0.75;
 
         let div = document.createElement('div');
+        let close_btn = document.createElement('button');
+        close_btn.type = 'button';
+        close_btn.classList.add('btn_fechar_imagem');
+        close_btn.classList.add('btn');
+        close_btn.classList.add('btn-outline-primary');
+        close_btn.classList.add('close-media-viewer');
+        close_btn.textContent = "X";
+
+        div.appendChild(close_btn);
         div.appendChild(iframe);
 
         $("#div_<?php print $vs_nome_campo ?>").hide();
@@ -415,15 +437,15 @@ $(document).on('click', ".image-viewer, .iframe-viewer", function () {
         });
 
         $("#div-image-container").show();
-        $("#btn_fechar_imagem").show();
+        $(".btn_fechar_imagem").show();
     }
 });
 
-$(document).on('click', "#btn_fechar_imagem", function () {
+$(document).on('click', ".btn_fechar_imagem", function () {
     $(".container-lg-com-imagem").addClass("container-lg");
     $(".container-lg-com-imagem").removeClass("container-lg-com-imagem");
 
-    $(this).hide();
+    $('.btn_fechar_imagem').hide();
 
     $("#div-image-container").hide();
     $("#div_<?php print $vs_nome_campo ?>").show();

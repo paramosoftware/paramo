@@ -455,7 +455,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                         ?>
 
                                         <div class="btn-group me-2" role="group" aria-label="First group">
-                                            <button class="btn btn-outline-primary" type="button" id="btn_fechar_imagem" style="display:none">Fechar imagem</button>
+                                            <button class="btn btn-outline-primary btn_fechar_imagem" type="button" id="btn_fechar_imagem" style="display:none">Fechar imagem</button>
                                         </div>
                                     </div>
                                     
