@@ -595,7 +595,7 @@ public function get_data_exibicao($ps_separador='')
 {
 	$vs_data_exibicao = "";
 	if ($this->get_sem_data())
-		return "[s.d.]";
+		return !empty(config::get(["data_indisponivel"])) ? config::get(["data_indisponivel"]) : "[s.d.]";
 
     if ($this->get_data_inicial() == $this->get_data_final())	
 		$vs_data_exibicao = $this->get_data_inicial_barra($ps_separador);
@@ -748,7 +748,7 @@ public function tratar_string($ps_data)
 		$this->set_presumido(1);
 	}
 
-	if (in_array($vs_data, ["s.d.", "s.d", "sd", "s/d"]))
+	if (!empty(config::get(["data_indisponivel"])) && config::get(["data_indisponivel"]) == $vs_data || in_array($vs_data, ["s.d.", "s.d", "sd", "s/d"]))
 	{
 		$this->set_sem_data(1);
 	}
