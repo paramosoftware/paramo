@@ -32,6 +32,9 @@ return [
     # Tamanho do logo na página de login
     "logo_class" => "w-75",
 
+    # Mensagem que aparece para datas marcadas como "sem data"
+    "data_indisponivel" => "[sem data]",
+
     # ================================================ MENU LATERAL ================================================ #
 
     # O menu lateral é composto por 3 seções padrões: institucional, permissões e configurações.
