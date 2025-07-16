@@ -248,7 +248,11 @@
 ?>
 >
 
-    <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
+    
+        <?php if(!empty($pa_parametros_campo["descricao"])) : ?>
+            <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>"> 
+        <?php endif ?>
+
         <?php if ($vs_modo == "lote")
         {
         ?>
@@ -442,6 +446,9 @@
                    maxlength="<?php print $vn_tamanho_maximo; ?>"
                    name="<?php print $vs_nome_campo_lookup ?>"
                    id="<?php print $vs_nome_campo_lookup ?>"
+                   <?php if(!empty($pa_parametros_campo["placeholder"])) : ?>
+                    placeholder="<?php print $pa_parametros_campo["placeholder"]?>"
+                   <?php endif ?>
                    value="<?php print htmlentities($vs_valor_campo_nome, ENT_QUOTES, "UTF-8", false);
                    ?>"
     <?php
@@ -461,7 +468,7 @@
 
             print '></div>';
 
-            if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]))
+            if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]) && empty($pa_parametros_campo['nao_exibir_preenchimento']))
             {
             ?>
                 <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo_codigos; ?>_com_valor" id="<?php print $vs_id_campo_codigos ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo_codigos; ?>(this.checked, 'com_valor')"

@@ -44,16 +44,49 @@
             <?php if (!$vb_usuario_externo) : ?>
                 <li class="nav-item">
 
-                    <div class="input-group">
+                    <div class="input-group row-gap-05">
                         <form method="get" action="index.php">
-                        <div class="input-group">
+                        <div class="input-group header-identificador">
                         
                         <?php
                             if (!isset($vs_busca_id))
                                 $vs_busca_id = "";
-                        ?>
 
-                        <input class="form-control" required type="text" placeholder="Busca por identificador" aria-label="Buscar" name="busca_id" value="<?php print htmlspecialchars($vs_busca_id); ?>">
+                            $ps_tela = "item_acervo";
+                            $ps_nome_campo = 'busca_id';
+                            $ps_ui_element = "";
+                            $ps_modo_form = 'listagem';
+
+                            $vo_autocomplete_identificador = new html_autocomplete($ps_tela, $ps_nome_campo, $ps_ui_element, $ps_modo_form);
+
+                            $pa_valores_form = array(0);
+                            $pa_parametros_campo = array (
+                                0 => 'html_autocomplete',
+                                'exists_busca' => 'item_acervo_identificador',
+                                'nome' => array (
+                                    0 => 'busca_id',
+                                    1 => 'item_acervo_codigo',
+                                ),
+                                'label' => '',
+                                'objeto' => 'item_acervo',
+                                'atributos' => array (
+                                    0 => 'item_acervo_codigo',
+                                    1 => 'item_acervo_identificador',
+                                ),
+                                'multiplos_valores' => false,
+                                'procurar_por' => 'item_acervo_identificador',
+                                'visualizacao' => 'lista',
+                                'permitir_cadastro' => false,
+                                'valor_no_input' => true,
+                                'nao_exibir' => false,
+                                'nao_exibir_preenchimento' => true,
+                                'exibir_somente_correspondencias' => true,
+                                'placeholder' => 'Busca por identificador',
+                            );
+                            $pa_recursos_sistema_permissao_edicao = array (0 => '_all_',);
+
+                            $vo_autocomplete_identificador->build($pa_valores_form, $pa_parametros_campo, $pa_recursos_sistema_permissao_edicao);
+                        ?>
                         
                         <button class="btn btn-primary" type="submit">
                             <svg class="icon">

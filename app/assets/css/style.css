@@ -14981,3 +14981,32 @@ padding-right: 0px;
 .nav-item-active {
     background-color: #768192 !important;
 }
+
+.header-identificador {
+  align-items: center !important;
+}
+
+.header-identificador > button:has(.icon) {
+  max-height: fit-content;
+}
+
+.header-identificador .autocomplete-icon,
+.header-identificador .nenhuma-correspondencia {
+  display: none;
+}
+
+.header-identificador > .mb-3 {
+  margin-bottom: 0px !important;
+}
+
+.header-identificador > div > .autocomplete-group + div {
+  position: absolute;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: stretch;
+}
+
+.row-gap-05 {
+  row-gap: 0.5rem;
+}
