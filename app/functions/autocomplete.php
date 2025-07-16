@@ -363,7 +363,7 @@
         exit();
     }
 
-    $va_termo_busca[$vs_procurar_por] = [$vs_termo, strlen($vs_termo) > 3 ? "LIKE" : "LIKERIGHT"];
+    $va_termo_busca[$vs_procurar_por] = [$vs_termo, strlen($vs_termo) > 3 || $vs_procurar_por == "item_acervo_identificador" ? "LIKE" : "LIKERIGHT"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
 
     $vo_objeto_tela = new $vs_id_objeto_tela;
