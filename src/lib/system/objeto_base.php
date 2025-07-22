@@ -1154,11 +1154,22 @@ class objeto_base
 
                     $vs_campo_chave_importada = $po_objeto->chave_primaria["coluna_tabela"];
                     $vs_campo_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["chave_exportada"];
+                    $vb_tem_idioma = $po_objeto->relacionamentos[$va_filtro[0]]["tem_idioma"] ?? false;
+                    $v_campo_tabela = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]] ?? null;
 
-                    if (is_array($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]]))
-                        $vs_campo_tabela = reset($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]]);
-                    else
-                        $vs_campo_tabela = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]];
+                    if (is_array($v_campo_tabela))
+                    {
+                        $vs_campo_tabela = reset($v_campo_tabela);
+                    }
+                    elseif (!empty($v_campo_tabela))
+                    {
+                        $vs_campo_tabela = $v_campo_tabela;
+                    }
+                    elseif ($vb_tem_idioma && $va_filtro[1] == "idioma_codigo")
+                    {
+                        $vs_campo_tabela = "idioma_codigo";
+                    }
+
 
                     $vs_tabela_filtro = $ps_ultima_tabela_filtro;
 
