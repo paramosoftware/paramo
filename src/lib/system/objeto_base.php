@@ -5245,9 +5245,24 @@ class objeto_base
             if (isset($va_objeto_filho["atributo_relacionamento"]) && ($va_objeto_filho["atributo_relacionamento"])) 
             {
                 $vo_objeto_filho = new $vs_id_objeto_filho($vs_id_objeto_filho);
-
                 $va_parametros_selecao = array();
-                $va_parametros_selecao[$va_objeto_filho["atributo_relacionamento"]] = $pn_codigo;
+                $vs_atributo_relacionamento = $va_objeto_filho["atributo_relacionamento"];
+
+                foreach ($this->relacionamentos as $vs_id_relacionamento => $va_relacionamento)
+                {
+                    $vs_relacionamento_objeto = $va_relacionamento["objeto"] ?? "";
+                    $vs_chave_exportada = $va_relacionamento["chave_exportada"] ?? "";
+                    $vs_tabela_intermediaria = $va_relacionamento["tabela_intermediaria"] ?? "";
+                    if (($vs_relacionamento_objeto == $vs_id_objeto_filho) && $vs_atributo_relacionamento == $vs_chave_exportada)
+                    {
+                        $va_parametros_selecao[$vs_tabela_intermediaria . "_0_" . $vs_chave_exportada] = $pn_codigo;
+                    }
+                }
+
+                if (empty($va_parametros_selecao))
+                {
+                    $va_parametros_selecao[$vs_atributo_relacionamento] = $pn_codigo;
+                }
 
                 $va_registros_filhos = $vo_objeto_filho->ler_lista($va_parametros_selecao, "lista");
 
@@ -5257,7 +5272,8 @@ class objeto_base
                     break;
                 }
 
-                foreach ($va_registros_filhos as $va_registro_filho) {
+                foreach ($va_registros_filhos as $va_registro_filho)
+                {
                     $vo_objeto_filho->excluir($va_registro_filho[$vo_objeto_filho->get_chave_primaria()[0]], false, [get_class($this), $pn_codigo]);
                 }
             } else {
