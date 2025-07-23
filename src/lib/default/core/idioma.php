@@ -12,12 +12,6 @@ class idioma extends objeto_base
         $this->relacionamentos = $this->inicializar_relacionamentos();
 
         $this->inicializar_visualizacoes();
-
-        $this->registros_filhos["especie_documental"] = ["pode_excluir_pai" => false];
-        $this->registros_filhos["contexto"] = ["pode_excluir_pai" => false];
-        $this->registros_filhos["agrupamento"] = ["pode_excluir_pai" => false];
-        $this->registros_filhos["item_acervo"] = ["pode_excluir_pai" => false];
-        $this->registros_filhos["pagina_site"] = ["pode_excluir_pai" => false];
     }
 
     public function inicializar_tabela_banco()
@@ -84,7 +78,8 @@ class idioma extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'item_acervo',
             'objeto' => 'item_acervo',
-            'alias' => "descritores de itens de acervo"
+            'alias' => "descritores de itens de acervo",
+            'impede_exclusao' => true
         ];
 
         $va_relacionamentos['idioma_agrupamento_dados_textuais'] = [
@@ -99,7 +94,8 @@ class idioma extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'agrupamento',
             'objeto' => 'agrupamento',
-            'alias' => "descritores de agrupamentos"
+            'alias' => "descritores de agrupamentos",
+            'impede_exclusao' => true
         ];
 
         $va_relacionamentos['idioma_contexto_dados_textuais'] = [
@@ -114,7 +110,8 @@ class idioma extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'contexto',
             'objeto' => 'contexto',
-            'alias' => "descritores de contextos"
+            'alias' => "descritores de contextos",
+            'impede_exclusao' => true
         ];
 
         $va_relacionamentos['idioma_especie_documental_dados_textuais'] = [
@@ -129,7 +126,8 @@ class idioma extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'especie_documental',
             'objeto' => 'especie_documental',
-            'alias' => "descritores de espécies documentais"
+            'alias' => "descritores de espécies documentais",
+            'impede_exclusao' => true
         ];
 
         $va_relacionamentos['idioma_pagina_site_dados_textuais'] = [
@@ -144,7 +142,8 @@ class idioma extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'pagina_site',
             'objeto' => 'pagina_site',
-            'alias' => "descritores de páginas de sites"
+            'alias' => "descritores de páginas de sites",
+            'impede_exclusao' => true
         ];
 
         return $va_relacionamentos;

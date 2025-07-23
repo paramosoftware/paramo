@@ -5204,6 +5204,9 @@ class objeto_base
                         }
                     }
 
+                    if (isset($va_relacionamento["impede_exclusao"]))
+                        $vb_pode_excluir = $vb_pode_excluir && !$va_relacionamento["impede_exclusao"];
+
                     $vn_numero_registros_relacionamento = $vn_numero_registros_relacionamento + $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select)[0]["Q"];
                 }
 
@@ -5247,17 +5250,6 @@ class objeto_base
                 $vo_objeto_filho = new $vs_id_objeto_filho($vs_id_objeto_filho);
                 $va_parametros_selecao = array();
                 $vs_atributo_relacionamento = $va_objeto_filho["atributo_relacionamento"];
-
-                foreach ($this->relacionamentos as $vs_id_relacionamento => $va_relacionamento)
-                {
-                    $vs_relacionamento_objeto = $va_relacionamento["objeto"] ?? "";
-                    $vs_chave_exportada = $va_relacionamento["chave_exportada"] ?? "";
-                    $vs_tabela_intermediaria = $va_relacionamento["tabela_intermediaria"] ?? "";
-                    if (($vs_relacionamento_objeto == $vs_id_objeto_filho) && $vs_atributo_relacionamento == $vs_chave_exportada)
-                    {
-                        $va_parametros_selecao[$vs_tabela_intermediaria . "_0_" . $vs_chave_exportada] = $pn_codigo;
-                    }
-                }
 
                 if (empty($va_parametros_selecao))
                 {
