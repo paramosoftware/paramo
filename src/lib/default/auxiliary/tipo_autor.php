@@ -58,7 +58,8 @@ class tipo_autor extends objeto_base
             'tipos_campos_relacionamento' => ['i'],
             'tabela_relacionamento' => 'item_acervo',
             'objeto' => 'item_acervo',
-            'alias' => 'itens do acervo'
+            'alias' => 'itens do acervo',
+            'impede_exclusao' => true
         ];
 
         return $va_relacionamentos;

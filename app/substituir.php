@@ -176,6 +176,12 @@
             
             break;
 
+        case "tipo_autor":
+            $vs_atributo_codigo = "tipo_autor_codigo";
+            $vs_atributo_nome = "tipo_autor_nome";
+            
+            break;
+
         case "unidade_armazenamento":
             $vs_atributo_codigo = "unidade_armazenamento_codigo";
             $vs_atributo_nome = "unidade_armazenamento_nome";

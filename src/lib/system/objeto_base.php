@@ -1154,11 +1154,22 @@ class objeto_base
 
                     $vs_campo_chave_importada = $po_objeto->chave_primaria["coluna_tabela"];
                     $vs_campo_tabela_join = $po_objeto->relacionamentos[$va_filtro[0]]["chave_exportada"];
+                    $vb_tem_idioma = $po_objeto->relacionamentos[$va_filtro[0]]["tem_idioma"] ?? false;
+                    $v_campo_tabela = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]] ?? null;
 
-                    if (is_array($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]]))
-                        $vs_campo_tabela = reset($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]]);
-                    else
-                        $vs_campo_tabela = $po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"][$va_filtro[1]];
+                    if (is_array($v_campo_tabela))
+                    {
+                        $vs_campo_tabela = reset($v_campo_tabela);
+                    }
+                    elseif (!empty($v_campo_tabela))
+                    {
+                        $vs_campo_tabela = $v_campo_tabela;
+                    }
+                    elseif ($vb_tem_idioma && $va_filtro[1] == "idioma_codigo")
+                    {
+                        $vs_campo_tabela = "idioma_codigo";
+                    }
+
 
                     $vs_tabela_filtro = $ps_ultima_tabela_filtro;
 
@@ -5193,6 +5204,9 @@ class objeto_base
                         }
                     }
 
+                    if (isset($va_relacionamento["impede_exclusao"]))
+                        $vb_pode_excluir = $vb_pode_excluir && !$va_relacionamento["impede_exclusao"];
+
                     $vn_numero_registros_relacionamento = $vn_numero_registros_relacionamento + $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select)[0]["Q"];
                 }
 
@@ -5234,9 +5248,13 @@ class objeto_base
             if (isset($va_objeto_filho["atributo_relacionamento"]) && ($va_objeto_filho["atributo_relacionamento"])) 
             {
                 $vo_objeto_filho = new $vs_id_objeto_filho($vs_id_objeto_filho);
-
                 $va_parametros_selecao = array();
-                $va_parametros_selecao[$va_objeto_filho["atributo_relacionamento"]] = $pn_codigo;
+                $vs_atributo_relacionamento = $va_objeto_filho["atributo_relacionamento"];
+
+                if (empty($va_parametros_selecao))
+                {
+                    $va_parametros_selecao[$vs_atributo_relacionamento] = $pn_codigo;
+                }
 
                 $va_registros_filhos = $vo_objeto_filho->ler_lista($va_parametros_selecao, "lista");
 
@@ -5246,7 +5264,8 @@ class objeto_base
                     break;
                 }
 
-                foreach ($va_registros_filhos as $va_registro_filho) {
+                foreach ($va_registros_filhos as $va_registro_filho)
+                {
                     $vo_objeto_filho->excluir($va_registro_filho[$vo_objeto_filho->get_chave_primaria()[0]], false, [get_class($this), $pn_codigo]);
                 }
             } else {
