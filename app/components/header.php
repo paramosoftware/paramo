@@ -52,40 +52,23 @@
                             if (!isset($vs_busca_id))
                                 $vs_busca_id = "";
 
-                            $ps_tela = "item_acervo";
-                            $ps_nome_campo = 'busca_id';
-                            $ps_ui_element = "";
-                            $ps_modo_form = 'listagem';
+                            $vo_autocomplete_identificador = new html_autocomplete("item_acervo", "busca_id");
 
-                            $vo_autocomplete_identificador = new html_autocomplete($ps_tela, $ps_nome_campo, $ps_ui_element, $ps_modo_form);
-
-                            $pa_valores_form = array(0);
                             $pa_parametros_campo = array (
-                                0 => 'html_autocomplete',
-                                'exists_busca' => 'item_acervo_identificador',
-                                'nome' => array (
-                                    0 => 'busca_id',
-                                    1 => 'item_acervo_codigo',
-                                ),
+                                'html_autocomplete',
+                                'nome' => ['busca_id', 'item_acervo_codigo'],
                                 'label' => '',
                                 'objeto' => 'item_acervo',
-                                'atributos' => array (
-                                    0 => 'item_acervo_codigo',
-                                    1 => 'item_acervo_identificador',
-                                ),
-                                'multiplos_valores' => false,
+                                'atributos' => ['item_acervo_codigo', 'item_acervo_identificador'],
                                 'procurar_por' => 'item_acervo_identificador',
-                                'visualizacao' => 'lista',
-                                'permitir_cadastro' => false,
+                                'operador' => 'LIKERIGHT',
                                 'valor_no_input' => true,
-                                'nao_exibir' => false,
-                                'nao_exibir_preenchimento' => true,
-                                'exibir_somente_correspondencias' => true,
                                 'placeholder' => 'Busca por identificador',
                             );
-                            $pa_recursos_sistema_permissao_edicao = array (0 => '_all_',);
 
-                            $vo_autocomplete_identificador->build($pa_valores_form, $pa_parametros_campo, $pa_recursos_sistema_permissao_edicao);
+                            $pa_valores_form = array('item_acervo_codigo' => '', "busca_id" => $vs_busca_id);
+
+                            $vo_autocomplete_identificador->build($pa_valores_form, $pa_parametros_campo);
                         ?>
                         
                         <button class="btn btn-primary" type="submit">

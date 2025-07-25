@@ -34,6 +34,8 @@
     if (isset($pa_parametros_campo["procurar_por"]))
         $vs_procurar_por = $pa_parametros_campo["procurar_por"];
 
+    $vs_operador = $pa_parametros_campo["operador"] ?? "LIKE";
+
     if (!isset($pa_parametros_campo["multiplos_valores"]))
         $vb_multiplos_valores = false;
     else
@@ -849,7 +851,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                 }
                 ?>
 
-                vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $pa_parametros_campo["nome"][1]; ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>"+vs_filtro;
+                vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $pa_parametros_campo["nome"][1]; ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>&operador=<?php print $vs_operador; ?>"+vs_filtro;
                 
                 <?php if (isset($pa_parametros_campo["excluir"]))
                 {
