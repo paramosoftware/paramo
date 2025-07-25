@@ -647,8 +647,8 @@ $(document).on('click', ".chk-publicar-online", function()
 $(document).on('click', "#btn_baixar_todos_<?php print $vs_nome_campo; ?>", function()
 {
     let obj = $("#obj").val();
-    let cod = $("#documento_codigo").val();
-    window.open('functions/download.php?obj='+obj+'&cod='+cod+"&tipo_rd=<?=$vs_nome_campo?>", '_blank');
+
+    window.open('functions/download.php?obj='+obj+'&cod=<?php print $vn_objeto_codigo; ?>'+'&tipo_rd=<?=$vs_nome_campo?>', '_blank');
 });
 
 $(document).on('click', "#btn_remover_todos_<?php print $vs_nome_campo; ?>", function()
