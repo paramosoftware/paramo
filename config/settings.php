@@ -33,7 +33,7 @@ return [
     "logo_class" => "w-75",
 
     # Mensagem que aparece para datas marcadas como "sem data"
-    "data_indisponivel" => "[sem data]",
+    "data_indisponivel" => "[s.d.]",
 
     # ================================================ MENU LATERAL ================================================ #
 
