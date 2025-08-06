@@ -149,19 +149,30 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
         else
             $_SESSION[$vs_id_objeto_tela]["campo_paginacao"] = "paginacao_topo";
 
-        if (in_array($vn_objeto_codigo, ["p", "n"]))
+        if (in_array($vn_objeto_codigo, ["p", "n", "f", "l"]))
         {
-            if ( ($vn_pagina_atual > 1) && ($vn_objeto_codigo == "p") )
+            if ( ($vn_objeto_codigo == "p") && ($vn_pagina_atual > 1) )
                 $vn_pagina_atual = $vn_pagina_atual - 1;
 
-            if ( ($vn_pagina_atual < $vn_numero_maximo_paginas) && ($vn_objeto_codigo == "n") )
+            elseif ( ($vn_objeto_codigo == "n") && ($vn_pagina_atual < $vn_numero_maximo_paginas) )
                 $vn_pagina_atual = $vn_pagina_atual + 1;
+
+            elseif ( ($vn_objeto_codigo == "f") && isset($_SESSION[$vs_id_objeto_tela]["codigo_primeiro_lista"]) ) {
+                $vn_pagina_atual = 1;
+                $vn_objeto_codigo = $_SESSION[$vs_id_objeto_tela]["codigo_primeiro_lista"];
+            }
+
+            elseif ( ($vn_objeto_codigo == "l") && isset($_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"]) ) {
+                $vn_pagina_atual = $vn_numero_maximo_paginas;
+                $vn_objeto_codigo = $_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"];
+            }
 
             $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]] = $vn_pagina_atual;
             
             $va_parametros_filtros_consulta = $_SESSION[$vs_id_objeto_tela];
             require dirname(__FILE__)."/functions/montar_listagem.php";
 
+            // A listagem_codigos só é atualizada após a chamada para /montar_listagem.php
             if ($vn_objeto_codigo == "p")
                 $vn_objeto_codigo = end($_SESSION[$vs_id_objeto_tela]["listagem_codigos"]);
             elseif ($vn_objeto_codigo == "n")
@@ -437,7 +448,18 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                                 <?php if ($vb_exibir_botao_anterior)
                                                 {
                                                 ?>
-                                                    <button class="btn btn-outline-primary btn-nav" type="button" id="btn_nav" value="<?php print $vn_item_anterior_codigo; ?>"> < </button>
+                                                    <button class="btn btn-outline-primary btn-nav flex-centered h-40" type="button" id="btn_primeiro" value="f"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-left" viewBox="0 0 16 16">
+                                                          <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                          <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="btn btn-outline-primary btn-nav flex-centered h-40" type="button" id="btn_nav" value="<?php print $vn_item_anterior_codigo; ?>">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                          <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                        </svg>
+                                                    </button>
                                                 <?php
                                                 }
                                                 ?>
@@ -445,7 +467,18 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                                 <?php if ($vb_exibir_botao_proximo)
                                                 {
                                                 ?>
-                                                    <button class="btn btn-outline-primary btn-nav" type="button" id="btn_proximo" value="<?php print $vn_proximo_item_codigo; ?>"> > </button>
+                                                    <button class="btn btn-outline-primary btn-nav flex-centered h-40" type="button" id="btn_proximo" value="<?php print $vn_proximo_item_codigo; ?>">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                                          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="btn btn-outline-primary btn-nav flex-centered h-40" type="button" id="btn_ultimo" value="l"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16">
+                                                          <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708"/>
+                                                          <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708"/>
+                                                        </svg>
+                                                    </button>
                                                 <?php
                                                 }
                                                 ?>

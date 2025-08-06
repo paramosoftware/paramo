@@ -15010,3 +15010,13 @@ padding-right: 0px;
 .row-gap-05 {
   row-gap: 0.5rem;
 }
+
+.h-40 {
+  height: 40px;
+}
+
+.flex-centered {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
