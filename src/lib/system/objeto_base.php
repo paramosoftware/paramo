@@ -983,10 +983,10 @@ class objeto_base
                                 $vo_data->set_ano_inicial($pa_filtros_busca[$vs_parametro_nome . "_ano_inicial"]);
 
                             if (isset($pa_filtros_busca[$vs_parametro_nome . "_dia_final"]))
-                                $vo_data->set_dia_final($pa_filtros_busca[$vs_parametro_nome . "_dia_final"][0]);
+                                $vo_data->set_dia_final($pa_filtros_busca[$vs_parametro_nome . "_dia_final"]);
 
                             if (isset($pa_filtros_busca[$vs_parametro_nome . "_mes_final"]))
-                                $vo_data->set_mes_final($pa_filtros_busca[$vs_parametro_nome . "_mes_final"][0]);
+                                $vo_data->set_mes_final($pa_filtros_busca[$vs_parametro_nome . "_mes_final"]);
 
                             if (isset($pa_filtros_busca[$vs_parametro_nome . "_ano_final"]))
                                 $vo_data->set_ano_final($pa_filtros_busca[$vs_parametro_nome . "_ano_final"]);
