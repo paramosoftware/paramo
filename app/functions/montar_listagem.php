@@ -206,8 +206,9 @@
         else
             $vn_numero_registros_lista = $vn_numero_registros;
 
-        $va_objetos_primeiro_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, "lista", 1, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
-        $va_objetos_ultimo_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, "lista", $vn_numero_registros, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
+        $va_objetos_primeiro_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, 1, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
+        $va_objetos_ultimo_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_numero_registros, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
+        
         $va_objetos_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_registros_lista, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
 
         if ($vs_formato_listagem == "default")
