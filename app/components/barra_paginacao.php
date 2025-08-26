@@ -51,8 +51,18 @@ if (!isset($vs_tela))
             ?>
 
             <li class="page-item<?php print $vs_css_botao_pagina; ?>">
-                <a class="page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_pagina_anterior_<?php print $vs_nome_campo_paginacao; ?>" href="#" tabindex="-1" aria-disabled="true">
-                    Anterior
+                <a class="flex-centered h-40 page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_pagina_primeira_<?php print $vs_nome_campo_paginacao; ?>" href="#" tabindex="-1" aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                        <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                    </svg>
+                </a>
+            </li>
+            <li class="page-item<?php print $vs_css_botao_pagina; ?>">
+                <a class="flex-centered h-40 page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_pagina_anterior_<?php print $vs_nome_campo_paginacao; ?>" href="#" tabindex="-1" aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                    </svg>
                 </a>
             </li>
             
@@ -120,7 +130,19 @@ if (!isset($vs_tela))
             ?>
 
             <li class="page-item<?php print $vs_css_botao_pagina; ?>">
-                <a class="page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_proxima_pagina_<?php print $vs_nome_campo_paginacao; ?>" href="#">Próxima</a>
+                <a class="flex-centered h-40 page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_proxima_pagina_<?php print $vs_nome_campo_paginacao; ?>" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                    </svg>
+                </a>
+            </li>
+            <li class="page-item<?php print $vs_css_botao_pagina; ?>">
+                <a class="flex-centered h-40 page-link <?php print $vs_nome_campo_paginacao; ?>" id="bnt_ultima_pagina_<?php print $vs_nome_campo_paginacao; ?>" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708"/>
+                      <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708"/>
+                    </svg>
+                </a>
             </li>
         </ul>
     </nav>
@@ -155,6 +177,12 @@ $(document).on('click', ".<?php print $vs_nome_campo_paginacao; ?>", function(ev
 
     else if ($(this).attr("id") == "bnt_pagina_anterior_<?php print $vs_nome_campo_paginacao; ?>")
         vn_pagina = parseInt($("#<?php print $vs_nome_campo_paginacao; ?>").val()) - 1;
+
+    else if ($(this).attr("id") == "bnt_pagina_primeira_<?php print $vs_nome_campo_paginacao; ?>")
+        vn_pagina = 1;
+    
+    else if ($(this).attr("id") == "bnt_ultima_pagina_<?php print $vs_nome_campo_paginacao; ?>")
+        vn_pagina = "<?php print count($va_paginador); ?>";
 
     else
         vn_pagina = $(this).text().trim();

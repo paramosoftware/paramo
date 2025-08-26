@@ -675,6 +675,33 @@ html:not([dir=rtl]) .list-inline-item:not(:last-child) {
   float: left;
 }
 
+.close-media-viewer {
+    margin-bottom: 8px;
+    float: right;
+}
+
+div:has(> .close-media-viewer) {
+    height: 40px;
+}
+
+div:has(.close-media-viewer + #div-image-container > div > iframe) .close-media-viewer {
+    --cui-gutter-x: 1.5rem;
+    --cui-gutter-y: 0;
+    margin-right: calc(var(--cui-gutter-x) * 0.5);
+}
+
+.container-lg-com-imagem:nth-of-type(2) {
+    padding-right: 0;
+}
+
+.container-lg-com-imagem .viewer-container {
+    top: 48px;
+}
+
+.ml-auto {
+    margin-left: auto !important;
+}
+
 @media (min-width: 576px) {
   .container-sm, .container {
     max-width: 540px;
@@ -14953,4 +14980,43 @@ padding-right: 0px;
 
 .nav-item-active {
     background-color: #768192 !important;
+}
+
+.header-identificador {
+  align-items: center !important;
+}
+
+.header-identificador > button:has(.icon) {
+  max-height: fit-content;
+}
+
+.header-identificador .autocomplete-icon,
+.header-identificador .nenhuma-correspondencia {
+  display: none;
+}
+
+.header-identificador > .mb-3 {
+  margin-bottom: 0px !important;
+}
+
+.header-identificador > div > .autocomplete-group + div {
+  position: absolute;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: stretch;
+}
+
+.row-gap-05 {
+  row-gap: 0.5rem;
+}
+
+.h-40 {
+  height: 40px;
+}
+
+.flex-centered {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
 }

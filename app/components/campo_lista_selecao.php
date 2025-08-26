@@ -57,7 +57,7 @@
     elseif (!isset($pa_parametros_campo["permitir_entrada_avulsa"]) || (isset($pa_parametros_campo["permitir_entrada_avulsa"]) && !$pa_parametros_campo["permitir_entrada_avulsa"]))
     {
     ?>
-        <div style="margin-left:5px">Nenhuma correspondência encontrada.</div>
+        <div class="nenhuma-correspondencia" style="margin-left:5px">Nenhuma correspondência encontrada.</div>
     <?php
     }
     ?>

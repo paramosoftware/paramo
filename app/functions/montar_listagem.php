@@ -206,6 +206,9 @@
         else
             $vn_numero_registros_lista = $vn_numero_registros;
 
+        $va_objetos_primeiro_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, 1, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
+        $va_objetos_ultimo_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_numero_registros, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
+        
         $va_objetos_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_primeiro_registro, $vn_numero_registros_lista, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
 
         if ($vs_formato_listagem == "default")
@@ -402,6 +405,8 @@
                 }
             }
 
+            $_SESSION[$vs_id_objeto_tela]["codigo_primeiro_lista"] = $va_objetos_primeiro_lista[0][$vo_objeto->get_chave_primaria()[0]];
+            $_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"] = $va_objetos_ultimo_lista[0][$vo_objeto->get_chave_primaria()[0]];
             $_SESSION[$vs_id_objeto_tela]["listagem_codigos"] = $va_itens_listagem_codigos;
         }
     }       

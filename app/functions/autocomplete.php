@@ -351,6 +351,8 @@
     if (isset($_GET['termo']))
         $vs_termo = trim($_GET['termo']);
 
+    $vs_operador = $_GET['operador'] ?? "LIKE";
+
     $vn_item_excluir = "";
     if (isset($_GET['excluir']))
         $vn_item_excluir = trim($_GET['excluir']);
@@ -363,7 +365,7 @@
         exit();
     }
 
-    $va_termo_busca[$vs_procurar_por] = [$vs_termo, strlen($vs_termo) > 3 ? "LIKE" : "LIKERIGHT"];
+    $va_termo_busca[$vs_procurar_por] = [$vs_termo, strlen($vs_termo) > 3 ? $vs_operador : "LIKERIGHT"];
     $va_termo_busca = array_merge($va_termo_busca, $_GET);
 
     $vo_objeto_tela = new $vs_id_objeto_tela;

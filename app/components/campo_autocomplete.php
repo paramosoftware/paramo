@@ -34,6 +34,8 @@
     if (isset($pa_parametros_campo["procurar_por"]))
         $vs_procurar_por = $pa_parametros_campo["procurar_por"];
 
+    $vs_operador = $pa_parametros_campo["operador"] ?? "LIKE";
+
     if (!isset($pa_parametros_campo["multiplos_valores"]))
         $vb_multiplos_valores = false;
     else
@@ -248,7 +250,11 @@
 ?>
 >
 
-    <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">
+    
+        <?php if(!empty($pa_parametros_campo["descricao"])) : ?>
+            <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>"> 
+        <?php endif ?>
+
         <?php if ($vs_modo == "lote")
         {
         ?>
@@ -442,6 +448,9 @@
                    maxlength="<?php print $vn_tamanho_maximo; ?>"
                    name="<?php print $vs_nome_campo_lookup ?>"
                    id="<?php print $vs_nome_campo_lookup ?>"
+                   <?php if(!empty($pa_parametros_campo["placeholder"])) : ?>
+                    placeholder="<?php print $pa_parametros_campo["placeholder"]?>"
+                   <?php endif ?>
                    value="<?php print htmlentities($vs_valor_campo_nome, ENT_QUOTES, "UTF-8", false);
                    ?>"
     <?php
@@ -461,7 +470,7 @@
 
             print '></div>';
 
-            if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]))
+            if (($vs_modo == "listagem") && config::get(["f_filtros_busca_preenchimento_campo"]) && empty($pa_parametros_campo['nao_exibir_preenchimento']))
             {
             ?>
                 <input class="form-check-input" type="checkbox" name="<?php print $vs_nome_campo_codigos; ?>_com_valor" id="<?php print $vs_id_campo_codigos ?>_com_valor" onclick="alterar_valor_filtro_<?php print $vs_id_campo_codigos; ?>(this.checked, 'com_valor')"
@@ -842,7 +851,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                 }
                 ?>
 
-                vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $pa_parametros_campo["nome"][1]; ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>"+vs_filtro;
+                vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $pa_parametros_campo["nome"][1]; ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>&operador=<?php print $vs_operador; ?>"+vs_filtro;
                 
                 <?php if (isset($pa_parametros_campo["excluir"]))
                 {

@@ -44,16 +44,32 @@
             <?php if (!$vb_usuario_externo) : ?>
                 <li class="nav-item">
 
-                    <div class="input-group">
+                    <div class="input-group row-gap-05">
                         <form method="get" action="index.php">
-                        <div class="input-group">
+                        <div class="input-group header-identificador">
                         
                         <?php
                             if (!isset($vs_busca_id))
                                 $vs_busca_id = "";
-                        ?>
 
-                        <input class="form-control" required type="text" placeholder="Busca por identificador" aria-label="Buscar" name="busca_id" value="<?php print htmlspecialchars($vs_busca_id); ?>">
+                            $vo_autocomplete_identificador = new html_autocomplete("item_acervo", "busca_id");
+
+                            $pa_parametros_campo = array (
+                                'html_autocomplete',
+                                'nome' => ['busca_id', 'item_acervo_codigo'],
+                                'label' => '',
+                                'objeto' => 'item_acervo',
+                                'atributos' => ['item_acervo_codigo', 'item_acervo_identificador'],
+                                'procurar_por' => 'item_acervo_identificador',
+                                'operador' => 'LIKERIGHT',
+                                'valor_no_input' => true,
+                                'placeholder' => 'Busca por identificador',
+                            );
+
+                            $pa_valores_form = array('item_acervo_codigo' => '', "busca_id" => $vs_busca_id);
+
+                            $vo_autocomplete_identificador->build($pa_valores_form, $pa_parametros_campo);
+                        ?>
                         
                         <button class="btn btn-primary" type="submit">
                             <svg class="icon">
