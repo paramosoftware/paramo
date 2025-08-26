@@ -400,7 +400,9 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                                     <button class="btn btn-outline-primary" type="button" id="btn_duplicar">Duplicar</button>
                                                 <?php } ?>
 
-                                                <button class="btn btn-outline-primary" type="button" id="btn_excluir">Excluir</button>
+                                                <?php if ($vb_pode_excluir) { ?>
+                                                    <button class="btn btn-outline-primary" type="button" id="btn_excluir">Excluir</button>
+                                                <?php } ?>
                                             <?php
                                             }
                                             ?>
