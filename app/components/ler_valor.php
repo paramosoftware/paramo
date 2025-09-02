@@ -126,7 +126,7 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
             $vn_contador_nivel = 0;
             $va_ramo = array();          
 
-            if (isset($pa_opcoes_campo["formato"]["hierarquia"]))
+            if (isset($pa_opcoes_campo["formato"]["hierarquia"]) && isset($pa_opcoes_campo["formato"]["link"]))
             {
                 $va_atributo_construir_ramo = $va_atributo_temp;
 
