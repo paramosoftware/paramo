@@ -8,7 +8,7 @@
     // Antes de chamar configurar_campos_tela.php, tenho que definir o modo "listagem"
     //////////////////////////////////////////////////////////////////////////////////
 
-    $vs_modo = "listagem";
+    $vs_modo = $vs_modo ?? "listagem";
     require_once dirname(__FILE__) . "/configurar_campos_tela.php";
 
     // Vamos inicializar e ler aqui os parâmetros vindos dos filtros
@@ -23,7 +23,7 @@
 
     $va_parametros_submit = array();
 
-    if (isset($_GET["back"]) && isset($_SESSION[$vs_id_objeto_tela]))
+    if ( (isset($_GET["back"]) && isset($_SESSION[$vs_id_objeto_tela])) || ($vb_usar_parametros_sessao ?? false))
     {
         // Se a requisição vem de uma página de edição ou ficha (back=1)
         // carrega as variáveis de sessão

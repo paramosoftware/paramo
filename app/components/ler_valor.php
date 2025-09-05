@@ -121,6 +121,28 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                 $va_atributo_temp = $va_atributo;
 
             // $vb_busca_profundidade serve para controlar a busca hierárquica, se ela for acontecer
+
+            $vb_busca_profundidade = true;
+            $vn_contador_nivel = 0;
+            $va_ramo = array();          
+
+            if (isset($pa_opcoes_campo["formato"]["hierarquia"]) && isset($pa_opcoes_campo["formato"]["link"]))
+            {
+                $va_atributo_construir_ramo = $va_atributo_temp;
+
+                while ($vb_busca_profundidade)
+                {
+                    $va_ramo[$vn_contador_nivel] = $va_atributo_construir_ramo[$pa_opcoes_campo["formato"]["link"]["codigo"]];
+                    
+                    if (isset($va_atributo_construir_ramo[$pa_opcoes_campo["formato"]["hierarquia"]]))
+                        $va_atributo_construir_ramo = $va_atributo_construir_ramo[$pa_opcoes_campo["formato"]["hierarquia"]];
+                    else
+                        $vb_busca_profundidade = false;
+
+                    $vn_contador_nivel--;
+                }
+            }
+
             $vb_busca_profundidade = true;
 
             while ($vb_busca_profundidade)
@@ -179,6 +201,7 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                         $vs_url = "navegar.php?obj=" . $pa_opcoes_campo["formato"]["link"]["objeto"] . "&cod=" . $vn_objeto_link_codigo;
                         $vs_expressao_montada = '<a href="'. $vs_url . '">' . $vs_expressao_montada . '</a>';
                     }
+
                     if (isset($pa_opcoes_campo["formato"]["link"]["url"]))
                     {
                         $vs_padrao_url = "padrao";
@@ -187,14 +210,15 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                         
                         $vs_url = $pa_opcoes_campo["formato"]["link"]["url"];
                         $contador = 1;
+
                         foreach($pa_opcoes_campo["formato"]["link"]["parametros"] as $vs_parametro => $vs_campo_parametro)
                         {
                             if ($vs_padrao_url == "padrao")
                             {
                                 if ($contador == 1)
-                                    $vs_url .= "?" . $vs_parametro . "=" . $va_atributo_temp[$vs_campo_parametro];
+                                    $vs_url .= "?" . $vs_parametro . "=" . (empty($va_atributo_temp[$vs_campo_parametro]) ? $vs_campo_parametro : $va_atributo_temp[$vs_campo_parametro]);
                                 else
-                                    $vs_url .= "&" . $vs_parametro . "=" . $va_atributo_temp[$vs_campo_parametro];
+                                    $vs_url .= "&" . $vs_parametro . "=" . (empty($va_atributo_temp[$vs_campo_parametro]) ? $vs_campo_parametro : $va_atributo_temp[$vs_campo_parametro]);
                             }
                             else
                                 $vs_url .= "/" . $va_atributo_temp[$vs_campo_parametro];
@@ -210,7 +234,7 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
 
                         $vn_objeto_link_codigo = $va_atributo_temp[$pa_opcoes_campo["formato"]["link"]["codigo"]];
 
-                        $vs_expressao_montada = $vo_objeto->get_link($vn_objeto_link_codigo, $vs_expressao_montada);
+                        $vs_expressao_montada = $vo_objeto->get_link($vn_objeto_link_codigo, $vs_expressao_montada, $va_ramo);
                     }
                     else
                     {
@@ -228,15 +252,15 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                 // Adiciona sempre no começo do array
                 array_unshift($va_item_expressao, $vs_expressao_montada);
 
-                //var_dump($pa_opcoes_campo);
-
                 if (isset($pa_opcoes_campo["formato"]["hierarquia"]))
                 {
                     if (isset($va_atributo_temp[$pa_opcoes_campo["formato"]["hierarquia"]]))
                     {
                         $va_atributo_temp = $va_atributo_temp[$pa_opcoes_campo["formato"]["hierarquia"]];
 
-                        // Adiciona o separador sempre no começo do array
+                        // Adiciona o separador sempre no começo do array //
+                        ////////////////////////////////////////////////////
+
                         array_unshift($va_item_expressao, $pa_opcoes_campo["formato"]["separador"]);
                     }
                     else
@@ -244,6 +268,8 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                 }
                 else
                     $vb_busca_profundidade = false;
+
+                $vn_contador_nivel++;
             }
 
             if (join("", $va_item_expressao))

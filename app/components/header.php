@@ -52,21 +52,24 @@
                             if (!isset($vs_busca_id))
                                 $vs_busca_id = "";
 
+                            $vs_objeto_busca = class_exists("texto") ? "texto" : "item_acervo";
+
                             $vo_autocomplete_identificador = new html_autocomplete("item_acervo", "busca_id");
 
                             $pa_parametros_campo = array (
                                 'html_autocomplete',
-                                'nome' => ['busca_id', 'item_acervo_codigo'],
+                                'nome' => ['busca_id', $vs_objeto_busca . '_codigo'],
                                 'label' => '',
-                                'objeto' => 'item_acervo',
-                                'atributos' => ['item_acervo_codigo', 'item_acervo_identificador'],
+                                'objeto' => $vs_objeto_busca,
+                                'atributos' => [$vs_objeto_busca . '_codigo', 'item_acervo_identificador'],
                                 'procurar_por' => 'item_acervo_identificador',
                                 'operador' => 'LIKERIGHT',
                                 'valor_no_input' => true,
                                 'placeholder' => 'Busca por identificador',
+                                'forcar_configuracao_padrao' => 1 // força o uso da configuração padrão para autocompletes e não o padrão da classe em get_campo_autocomplete()
                             );
 
-                            $pa_valores_form = array('item_acervo_codigo' => '', "busca_id" => $vs_busca_id);
+                            $pa_valores_form = array($vs_objeto_busca . '_codigo' => '', "busca_id" => $vs_busca_id);
 
                             $vo_autocomplete_identificador->build($pa_valores_form, $pa_parametros_campo);
                         ?>

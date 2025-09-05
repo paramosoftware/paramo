@@ -169,8 +169,12 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
             $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]] = $vn_pagina_atual;
             
-            $va_parametros_filtros_consulta = $_SESSION[$vs_id_objeto_tela];
+            $vb_usar_parametros_sessao = true;
+            $vs_modo = "listagem";
+            
             require dirname(__FILE__)."/functions/montar_listagem.php";
+
+            $vs_modo = "edicao";
 
             // A listagem_codigos só é atualizada após a chamada para /montar_listagem.php
             if ($vn_objeto_codigo == "p")

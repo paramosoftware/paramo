@@ -353,6 +353,8 @@
 
     $vs_operador = $_GET['operador'] ?? "LIKE";
 
+    $vb_configuracao_padrao = $_GET['configuracao_padrao'] ?? 0;
+
     $vn_item_excluir = "";
     if (isset($_GET['excluir']))
         $vn_item_excluir = trim($_GET['excluir']);
@@ -376,7 +378,11 @@
         $va_parametros_campo_pai = $va_campos_edicao[$vs_campo_codigos];
 
     $vo_objeto = new $vs_id_objeto_campo;
-    $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo, $va_parametros_campo_pai['modo'] ?? "");
+
+    $va_parametros_campo = array();
+
+    if (!$vb_configuracao_padrao)
+        $va_parametros_campo = $vo_objeto->get_campo_autocomplete($vs_campo, $vs_campo_codigo, $va_parametros_campo_pai['modo'] ?? "");
 
     if (!count($va_parametros_campo))
     {
