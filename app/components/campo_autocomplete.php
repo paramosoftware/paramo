@@ -519,6 +519,12 @@
     <?php if ($this->modo_form != "listagem")
     {
     ?>
+        <div class="mb-3" id="div_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>" style="margin-top:10px; display:none">
+            <div class="input-group mb-3">
+                <button class="btn btn-primary px-4" type="button" id="btn_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>">Adicionar termos restantes</button>
+            </div>
+        </div>
+
         <div class="mb-3" id="div_adicionar_todos_<?php print $vs_nome_campo_lookup ?>" style="margin-top:10px; display:none">					
             <div class="input-group mb-3">
                 <button class="btn btn-primary px-4" type="button" id="btn_adicionar_todos_<?php print $vs_nome_campo_lookup ?>">Adicionar todos</button>
@@ -694,6 +700,7 @@ $(document).on('keyup', "#lista_<?php print $vs_nome_campo_lookup ?>", function(
         $("#<?php print $vs_nome_campo_lookup ?>").val('');
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").empty();
         $("#lista_<?php print $vs_nome_campo_lookup ?>").focus();
+
     }
     else if (event.keyCode == 38) 
     {
@@ -709,14 +716,15 @@ $(document).on('keyup', "#lista_<?php print $vs_nome_campo_lookup ?>", function(
 
 $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
 {
-    if (event.key == "Escape") 
+    console.log("teste")
+    if (event.key == "Escape")
     {
         // Se a tecla é ESC, apaga o conteúdo do campo
 
         $("#<?php print $vs_nome_campo_lookup ?>").val('');
         $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").empty();
     }
-    else if (event.keyCode == 40) 
+    else if (event.keyCode == 40)
     {
         // Se a tecla é arrow down, seleciona move para o segundo item da lista de sugestão
 
@@ -726,13 +734,13 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
             $("#lista_<?php print $vs_nome_campo_lookup ?>").focus();
         }
     }
-    else if (event.keyCode == 38) 
+    else if (event.keyCode == 38)
     {
         // Se a tecla é arrow down, seleciona move para o segundo item da lista de sugestão
         if ($("#lista_<?php print $vs_nome_campo_lookup ?>").prop('selectedIndex') == 0)
             $("#<?php print $vs_nome_campo_lookup ?>").focus();
     }
-    else if (event.key == "Enter") 
+    else if (event.key == "Enter")
     {
         $("#lista_<?php print $vs_nome_campo_lookup ?>").trigger("click");
     }
@@ -745,7 +753,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
         timeout_campo_<?php print $vs_nome_campo_lookup ?> = setTimeout(function()
         {
             vb_valor_no_input = false;
-            
+
             <?php
             if ($vb_valor_no_input)
             {
@@ -786,7 +794,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
 
                     foreach($va_dependencias as $v_campo_conexao)
                     {
-                        if (isset($v_campo_conexao["campo"])) 
+                        if (isset($v_campo_conexao["campo"]))
                         {
                     ?>
                             vs_filtro += '&<?php print $v_campo_conexao["atributo"]; ?>='+$("#<?php print ($v_campo_conexao["campo"] . $vs_sufixo_nome_campo); ?>").val();
@@ -805,7 +813,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                 {
                 ?>
                     vs_url_valores_proibidos = "functions/ler_valores_proibidos.php?campo=<?php print $vs_id_campo_codigos; ?>&obj=<?php print $vs_objeto_campo; ?>";
-                
+
                     // Vamos adicionar aqui o código do próprio registro, se existir (é atualização)
                     ////////////////////////////////////////////////////////////////////////////////
 
@@ -830,7 +838,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                             vs_url_valores_proibidos = vs_url_valores_proibidos + "&<?php print $pa_parametros_campo["prevenir_circularidade"]["atributo_pai"]; ?>="+$("#<?php print $pa_parametros_campo["prevenir_circularidade"]["atributo_pai"]; ?>").val();
                     }
 
-                    $.get(vs_url_valores_proibidos, function(data, status) 
+                    $.get(vs_url_valores_proibidos, function(data, status)
                     {
                         vs_valores_proibidos = data;
                     });
@@ -854,7 +862,7 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
                 ?>
 
                 vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&campo_codigos=<?php print $pa_parametros_campo["nome"][1]; ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>&operador=<?php print $vs_operador; ?>&configuracao_padrao=<?php print $vb_configuracao_padrao; ?>"+vs_filtro;
-                
+
                 <?php if (isset($pa_parametros_campo["excluir"]))
                 {
                 ?>
@@ -875,6 +883,63 @@ $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
     }
 });
 
+
+$(document).on('click', "#div_adicionar_restantes_<?php print $vs_nome_campo_lookup; ?>", function()
+{
+    vs_termos = $("#<?php print $vs_nome_campo_lookup ?>").val();
+    va_termos = vs_termos.split(";");
+    var va_termos_inexistentes = [];
+
+    //Para chamar corretamente o load mais de uma vez
+    jQuery.ajaxSetup({async:false});
+
+    for (var i = 0; i < va_termos.length; i++)
+    {
+        vs_termo = va_termos[i].trim();
+
+        if (vs_termo != "")
+        {
+            vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=1&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>";
+
+            //vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php //print $vs_tela ?>//&campo=<?php //print $vs_nome_campo_lookup ?>//&termo="+encodeURIComponent(vs_termo)+"&obj=<?php //print $vs_objeto_campo ?>//"+"&procurar_por=<?php //print $vs_procurar_por ?>//&_permitir_cadastro_=<?php //print $vb_permitir_cadastro ?>//&campo_codigo=<?php //print $vs_campo_codigo; ?>//&campo_valor=<?php //print $vs_campo_valor; ?>//";
+
+            <?php if (isset($pa_parametros_campo["excluir"]))
+            {
+            ?>
+            vs_url_lista_sugestoes = vs_url_lista_sugestoes + "&excluir=<?php print $pa_parametros_campo["excluir"]; ?>";
+            <?php
+            }
+            ?>
+
+            $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").load(vs_url_lista_sugestoes);
+
+            if ($("#lista_<?php print $vs_nome_campo_lookup ?>").length == 0)
+            {
+                va_termos_inexistentes.push(vs_termo);
+            }
+            else
+            {
+                $("#lista_<?php print $vs_nome_campo_lookup ?>").trigger('click');
+            }
+
+        }
+    }
+    //if (va_termos_inexistentes.length > 0) {
+    //    console.log("abc")
+    //    $("#btn_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//")
+    //        .text("Cadastrar termos inexistentes (" + va_termos_inexistentes.length + ")");
+    //    $("#div_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//").show();
+    //
+    //
+    //    // botao adicionar termos inexistentes
+    //}
+
+    //$("#<?php //print $vs_nome_campo_lookup ?>//").val("Não encontrados: " + va_termos_inexistentes.join(';'));
+
+    $("#div_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>").hide();
+});
+
+
 $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup; ?>", function()
 {
     vs_termos = $("#<?php print $vs_nome_campo_lookup ?>").val();
@@ -890,7 +955,10 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
 
         if (vs_termo != "")
         {
-            vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&_permitir_cadastro_=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>";
+            //vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php //print $vs_tela ?>//&campo=<?php //print $vs_nome_campo_lookup ?>//&termo="+encodeURIComponent(vs_termo)+"&obj=<?php //print $vs_objeto_campo ?>//"+"&procurar_por=<?php //print $vs_procurar_por ?>//&permitir_cadastro=1&campo_codigo=<?php //print $vs_campo_codigo; ?>//&campo_valor=<?php //print $vs_campo_valor; ?>//";
+            //vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php //print $vs_tela ?>//&campo=<?php //print $vs_nome_campo_lookup ?>//&termo="+encodeURIComponent(vs_termo)+"&obj=<?php //print $vs_objeto_campo ?>//"+"&procurar_por=<?php //print $vs_procurar_por ?>//&_permitir_cadastro_=<?php //print $vb_permitir_cadastro ?>//&campo_codigo=<?php //print $vs_campo_codigo; ?>//&campo_valor=<?php //print $vs_campo_valor; ?>//&lote=1";
+
+            vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>";
                 
             <?php if (isset($pa_parametros_campo["excluir"]))
             {
@@ -913,6 +981,19 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
 
         }
     }
+    if (va_termos_inexistentes.length > 0) {
+        //console.log("abc")
+        //$("#btn_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//")
+        //    .text("Cadastrar termos inexistentes (" + va_termos_inexistentes.length + ")");
+        //$("#div_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//").show();
+
+        vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(va_termos_inexistentes.join(`;`))+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>&lote=1&campo_codigos=<?php print $pa_parametros_campo["nome"][1];?>";
+        $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").load(vs_url_lista_sugestoes);
+
+
+        // botao adicionar termos inexistentes
+    }
+
     $("#<?php print $vs_nome_campo_lookup ?>").val("Não encontrados: " + va_termos_inexistentes.join(';'));
     
     $("#div_adicionar_todos_<?php print $vs_nome_campo_lookup ?>").hide();

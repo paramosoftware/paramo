@@ -3,7 +3,7 @@
 class html_link_cadastrar extends html_input
 {
 
-public function build($pa_campos_salvar)
+public function build($pa_campos_salvar, $vn_iteracao = 0)
 {
     $vs_id_objeto_tela = $this->get_tela();
     $vs_nome_campo = $this->get_nome();
