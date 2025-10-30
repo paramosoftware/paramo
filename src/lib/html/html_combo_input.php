@@ -28,6 +28,10 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
     {
         $va_itens = array();
         $va_filtro = array();
+        if(isset($pa_filtro_listagem['termo']) && strpos($pa_filtro_listagem['termo'], '>'))
+        {
+            $vo_transliterator = Transliterator::createFromRules(':: Lower; :: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: NFC;', Transliterator::FORWARD);
+        }
 
         if (isset($pa_parametros_campo["dependencia"]))
         {
@@ -168,6 +172,31 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
 
                 $vs_item_lista_value = join(" >  ", $va_item_lista_value);
                 // Temos que generalizar essa montagem numa função
+
+                if(isset($pa_filtro_listagem['termo']) && strpos($pa_filtro_listagem['termo'], '>'))
+                {
+                    $vb_todos_termos_encontrados = true;
+                    
+                    $va_termos_procurados_normalizado = $vo_transliterator->transliterate($pa_filtro_listagem['termo']);    // Remove acentos para a comparação
+                    $va_termos_procurados_normalizado = preg_replace('/\s+/', '', $va_termos_procurados_normalizado);       // Remove whitespaces para a comparação    
+                    $va_termos_procurados_normalizado = explode('>', $va_termos_procurados_normalizado);
+
+                    $vs_item_lista_value_normalizado = $vo_transliterator->transliterate($vs_item_lista_value);     // Remove acentos para a comparação
+                    $vs_item_lista_value_normalizado = preg_replace('/\s+/', '', $vs_item_lista_value_normalizado); // Remove whitespaces para a comparação
+                    
+                    foreach($va_termos_procurados_normalizado as $vs_termo_procurado)
+                    {
+                        if(!str_contains($vs_item_lista_value_normalizado, $vs_termo_procurado))
+                        {
+                            $vb_todos_termos_encontrados = false;
+                            break;
+                        }
+                    }
+                    if(!$vb_todos_termos_encontrados)
+                    {
+                        continue;
+                    }
+                }
             }
             else
             {

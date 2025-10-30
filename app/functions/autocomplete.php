@@ -352,7 +352,14 @@
 
     $vs_termo = "";
     if (isset($_GET['termo']))
+    {
         $vs_termo = trim($_GET['termo']);
+        if(strpos($vs_termo, '>'))
+        {
+            $va_termos = explode('>', $vs_termo);
+            $vs_termo = trim($va_termos[array_key_last($va_termos)]);
+        }
+    }
 
     $vs_operador = $_GET['operador'] ?? "LIKE";
 
