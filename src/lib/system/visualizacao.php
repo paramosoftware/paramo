@@ -47,7 +47,7 @@ class visualizacao extends objeto_base
 
         $va_atributos['visualizacao_habilitado'] = [
             'visualizacao_habilitado',
-            'coluna_tabela' => 'habilitado',
+            'coluna_tabela' => 'habilitada',
             'tipo_dado' => 'b'
         ];
 
