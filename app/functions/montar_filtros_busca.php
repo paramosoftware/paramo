@@ -237,6 +237,22 @@
                             $vb_buscar_niveis_inferiores = true;
                     }
                 }
+
+
+                $va_campos_dependentes = $va_campo_filtro["conectar"] ?? [];
+
+                foreach ($va_campos_dependentes as $va_campo_dependente)
+                {
+                    $vs_filtro_dependente_submit = $va_parametros_submit[$va_campo_dependente["campo"]] ?? false;
+                    $vb_auto_desabilitar = $va_campo_dependente["auto_desabilitar_se_dependente_preenchido"] ?? false;
+
+                    if ($vs_filtro_dependente_submit && $vb_auto_desabilitar)
+                    {
+                        unset($va_parametros_filtros_consulta[$vs_campo]);
+                    }
+                }
+
+
             }
 
             if (count($va_parametros_filtros_form))

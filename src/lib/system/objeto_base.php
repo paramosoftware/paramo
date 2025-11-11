@@ -1780,7 +1780,7 @@ class objeto_base
         ];
 
         $vs_limit = "";
-        if ($pn_primeiro_registro)
+        if ($pn_primeiro_registro && $po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco)
             $vs_limit = " LIMIT " . ($pn_primeiro_registro - 1) . ", " . $pn_numero_registros;
 
         $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, $vs_limit);
@@ -4246,6 +4246,20 @@ class objeto_base
         {
             case "image/jpeg":
                 $source = imagecreatefromjpeg($ps_path_arquivo_imagem);
+                $exif = exif_read_data($ps_path_arquivo_imagem);
+                if (!empty($exif['Orientation'])) {
+                    switch ($exif['Orientation']) {
+                        case 3:
+                            $source = imagerotate($source, 180, 0);
+                            break;
+                        case 6:
+                            $source = imagerotate($source, -90, 0);
+                            break;
+                        case 8:
+                            $source = imagerotate($source, 90, 0);
+                            break;
+                    }
+                }
                 break;
 
             case "image/png":
@@ -4263,8 +4277,8 @@ class objeto_base
 
         if (isset($source)) 
         {
-            $vn_width = $va_image_size[0];
-            $vn_height = $va_image_size[1];
+            $vn_width = imagesx($source);
+            $vn_height = imagesy($source);
 
             $ratio = $vn_width / $vn_height;
 

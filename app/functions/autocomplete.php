@@ -302,6 +302,9 @@
     $vs_campo = "";
     if (isset($_GET['campo']))
         $vs_campo = $_GET['campo'];
+
+    if (isset($_GET['lote']))
+        $vb_lote = $_GET['lote'];
     
     if (!$vs_campo)
     {
@@ -349,7 +352,14 @@
 
     $vs_termo = "";
     if (isset($_GET['termo']))
+    {
         $vs_termo = trim($_GET['termo']);
+        if(strpos($vs_termo, '>'))
+        {
+            $va_termos = explode('>', $vs_termo);
+            $vs_termo = trim($va_termos[array_key_last($va_termos)]);
+        }
+    }
 
     $vs_operador = $_GET['operador'] ?? "LIKE";
 
@@ -440,21 +450,39 @@
     }
     //elseif (isset($va_termo_busca[$va_parametros_campo["nome"]]))
         //$va_termo_busca[$va_parametros_campo["atributo"]] = $va_objeto[$va_parametros_campo["nome"]];
-    
 
 
+    function load_link_cadastro ($vs_id_objeto_campo, $vs_campo, $vs_termo, $campo_salvar, $i = 0) {
+        $vo_html_link_cadastrar = new html_link_cadastrar($vs_id_objeto_campo, $vs_campo, $i);
+        $vo_html_link_cadastrar->set_termo_busca($vs_termo);
+        $vo_html_link_cadastrar->build($campo_salvar ?? null, $i);
+        return true;
+    }
     $vo_html_selection_list_input = new html_combo_input(null, $vs_campo, "autocomplete");
     $vo_html_selection_list_input->build($va_termo_busca, $va_parametros_campo);
-    
+
     if ($vb_permitir_cadastro && $vb_pode_inserir)
     {
-        $vo_objeto_tela = new $vs_id_objeto_tela('');
-        $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
 
-        $vo_html_link_cadastrar = new html_link_cadastrar($vs_id_objeto_campo, $vs_campo);
 
-        $vo_html_link_cadastrar->set_termo_busca($vs_termo);
-        
-        $vo_html_link_cadastrar->build($va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"] ?? null);
+        if (isset($vb_lote) && $vb_lote) {
+            $vo_objeto_tela = new $vs_id_objeto_tela('');
+            $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
+            $va_items_lote = explode(";", $vs_termo);
+            foreach ($va_items_lote as $vn_item_index => $va_item_lote)  {
+                load_link_cadastro($vs_id_objeto_campo, $vs_campo, $va_item_lote, $va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"], $vn_item_index);
+            }
+
+        } else {
+            $vo_objeto_tela = new $vs_id_objeto_tela('');
+            $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
+            load_link_cadastro($vs_id_objeto_campo, $vs_campo, $vs_termo, $va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"]);
+        }
+
+//        $vo_html_link_cadastrar = new html_link_cadastrar($vs_id_objeto_campo, $vs_campo);
+//
+//        $vo_html_link_cadastrar->set_termo_busca($vs_termo);
+//
+//        $vo_html_link_cadastrar->build($va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"] ?? null);
     }
 ?>

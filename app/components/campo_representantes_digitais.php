@@ -154,7 +154,7 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                             }
                                             elseif ($vs_rd_formato == "jpg")
                                             {
-                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top image-viewer", "img_" . ($vn_linha_codigo-1), $vs_rp_legenda);
+                                                print utils::get_img_html_element($vs_rd_path, "thumb", "card-img-top image-viewer", "img_" . ($vn_linha_codigo), $vs_rp_legenda);
                                             }
                                             elseif ($vs_rd_formato == "pdf")
                                             {
