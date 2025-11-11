@@ -716,7 +716,6 @@ $(document).on('keyup', "#lista_<?php print $vs_nome_campo_lookup ?>", function(
 
 $(document).on('keyup', "#<?php print $vs_nome_campo_lookup ?>", function(event)
 {
-    console.log("teste")
     if (event.key == "Escape")
     {
         // Se a tecla é ESC, apaga o conteúdo do campo
@@ -955,9 +954,6 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
 
         if (vs_termo != "")
         {
-            //vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php //print $vs_tela ?>//&campo=<?php //print $vs_nome_campo_lookup ?>//&termo="+encodeURIComponent(vs_termo)+"&obj=<?php //print $vs_objeto_campo ?>//"+"&procurar_por=<?php //print $vs_procurar_por ?>//&permitir_cadastro=1&campo_codigo=<?php //print $vs_campo_codigo; ?>//&campo_valor=<?php //print $vs_campo_valor; ?>//";
-            //vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php //print $vs_tela ?>//&campo=<?php //print $vs_nome_campo_lookup ?>//&termo="+encodeURIComponent(vs_termo)+"&obj=<?php //print $vs_objeto_campo ?>//"+"&procurar_por=<?php //print $vs_procurar_por ?>//&_permitir_cadastro_=<?php //print $vb_permitir_cadastro ?>//&campo_codigo=<?php //print $vs_campo_codigo; ?>//&campo_valor=<?php //print $vs_campo_valor; ?>//&lote=1";
-
             vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(vs_termo)+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>";
                 
             <?php if (isset($pa_parametros_campo["excluir"]))
@@ -969,34 +965,40 @@ $(document).on('click', "#btn_adicionar_todos_<?php print $vs_nome_campo_lookup;
             ?>
 
             $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").load(vs_url_lista_sugestoes);
+            vs_select_options = $("#lista_<?php print $vs_nome_campo_lookup ?> option");
 
-            if ($("#lista_<?php print $vs_nome_campo_lookup ?>").length == 0)
+            if (vs_select_options.length == 0)
             {
                 va_termos_inexistentes.push(vs_termo);
             } 
             else
             {
-                $("#lista_<?php print $vs_nome_campo_lookup ?>").trigger('click');
-            }
+                vs_found = false;
+                for (var j = 0; j < vs_select_options.length; j++)
+                {
+                    vs_label = $(vs_select_options[j]).text().trim().toLowerCase();
+                    if (vs_label == vs_termo.toLowerCase())
+                    {
+                        $(vs_select_options[j]).trigger('click');
+                        vs_found = true;
+                        break;
+                    }
+                }
 
+                if (!vs_found)
+                {
+                    va_termos_inexistentes.push(vs_termo);
+                }
+            }
         }
     }
-    if (va_termos_inexistentes.length > 0) {
-        //console.log("abc")
-        //$("#btn_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//")
-        //    .text("Cadastrar termos inexistentes (" + va_termos_inexistentes.length + ")");
-        //$("#div_adicionar_restantes_<?php //print $vs_nome_campo_lookup ?>//").show();
 
-        vs_url_lista_sugestoes = "functions/autocomplete.php?tela=<?php print $vs_tela ?>&campo=<?php print $vs_nome_campo_lookup ?>&termo="+encodeURIComponent(va_termos_inexistentes.join(`;`))+"&obj=<?php print $vs_objeto_campo ?>"+"&procurar_por=<?php print $vs_procurar_por ?>&permitir_cadastro=<?php print $vb_permitir_cadastro ?>&campo_codigo=<?php print $vs_campo_codigo; ?>&campo_valor=<?php print $vs_campo_valor; ?>&lote=1&campo_codigos=<?php print $pa_parametros_campo["nome"][1];?>";
-        $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").load(vs_url_lista_sugestoes);
+    vs_termos_inexistentes = va_termos_inexistentes.join('; ');
+    vs_termos_inexistentes = vs_termos_inexistentes.trim("; ");
 
-
-        // botao adicionar termos inexistentes
-    }
-
-    $("#<?php print $vs_nome_campo_lookup ?>").val("Não encontrados: " + va_termos_inexistentes.join(';'));
-    
+    $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").hide();
     $("#div_adicionar_todos_<?php print $vs_nome_campo_lookup ?>").hide();
+    $("#<?php print $vs_nome_campo_lookup ?>").val(vs_termos_inexistentes);
 });
 
 function adicionar_<?php print $vs_nome_campo_lookup; ?>(pn_valor_selecionado, ps_texto_selecionado)
@@ -1305,6 +1307,7 @@ if ($vb_permitir_cadastro)
 $(document).on('click', "#lnk_cadastrar_<?php print $vs_nome_campo_lookup ?>", function()
 {
     event.preventDefault();
+    console.log("cadastrar");
 
     vs_termo_busca = $("#<?php print $vs_nome_campo_lookup ?>").val();
     vo_post_data = {campo: "<?php print $vs_nome_campo_lookup ?>", escopo: "_in", obj: "<?php print $vs_objeto_campo ?>", <?php print $va_campos_salvar[0] ?>: vs_termo_busca, campo_salvar: "<?php print $va_campos_salvar[0] ?>"};

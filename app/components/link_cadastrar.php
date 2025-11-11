@@ -10,7 +10,7 @@ if (!isset($vs_nome_campo))
 
 <div class="row mb-3">
     <div class="col-2 mb-3">			
-        <button class="btn btn-primary px-4" type="button" id="lnk_cadastrar_<?php print $vs_nome_campo ?>_<?= $vn_iteracao ?>">Cadastrar</button>
+        <button class="btn btn-primary px-4" type="button" id="lnk_cadastrar_<?php print $vs_nome_campo ?>">Cadastrar</button>
     </div>
 
     <div class="mb-3 col-8">
