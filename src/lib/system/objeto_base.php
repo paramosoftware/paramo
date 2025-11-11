@@ -1780,7 +1780,7 @@ class objeto_base
         ];
 
         $vs_limit = "";
-        if ($pn_primeiro_registro)
+        if ($pn_primeiro_registro && $po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco)
             $vs_limit = " LIMIT " . ($pn_primeiro_registro - 1) . ", " . $pn_numero_registros;
 
         $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, $vs_limit);
