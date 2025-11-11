@@ -519,11 +519,11 @@
     <?php if ($this->modo_form != "listagem")
     {
     ?>
-        <div class="mb-3" id="div_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>" style="margin-top:10px; display:none">
+        <!-- <div class="mb-3" id="div_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>" style="margin-top:10px; display:none">
             <div class="input-group mb-3">
                 <button class="btn btn-primary px-4" type="button" id="btn_adicionar_restantes_<?php print $vs_nome_campo_lookup ?>">Adicionar termos restantes</button>
             </div>
-        </div>
+        </div> -->
 
         <div class="mb-3" id="div_adicionar_todos_<?php print $vs_nome_campo_lookup ?>" style="margin-top:10px; display:none">					
             <div class="input-group mb-3">
@@ -1307,7 +1307,6 @@ if ($vb_permitir_cadastro)
 $(document).on('click', "#lnk_cadastrar_<?php print $vs_nome_campo_lookup ?>", function()
 {
     event.preventDefault();
-    console.log("cadastrar");
 
     vs_termo_busca = $("#<?php print $vs_nome_campo_lookup ?>").val();
     vo_post_data = {campo: "<?php print $vs_nome_campo_lookup ?>", escopo: "_in", obj: "<?php print $vs_objeto_campo ?>", <?php print $va_campos_salvar[0] ?>: vs_termo_busca, campo_salvar: "<?php print $va_campos_salvar[0] ?>"};
