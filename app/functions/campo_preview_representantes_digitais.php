@@ -2,7 +2,8 @@
 
 require_once dirname(__FILE__) . "/autenticar_usuario.php";
 
-if (isset($_GET['cod']) && $_GET['cod']) {
+if (isset($_GET['cod']) && $_GET['cod']) 
+{
     $pn_objeto_codigo = $_GET['cod'];
     $pn_img_number = $_GET['img'];
 
@@ -13,27 +14,29 @@ if (isset($_GET['cod']) && $_GET['cod']) {
 
     echo '<div id="gallery" style="height:550px">';
 
-    $contador_imagens = 1;
-    $vs_img_base64 = "";
-    $vn_index_atual = null;
+    $vn_initial_image_view = 0;
+    $vn_counter = 0;
 
-    foreach ($va_valor_campo as $va_valores_linha) {
-
+    foreach ($va_valor_campo as $va_valores_linha) 
+    {
         $vs_representante_digital_formato = $va_valores_linha['representante_digital_formato'];
         $vs_representante_digital_path = $va_valores_linha['representante_digital_path'];
 
-        if (is_null($vn_index_atual) && $va_valores_linha['representante_digital_codigo'] === (int)($pn_img_number)) 
-            $vn_index_atual = $contador_imagens;
-
-        if ($vs_representante_digital_formato != "jpg") {
+        if ($vs_representante_digital_formato != "jpg") 
+        {
             continue;
         }
+
+        if ($va_valores_linha['representante_digital_codigo'] == $pn_img_number) 
+        {
+            $vn_initial_image_view = $vn_counter;
+        }
+
+        $vn_counter++;
 
         echo '<div style="display: none">';
         echo utils::get_img_html_element($vs_representante_digital_path, "large", "card-img-top");
         echo '</div>';
-
-        $contador_imagens++;
     }
 
     echo '</div>';
@@ -43,7 +46,7 @@ if (isset($_GET['cod']) && $_GET['cod']) {
 <script>
     new Viewer(document.getElementById('gallery'), {
         inline: true,
-        initialViewIndex: <?= is_int($vn_index_atual) ? $vn_index_atual : 'null'; ?>
+        initialViewIndex: <?= $vn_initial_image_view ?>
     });
 
     $(window).scroll(function() {
