@@ -14,6 +14,9 @@
 <body>
 
 <?php
+    $vs_modo_exibicao_field = "modo_exibicao";
+    $vs_modo_exibicao_organograma = "organograma";
+
     if (!$vb_pode_inserir && !$vb_pode_editar && !$vb_pode_ler)
         exit();
 
@@ -77,6 +80,14 @@
         ?>
             <input type="hidden" name="bibliografia" id="bibliografia" value="<?php print $vn_bibliografia_codigo; ?>">
         <?php
+        }
+        ?>
+
+        <?php if (($_GET[$vs_modo_exibicao_field] ?? '') == $vs_modo_exibicao_organograma && $vo_objeto->get_campo_hierarquico() && $vo_objeto->permitir_modo_exibicao_organograma) 
+        {
+            print '<input type="hidden" name="'.$vs_modo_exibicao_field.'" id="'.$vs_modo_exibicao_field.'" value="'.$vs_modo_exibicao_organograma.'">';
+            require_once dirname(__FILE__)."/components/organograma.php";
+            return;
         }
         ?>
 
@@ -150,6 +161,10 @@
                                             <?php
                                             }
                                             ?>
+
+                                            <?php if ($vo_objeto->permitir_modo_exibicao_organograma): ?>
+                                                <button class="btn btn-outline-primary" type="button" id="btn_organograma">Modo organograma</button> 
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                             
@@ -295,7 +310,11 @@ $(document).on('click', "#btn_importar", function()
     window.location.href = "importar.php?obj=<?php print $vs_id_objeto_tela; ?>";
 });
 
-
+$(document).on('click', "#btn_organograma", function()
+{
+    let vs_url_organograma = "<?= $vs_url_base; ?><?= $vs_id_objeto_tela; ?>&<?= $vs_modo_exibicao_field; ?>=<?= $vs_modo_exibicao_organograma; ?>";
+    window.location.href = vs_url_organograma;
+});
 </script>
 
 </body>

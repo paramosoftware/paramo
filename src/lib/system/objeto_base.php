@@ -55,6 +55,8 @@ class objeto_base
 
     protected $autoincrement_codigo = false;
 
+    public $permitir_modo_exibicao_organograma = false;
+
     function __construct($ps_recurso_sistema_id = '')
     {
         $this->banco_dados = $this->get_banco();
