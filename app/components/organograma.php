@@ -98,7 +98,7 @@ foreach ($vn_level_count as $vn_level => $vn_count)
 <style type="text/css">
     #chart-container {
         background: #fff;
-        height: 60vh;
+        height: 70vh;
         margin: 0.5rem;
         text-align: center;
     }
