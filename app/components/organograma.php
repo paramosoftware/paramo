@@ -1,7 +1,7 @@
 
 <?php
 define("NUMERO_ITENS_PAGINA_LISTAGEM", 1000);
-$vb_retornar_ramos_inferiores = true;
+$vb_retornar_ramos_inferiores = false;
 $vb_expandir_niveis_hierarquicos = true;
 
 $va_filtros = $vo_objeto->inicializar_filtros_navegacao();
