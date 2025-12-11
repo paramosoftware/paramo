@@ -206,6 +206,7 @@
         else
             $vn_numero_registros_lista = $vn_numero_registros;
 
+        /** @var objeto_base $vo_objeto */
         $va_objetos_primeiro_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, 1, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
         $va_objetos_ultimo_lista = $vo_objeto->ler_lista($va_parametros_filtros_consulta, $vs_visualizacao, $vn_numero_registros, 1, $vn_ordenacao, $vs_ordem, $va_log_info, 1, $vb_retornar_ramos_inferiores ?? true);
         
@@ -372,7 +373,7 @@
 
                     if ($vb_mostrar_registros_filhos)
                     {
-                        $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $va_item[$vo_objeto->get_chave_primaria()[0]]], "navegacao");
+                        $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $va_item[$vo_objeto->get_chave_primaria()[0]]], "navegacao", 0, 0, null, null, $va_log_info, 1, false);
 
                         if (count($va_registros_filhos))
                         {
