@@ -121,13 +121,12 @@ foreach ($vn_level_count as $vn_level => $vn_count)
         background-color: #FF9B50;
     }
     .orgchart .orgchart-level-2 .title {
-        background-color: #FFBC4C;
-        color: #000;
+        background-color: #ffbb6d;
     }
     .orgchart .orgchart-level-3 .title {
-        background-color: #FFF4D1;
-        color: #000;
+        background-color: #ffbd4cc5;
     }
+
 </style>
 
 
