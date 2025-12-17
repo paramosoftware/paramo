@@ -3257,7 +3257,7 @@ class objeto_base
         $va_campos_select[] = "representante_digital.legenda as representante_digital_legenda";
         $va_campos_select[] = "representante_digital.sequencia as sequencia";
         $va_campos_select[] = "representante_digital.publicado_online as representante_digital_publicado_online";
-
+        
         $va_wheres_select[] = "representante_digital.recurso_sistema_codigo = (?) ";
         $va_tipos_parametros_select[] = "i";
         $va_parametros_select[] = $this->recurso_sistema_codigo;
@@ -3979,8 +3979,10 @@ class objeto_base
                     elseif (@getimagesize($va_arquivo["tmp_name"]))
                     {
                         $vs_formato = "jpg";
-                        $vs_novo_nome_arquivo = $vs_novo_nome_arquivo . "." . $vs_formato;
 
+                        $vs_novo_nome_arquivo_original = $vs_novo_nome_arquivo . "." . pathinfo($va_arquivo["name"], PATHINFO_EXTENSION);
+                        $vs_novo_nome_arquivo = $vs_novo_nome_arquivo . "." . $vs_formato;
+                        
                         $vn_imagens_processadas = 0;
 
                         foreach ($va_path_arquivo_destino as $key => $value)
@@ -4000,7 +4002,7 @@ class objeto_base
 
                         if ($vb_salvar_arquivo_original)
                         {
-                            if ($this->mover_arquivo($va_arquivo["tmp_name"], $va_pasta_images["original"] . $vs_novo_nome_arquivo))
+                            if ($this->mover_arquivo($va_arquivo["tmp_name"], $va_pasta_images["original"] . $vs_novo_nome_arquivo_original))
                             {
                                 $vn_imagens_processadas++;
                             }
