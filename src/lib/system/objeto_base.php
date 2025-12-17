@@ -3257,6 +3257,7 @@ class objeto_base
         $va_campos_select[] = "representante_digital.legenda as representante_digital_legenda";
         $va_campos_select[] = "representante_digital.sequencia as sequencia";
         $va_campos_select[] = "representante_digital.publicado_online as representante_digital_publicado_online";
+        $va_campos_select[] = "representante_digital.nome_original as representante_digital_nome_original";
         
         $va_wheres_select[] = "representante_digital.recurso_sistema_codigo = (?) ";
         $va_tipos_parametros_select[] = "i";
