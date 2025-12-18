@@ -691,6 +691,8 @@ class objeto_base
                 $va_parametros_select = array();
                 $va_campos_select = array();
                 $va_joins_select = array();
+                $va_tipos_parametros_joins = array();
+                $va_parametros_joins = array();
                 $va_wheres_select = array();
 
                 $va_tabelas_adicionadas = array();
@@ -725,7 +727,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores);
+                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_tipos_parametros_joins, $va_parametros_joins, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
@@ -741,7 +743,7 @@ class objeto_base
 
                 if (count($va_selects))
                 {
-                    $va_resultado_temp = $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, null, false);
+                    $va_resultado_temp = $vo_banco->consultar($va_selects, array_merge($va_tipos_parametros_joins, $va_tipos_parametros_select), array_merge($va_parametros_joins, $va_parametros_select), null, null, false);
 
                     foreach ($va_resultado_temp as $va_item) {
                         foreach ($va_item as $vs_key => $vn_codigo) {
@@ -892,7 +894,7 @@ class objeto_base
         return $vb_tem_valor;
     }
 
-    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
+    private function montar_filtros_busca($pa_filtros_busca, $po_objeto, &$pa_joins_select = array(), &$pa_tipos_parametros_joins = array(), &$pa_parametros_joins = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
     {
         if (isset($pa_filtros_busca)) 
         {
@@ -1054,7 +1056,7 @@ class objeto_base
                             // O terceiro parâmetro vazio quer dizer que ainda não foi feito nenhum join para este filtro
                             /////////////////////////////////////////////////////////////////////////////////////////////
                             
-                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
+                            $this->montar_filtro_busca($va_filtro, $po_objeto, '', $va_valores_busca, $vs_operador, $vs_interrogacoes, $pa_joins_select, $pa_tipos_parametros_joins, $pa_parametros_joins, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $vs_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
                         }
                     }
                 }
@@ -1062,7 +1064,7 @@ class objeto_base
         }
     }
 
-    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
+    private function montar_filtro_busca($pa_filtro, $po_objeto, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, &$pa_joins_select = array(), &$pa_tipos_parametros_joins = array(), &$pa_parametros_joins = array(), &$pa_wheres_select = array(), &$pa_tipos_parametros_select = array(), &$pa_parametros_select = array(), &$pa_tabelas_adicionadas = array(), $ps_operador_logico = 'AND', $pb_retornar_ramos_inferiores = true, &$pa_joins_trail = array(), $pn_primeiro_registro = 0, $pn_numero_registros = 0)
     {
         // A partir daqui, vamos procurar o campo/atributo ao qual o filtro se refere
         ////////////////////////////////////////////////////////////////////////////
@@ -1103,7 +1105,7 @@ class objeto_base
 
                 $vo_objeto_pai = new $po_objeto->objeto_pai($po_objeto->objeto_pai);
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_pai, $ps_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_tipos_parametros_joins, $pa_parametros_joins, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
             } 
             elseif (isset($po_objeto->atributos[$va_filtro[0]]) || isset($po_objeto->chave_primaria[$va_filtro[0]])) 
             {
@@ -1400,8 +1402,8 @@ class objeto_base
 
                             foreach ($va_valores_busca as $va_valor_busca)
                             {
-                                $pa_parametros_select[] = $va_valor_busca;
-                                $pa_tipos_parametros_select[] = "i";
+                                $pa_parametros_joins[] = $va_valor_busca;
+                                $pa_tipos_parametros_joins[] = "i";
                             }
                         }
                     }
@@ -1435,7 +1437,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
+                $this->montar_filtro_busca($va_novo_filtro, $vo_objeto_relacionamento, $vs_ultima_tabela_filtro, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $pa_joins_select, $pa_tipos_parametros_joins, $pa_parametros_joins, $pa_wheres_select, $pa_tipos_parametros_select, $pa_parametros_select, $pa_tabelas_adicionadas, $ps_operador_logico, $pb_retornar_ramos_inferiores, $pa_joins_trail);
             }
         } else {
             // Se o filtro for chave primária ou atributo da tabela do objeto, a montagem é simples
@@ -1610,23 +1612,25 @@ class objeto_base
                         {
                             if (isset($v_campo_relacionamento[0]) && isset($v_campo_relacionamento[1]))
                             {
-                                $pa_tipos_parametros_select[] = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$contador];
-                                $pa_parametros_select[] = $v_campo_relacionamento[1];
+                                $pa_tipos_parametros_joins[] = $po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"][$contador];
+                                $pa_parametros_joins[] = $v_campo_relacionamento[1];
+                                
                                 $pa_joins_select[] = " AND " . $vs_alias_tabela_join . "." . $v_campo_relacionamento[0] . " = (?)";
                             }
                         }
+
                         $contador++;
                     }
-
-                    
                 }
 
                 $vs_tabela_banco = $vs_alias_tabela_join;
                 $vs_campo_tabela = reset($po_objeto->relacionamentos[$va_filtro[0]]["campos_relacionamento"]);
+
                 if (is_array($vs_campo_tabela))
                 {
                     $vs_campo_tabela = reset($vs_campo_tabela);
                 }
+
                 $vs_tipo_dado_campo = reset($po_objeto->relacionamentos[$va_filtro[0]]["tipos_campos_relacionamento"]);
             }
 
@@ -1922,8 +1926,10 @@ class objeto_base
 
         $va_resultado = array();
         $va_selects = array();
-        $va_tipos_parametros_select = array();
-        $va_parametros_select = array();
+
+        $va_tipos_parametros_unificados = array();
+        $va_parametros_unificados = array();
+        
         $va_order_by = array();
         $va_group_by = array();
 
@@ -1976,6 +1982,11 @@ class objeto_base
                 $va_campos_select = array();
                 $va_joins_select = array();
                 $va_wheres_select = array();
+
+                $va_tipos_parametros_joins = array();
+                $va_parametros_joins = array();
+                $va_tipos_parametros_select = array();
+                $va_parametros_select = array();
 
                 $va_tabelas_adicionadas = array();
                 $va_tabelas_adicionadas[$vs_tabela_banco][] = $vs_tabela_banco;
@@ -2120,7 +2131,7 @@ class objeto_base
                     }
                 }
 
-                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores, $va_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
+                $this->montar_filtros_busca($va_filtros_busca, $vo_objeto, $va_joins_select, $va_tipos_parametros_joins, $va_parametros_joins, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores, $va_joins_trail, $pn_primeiro_registro, $pn_numero_registros);
 
                 $this->montar_parametros_log($pa_log_info, $vo_objeto, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select);
 
@@ -2136,6 +2147,9 @@ class objeto_base
                     "concatenadores" => (isset($va_filtros_busca["concatenadores"]) ? $va_filtros_busca["concatenadores"] : array())
                 ];
 
+                $va_tipos_parametros_unificados = array_merge($va_tipos_parametros_unificados, array_merge($va_tipos_parametros_joins, $va_tipos_parametros_select));
+                $va_parametros_unificados = array_merge($va_parametros_unificados, array_merge($va_parametros_joins, $va_parametros_select));
+
                 $contador++;
             }
         }
@@ -2147,7 +2161,7 @@ class objeto_base
                 $vs_limit = " LIMIT " . ($pn_primeiro_registro - 1) . ", " . $pn_numero_registros;
 
             $vo_banco = $this->get_banco();
-            $va_resultado = $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, $va_order_by, $vs_limit, true, $va_group_by);
+            $va_resultado = $vo_banco->consultar($va_selects, $va_tipos_parametros_unificados, $va_parametros_unificados, $va_order_by, $vs_limit, true, $va_group_by);
         }
 
         // Agora vamos montar o objeto pai, atributos que
@@ -2422,6 +2436,8 @@ class objeto_base
 
         $va_campos_select = array();
         $va_joins_select = array();
+        $va_tipos_parametros_joins = array();
+        $va_parametros_joins = array();
         $va_wheres_select = array();
         $vs_limit = "";
 
@@ -2544,7 +2560,7 @@ class objeto_base
                 $va_filtros_busca[reset($va_atributo_objeto)] = $va_atributo_objeto["valor_padrao"];
         }
                 
-        $this->montar_filtros_busca($va_filtros_busca, $this, $va_joins_select, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores);
+        $this->montar_filtros_busca($va_filtros_busca, $this, $va_joins_select, $va_tipos_parametros_joins, $va_parametros_joins, $va_wheres_select, $va_tipos_parametros_select, $va_parametros_select, $va_tabelas_adicionadas, $pb_retornar_ramos_inferiores);
 
         $va_group_by[] = $ps_label_objeto_relacionamento;
         $va_group_by[] = "Q_codigo";
@@ -2560,7 +2576,7 @@ class objeto_base
         ];
 
         $vo_banco = $this->get_banco();
-        $va_resultados = $vo_banco->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, $va_order_by, $vs_limit, true, $va_group_by);
+        $va_resultados = $vo_banco->consultar($va_selects, array_merge($va_tipos_parametros_joins, $va_tipos_parametros_select), array_merge($va_parametros_joins, $va_parametros_select), $va_order_by, $vs_limit, true, $va_group_by);
 
         if ($vo_objeto_relacionamento->hierarquico)
         {
