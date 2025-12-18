@@ -138,7 +138,12 @@ if (!isset($pa_parametros_campo["atualizacao"]))
                                     $vs_rp_legenda = $va_valores_linha["representante_digital_legenda"] ?? "";
                                     $vs_rd_formato = $va_valores_linha["representante_digital_formato"] ?? "";
 
-                                    $vs_download_link = "functions/serve_file.php?file=" . $vs_rd_path . "&size=original&download=1&name=" . $vs_label_objeto . "-" . $vn_numero_campo;
+                                    $vs_file_extension = isset($va_valores_linha["representante_digital_nome_original"]) ? strtolower(pathinfo($va_valores_linha["representante_digital_nome_original"], PATHINFO_EXTENSION)) : strtolower(pathinfo($vs_rd_path, PATHINFO_EXTENSION));
+                                    $vs_file_hash = pathinfo($vs_rd_path, PATHINFO_FILENAME);
+
+                                    $vs_download_file = $vs_file_hash . "." . $vs_file_extension;
+
+                                    $vs_download_link = "functions/serve_file.php?file=" . $vs_download_file . "&size=original&download=1&name=" . $vs_label_objeto . "-" . $vn_numero_campo;
 
                                     // if ($pa_parametros_campo["tipo"] == 2)
                                     //     $vs_download_link .= "&folder=documents";
