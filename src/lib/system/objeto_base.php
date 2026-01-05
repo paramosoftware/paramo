@@ -4976,8 +4976,8 @@ class objeto_base
                 $vo_data->set_ano_final($pa_valores_form[$ps_nome_campo . "_ano_final"]);
             }
 
-            if (isset($pa_valores_form[$ps_nome_campo . "_presumido"]))
-                $vo_data->set_presumido($pa_valores_form[$ps_nome_campo . "_presumido"]);
+            if (isset($pa_valores_form[$ps_nome_campo . "_presumido"])|| isset($pa_valores_form[$ps_nome_campo . "_data_presumida"]))
+                $vo_data->set_presumido($pa_valores_form[$ps_nome_campo . "_presumido"] ?? $pa_valores_form[$ps_nome_campo . "_data_presumida"]);
             else
                 $vo_data->set_presumido(0);
 
@@ -5043,9 +5043,9 @@ class objeto_base
         else
             $vb_presumido = 0;
 
-        if (isset($pa_atributo["presumido"])) 
+        if (isset($pa_atributo["presumido"]) || isset($pa_atributo["presumida"]))
         {
-            $this->va_campos[] = $pa_atributo["presumido"];
+            $this->va_campos[] = $pa_atributo["presumido"] ?? $pa_atributo["presumida"];
             $this->va_tipos_parametros[] = "i";
             $this->va_parametros[] = $vb_presumido;
         }
@@ -5635,8 +5635,8 @@ class objeto_base
                                     $vb_tem_valores_preenchidos = true;
                                 }
 
-                                if (isset($pa_valores_form[$vs_campo_relacionamento . "_data_presumida" . "_" . $contador]))
-                                    $va_valores[$vs_campo_relacionamento . "_data_presumida"] = $pa_valores_form[$vs_campo_relacionamento . "_data_presumida" . "_" . $contador];
+                                if (isset($pa_valores_form[$vs_campo_relacionamento . "_presumida" . "_" . $contador]))
+                                    $va_valores[$vs_campo_relacionamento . "_data_presumida"] = $pa_valores_form[$vs_campo_relacionamento . "_presumida" . "_" . $contador];
 
                                 if (isset($pa_valores_form[$vs_campo_relacionamento . "_sem_data" . "_" . $contador]) && $pa_valores_form[$vs_campo_relacionamento . "_sem_data" . "_" . $contador] != "")
                                 {
@@ -6072,7 +6072,7 @@ class objeto_base
 
         foreach ($va_campos_temp as $vs_key_campo => $va_campo) 
         {
-            if (is_array($va_campo)) 
+            if (is_array($va_campo))
             {
                 $vs_campo = reset($va_campo);
 
