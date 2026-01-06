@@ -363,7 +363,8 @@ class objeto_base
 
     public function get_visualizacao($ps_visualizacao)
     {
-        if (intval($ps_visualizacao) && !isset($this->visualizacoes[$ps_visualizacao])) {
+        if (intval($ps_visualizacao) && !isset($this->visualizacoes[$ps_visualizacao])) 
+        {
             $vo_visualizacao = new visualizacao;
             $va_visualizacao = $vo_visualizacao->ler($ps_visualizacao, "ficha");
 
@@ -382,7 +383,12 @@ class objeto_base
                         if ($ps_key_campo_visualizacao == $va_campo_sistema_nome[0])
                         {
                             $this->visualizacoes[$ps_visualizacao]["campos"][$ps_key_campo_visualizacao] = $va_campo_visualizacao;
-                            $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"];
+                            $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = [
+                                "label" => $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"],
+                                "main_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["main_field"] ?? false,
+                                "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["id_field"] ?? false,
+                                "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["descriptive_field"] ?? false
+                            ];
                         }
                     }
 

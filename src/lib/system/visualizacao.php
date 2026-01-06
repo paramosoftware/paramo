@@ -70,7 +70,7 @@ class visualizacao extends objeto_base
                 [
                     'visualizacao_campo_sistema_codigo' => 'campo_sistema_codigo',
                     'visualizacao_campo_sistema_sequencia' => [
-                        'sequencia',
+                        'ordem',
                         'valor_sequencial' => true
                     ],
                 ],
@@ -111,7 +111,7 @@ class visualizacao extends objeto_base
             "sem_valor" => false,
             "conectar" => [
                 [
-                    "campo" => "visualizacao_campos_sistema",
+                    "campo" => "visualizacao_campo_sistema_codigo",
                     "atributo" => "campo_sistema_recurso_sistema_codigo"
                 ]
             ]
@@ -125,29 +125,22 @@ class visualizacao extends objeto_base
         ];
 
         $va_campos_edicao["visualizacao_campo_sistema_codigo"] = [
-            "html_multi_itens_input",
-            "nome" => "visualizacao_campo_sistema_codigo",
+            "html_autocomplete",
+            "nome" => ["visualizacao_campo_sistema", "visualizacao_campo_sistema_codigo"],
             "label" => "Campos",
-            "dependencia_linha" => ["campo" => "visualizacao_recurso_sistema_codigo"],
-            "subcampos" => [
-                "visualizacao_campo_sistema_codigo" =>
-                    [
-                        "html_combo_input",
-                        "nome" => "visualizacao_campo_sistema_codigo",
-                        "label" => "Campo",
-                        "objeto" => "campo_sistema",
-                        "atributos" => ["campo_sistema_codigo", "campo_sistema_alias"],
-                        "atributo" => "campo_sistema_codigo",
-                        "sem_valor" => false,
-                        "dependencia" => [
-                            "campo" => "visualizacao_recurso_sistema_codigo",
-                            "atributo" => "campo_sistema_recurso_sistema_codigo"
-                        ],
-                        "campo_pai" => "visualizacao_campo_sistema_codigo"
-                    ]
-
-            ],
+            "objeto" => "campo_sistema",
+            "atributos" => ["campo_sistema_codigo", "campo_sistema_alias"],
+            "multiplos_valores" => true,
+            "procurar_por" => "campo_sistema_alias",
+            "visualizacao" => "lista",
+            "permitir_cadastro" => false,
             "draggable" => true,
+            "dependencia" => [
+                [
+                    "campo" => "visualizacao_recurso_sistema_codigo",
+                    "atributo" => "campo_sistema_recurso_sistema_codigo"
+                ]
+            ]
         ];
 
         $va_campos_edicao["visualizacao_contexto_visualizacao_codigo"] = [

@@ -276,13 +276,13 @@
                             }
 
 
-                            if (isset($vs_label_campo_visualizacao["id_field"]))
+                            if (!empty($vs_label_campo_visualizacao["id_field"]))
                                 $vb_id_field = true;
 
-                            if (isset($vs_label_campo_visualizacao["main_field"]))
+                            if (!empty($vs_label_campo_visualizacao["main_field"]))
                                 $vb_main_field = true;
 
-                            if (isset($vs_label_campo_visualizacao["descriptive_field"]))
+                            if (!empty($vs_label_campo_visualizacao["descriptive_field"]))
                                 $vb_descriptive_field = true;
 
                             if (isset($vs_label_campo_visualizacao["label"]))
