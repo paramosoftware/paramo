@@ -22,7 +22,6 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
     if ($vb_busca_id && count($va_itens_listagem) != 0)
     {
 
-        $in = 1;
         function sanitize_identifier($vs_raw_identifier) {
             $vs_regex_pattern = '/[^0-9]/';
             return preg_replace($vs_regex_pattern, '', $vs_raw_identifier);
@@ -96,16 +95,16 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
 
         if (count($va_itens_listagem)) {
 
+            $vn_numero_registros =  $vo_objeto->ler_numero_registros([]);
+            $_SESSION[$vs_id_objeto_tela]["numero_registros"] = $vn_numero_registros;
+
             $vn_numero_maximo_paginas = ceil($vo_objeto->ler_numero_registros([]) / 20);
             $vn_middle_page = floor($vn_numero_maximo_paginas / 2);
             $vn_pagina_atual = search_object_page($vo_objeto, $va_current_object_identifier, $vn_middle_page, 1, $vn_numero_maximo_paginas);
 
-            $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]] = $vn_pagina_atual;
+            $_SESSION[$vs_id_objeto_tela]['campo_paginacao'] = $vn_pagina_atual;
+            $_SESSION[$vs_id_objeto_tela]['sincronizar'] = 1;
 
-            $vb_usar_parametros_sessao = true;
-            $vs_modo = "listagem";
-
-//            require dirname(__FILE__) . "/../functions/montar_listagem.php";
         }
 
         print '<script>window.location="editar.php?obj=' . $vs_id_objeto_tela . '&cod=' . $vn_objeto_codigo . '";</script>';
