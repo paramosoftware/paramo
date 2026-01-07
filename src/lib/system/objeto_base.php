@@ -4802,6 +4802,9 @@ class objeto_base
                     }
 
                     $vs_valor_atributo = $this->$vs_funcao($va_valores_parametros);
+
+                    if ($vs_valor_atributo === false)
+                        continue;
                 }
 
                 $this->va_campos[] = $va_atributo["coluna_tabela"];
