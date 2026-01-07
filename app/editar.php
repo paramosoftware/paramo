@@ -208,10 +208,10 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                     }, $va_lista_objetos);
 
 
-                    if (array_search($pn_object_identifier, $va_identificadores_lista_objetos))
+                    if (in_array((int)$pn_object_identifier, $va_identificadores_lista_objetos, true))
                     {
-                        $vn_pagina_atual = $pn_current_page;
                         return $pn_current_page;
+
                     }
 
                     $vn_list_first_item = reset($va_identificadores_lista_objetos);
