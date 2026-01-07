@@ -20,7 +20,7 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
 
     if ($vb_busca_id && count($va_itens_listagem))
     {
-        print '<script>window.location="editar.php?obj=' . $vs_id_objeto_tela .'&cod=' . $va_itens_listagem[0][$vo_objeto->get_chave_primaria()[0]] . '";</script>';
+        print '<script>window.location="editar.php?obj=' . $vs_id_objeto_tela .'&cod=' . $va_itens_listagem[0][$vo_objeto->get_chave_primaria()[0]] . '&sincronizar=1";</script>';
     }
 
     if (count($va_itens_listagem))
