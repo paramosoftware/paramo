@@ -154,9 +154,6 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 //        f = first
 //        l = last
 
-
-//        s = synchronize ou start (?)
-
         $vb_sincronizar = isset($_REQUEST["sincronizar"]) && $_REQUEST["sincronizar"] ?? false;
 
         if (in_array($vn_objeto_codigo, ["p", "n", "f", "l"]) || $vb_sincronizar)
@@ -175,80 +172,6 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             elseif ( ($vn_objeto_codigo == "l") && isset($_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"]) ) {
                 $vn_pagina_atual = $vn_numero_maximo_paginas;
                 $vn_objeto_codigo = $_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"];
-            }
-            elseif ($vb_sincronizar) {
-                function sanitize_identifier($vs_raw_identifier) {
-                    $vs_regex_pattern = '/[^0-9]/';
-                    return preg_replace($vs_regex_pattern, '', $vs_raw_identifier);
-                }
-
-                $vs_identifier_key_sort = "item_acervo_identificador";
-
-                $va_current_object_identifier =  $vo_objeto->ler($vn_objeto_codigo, "lista", $vn_idioma_catalogacao_codigo)[$vs_identifier_key_sort];
-                $va_current_object_identifier = sanitize_identifier($va_current_object_identifier);
-
-                function search_object_page($po_objeto, $pn_object_identifier, $pn_current_page, $pn_min, $pn_max)
-                {
-                    if ($pn_min > $pn_max)
-                    {
-                        return false;
-                    }
-
-                    $vn_registros_por_pagina = 20;
-                    $vn_primeiro_registro = ($pn_current_page - 1) * $vn_registros_por_pagina + 1;
-                    if ($vn_primeiro_registro < 1)
-                    {
-                        return false;
-                    }
-
-                    $va_lista_objetos = $po_objeto->ler_lista([], "lista", $vn_primeiro_registro, $vn_registros_por_pagina, "item_acervo_codigo_0_item_acervo_identificador_sort", "ASC");
-                    $va_identificadores_lista_objetos = array_map(function ($pa_registro)
-                    {
-                        return (int)sanitize_identifier($pa_registro["item_acervo_identificador_sort"]);
-                    }, $va_lista_objetos);
-
-
-                    if (in_array((int)$pn_object_identifier, $va_identificadores_lista_objetos, true))
-                    {
-                        return $pn_current_page;
-
-                    }
-
-                    $vn_list_first_item = reset($va_identificadores_lista_objetos);
-                    $vn_list_last_item  = end($va_identificadores_lista_objetos);
-
-                    if ((int)$pn_object_identifier > $vn_list_last_item)
-                    {
-                        $pn_min = $pn_current_page + 1;
-
-                    }
-                    elseif ((int)$pn_object_identifier < $vn_list_first_item)
-                    {
-                        $pn_max = $pn_current_page - 1;
-
-                    } else
-                    {
-                        return false;
-                    }
-
-                    if ($pn_min > $pn_max)
-                    {
-                        return false;
-                    }
-
-                    $vn_next_page = floor(($pn_min + $pn_max) / 2);
-                    if ($vn_next_page < 1) {
-                        return false;
-                    }
-
-                    return search_object_page($po_objeto, $pn_object_identifier, $vn_next_page, $pn_min, $pn_max);
-                }
-
-                $vn_numero_maximo_paginas = ceil($vo_objeto->ler_numero_registros([]) / 20);
-                $vn_middle_page = floor($vn_numero_maximo_paginas / 2);
-                $vn_pagina_atual = search_object_page($vo_objeto, $va_current_object_identifier, $vn_middle_page, 1, $vn_numero_maximo_paginas);
-
-
             }
 
             $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]] = $vn_pagina_atual;
