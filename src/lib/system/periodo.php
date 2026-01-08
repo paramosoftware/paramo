@@ -638,6 +638,8 @@ public function get_data_exibicao($ps_separador='')
 	if ($this->get_presumido())
 		$vs_data_exibicao = "[" . $vs_data_exibicao . "]";
 
+	if ($this->get_complemento())
+		$vs_data_exibicao .= " (" . $this->get_complemento() . ")";
 
 	return $vs_data_exibicao;
 }

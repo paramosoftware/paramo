@@ -6,7 +6,7 @@
         "nome" => "visualizacao_codigo", 
         "label" => "Visualização", 
         "objeto" => "visualizacao", 
-        "sem_valor" => true,
+        "sem_valor" => false,
         "dependencia" => [
             [
                 "campo" => "recurso_sistema_codigo",

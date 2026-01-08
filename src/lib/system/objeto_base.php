@@ -363,12 +363,22 @@ class objeto_base
 
     public function get_visualizacao($ps_visualizacao)
     {
-        if (intval($ps_visualizacao) && !isset($this->visualizacoes[$ps_visualizacao])) 
+        if (!isset($this->visualizacoes[$ps_visualizacao]) && $this->recurso_sistema_codigo) 
         {
-            $vo_visualizacao = new visualizacao;
-            $va_visualizacao = $vo_visualizacao->ler($ps_visualizacao, "ficha");
+            $va_filtro = array();
+            
+            if (intval($ps_visualizacao))
+                $va_filtro = ["visualizacao_codigo" => $ps_visualizacao];
+            else
+                $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_nome" => $ps_visualizacao];
 
-            if (count($va_visualizacao)) {
+            $vo_visualizacao = new visualizacao;
+            $va_visualizacao = $vo_visualizacao->ler_lista($va_filtro, "ficha");
+
+            if (count($va_visualizacao)) 
+            {
+                $va_visualizacao = $va_visualizacao[0];
+
                 $this->visualizacoes[$ps_visualizacao]["campos"][$this->chave_primaria[0]] = $this->visualizacoes["ficha"]["campos"][$this->chave_primaria[0]];
 
                 if (isset($this->visualizacoes["navegacao"]["order_by"]))
@@ -383,11 +393,12 @@ class objeto_base
                         if ($ps_key_campo_visualizacao == $va_campo_sistema_nome[0])
                         {
                             $this->visualizacoes[$ps_visualizacao]["campos"][$ps_key_campo_visualizacao] = $va_campo_visualizacao;
+                            
                             $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = [
                                 "label" => $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"],
-                                "main_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["main_field"] ?? false,
-                                "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["id_field"] ?? false,
-                                "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$ps_key_campo_visualizacao]["descriptive_field"] ?? false
+                                "main_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["main_field"] ?? false,
+                                "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["id_field"] ?? false,
+                                "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["descriptive_field"] ?? false
                             ];
                         }
                     }
@@ -406,8 +417,13 @@ class objeto_base
 
         if (isset($this->visualizacoes[$ps_visualizacao]))
             return $this->visualizacoes[$ps_visualizacao];
-        else
-            return $this->visualizacoes["navegacao"];
+        else 
+        {
+            if ($ps_visualizacao == "Ficha")
+                return $this->visualizacoes["ficha"];
+            else
+                return $this->visualizacoes["navegacao"];
+        }
     }
 
     public function get_campos_visualizacao($ps_visualizacao)

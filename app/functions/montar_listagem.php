@@ -218,6 +218,9 @@
         }
         else
         {
+            if ($vs_visualizacao == "ficha")
+                $vs_visualizacao = "Ficha";
+            
             $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao);
 
             if (isset($va_visualizacao_lista["ordem_campos"]))
