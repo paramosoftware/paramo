@@ -1991,7 +1991,12 @@ class objeto_base
                     $va_filtros_busca = $va_filtros_busca_union[$contador];
 
                 if ($vs_objeto)
-                    $vo_objeto = new $vs_objeto($vs_objeto);
+                {
+                    if ($vs_objeto == $this->tabela_banco)
+                        $vo_objeto = $this;
+                    else
+                        $vo_objeto = new $vs_objeto($vs_objeto);
+                }
 
                 if (method_exists($vo_objeto, "get_filtros_interditados"))
                 {
@@ -2214,18 +2219,23 @@ class objeto_base
 
                 $va_visualizacao = $vo_objeto->get_visualizacao($ps_visualizacao)["campos"];
 
-                foreach ($va_visualizacao as $ps_key_campo_visualizacao => $va_campo_visualizacao) {
+                foreach ($va_visualizacao as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
+                {
                     // Primeiro, ver se o campo de visualização é atributo
                     //////////////////////////////////////////////////////
 
-                    if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]])) {
-                        if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"])) {
-                            if (isset($va_item_resultado[$ps_key_campo_visualizacao])) {
+                    if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]])) 
+                    {
+                        if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"])) 
+                        {
+                            if (isset($va_item_resultado[$ps_key_campo_visualizacao])) 
+                            {
                                 $vs_id_objeto = $vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"];
 
                                 $vo_objeto_chave_estrangeira = new $vs_id_objeto($vs_id_objeto);
 
-                                if ($va_item_resultado[$ps_key_campo_visualizacao]) {
+                                if ($va_item_resultado[$ps_key_campo_visualizacao]) 
+                                {
                                     $va_objeto_chave_estrangeira = $vo_objeto_chave_estrangeira->ler($va_item_resultado[$ps_key_campo_visualizacao], "lista", $pn_idioma_codigo);
                                     $va_item_resultado[$ps_key_campo_visualizacao] = $va_objeto_chave_estrangeira;
                                 }
@@ -2345,6 +2355,9 @@ class objeto_base
 
                     if (isset($va_item_resultado[$vo_objeto_pai->chave_primaria[0]])) 
                     {
+                        $vo_objeto_pai->visualizacoes[$ps_visualizacao]["campos"] = $va_visualizacao;
+                        $vo_objeto_pai->visualizacoes[$ps_visualizacao]["campos"][$vo_objeto_pai->chave_primaria[0]] = $vo_objeto_pai->visualizacoes["ficha"]["campos"][$vo_objeto_pai->chave_primaria[0]];
+
                         $va_resultado_pai = $vo_objeto_pai->ler($va_item_resultado[$vo_objeto_pai->chave_primaria[0]], $ps_visualizacao, $pn_idioma_codigo);
 
                         $va_item_resultado = array_merge($va_item_resultado, $va_resultado_pai);
