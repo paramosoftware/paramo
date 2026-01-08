@@ -361,16 +361,23 @@ class objeto_base
         return $this->registros_filhos;
     }
 
-    public function get_visualizacao($ps_visualizacao)
+    public function get_visualizacao($ps_visualizacao, $pn_contexto_codigo = null)
     {
-        if (!isset($this->visualizacoes[$ps_visualizacao]) && $this->recurso_sistema_codigo) 
+        if ($this->recurso_sistema_codigo && (isset($pn_contexto_codigo) ||!isset($this->visualizacoes[$ps_visualizacao])) ) 
         {
             $va_filtro = array();
             
             if (intval($ps_visualizacao))
                 $va_filtro = ["visualizacao_codigo" => $ps_visualizacao];
+            elseif (isset($pn_contexto_codigo))
+            {
+                $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_contexto_visualizacao_codigo" => $pn_contexto_codigo];
+                $ps_visualizacao = $pn_contexto_codigo;
+            }
             else
                 $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_nome" => $ps_visualizacao];
+
+            $va_filtro["visualizacao_habilitado"] = 1;
 
             $vo_visualizacao = new visualizacao;
             $va_visualizacao = $vo_visualizacao->ler_lista($va_filtro, "ficha");
@@ -378,6 +385,14 @@ class objeto_base
             if (count($va_visualizacao)) 
             {
                 $va_visualizacao = $va_visualizacao[0];
+
+                if (!empty($va_visualizacao["visualizacao_incluir_representante_digital"]))
+                {
+                    $this->visualizacoes[$ps_visualizacao]["campos"]["representante_digital_codigo"] = [
+                        "nome" => "representante_digital_codigo",
+                        "formato" => ["campo" => "representante_digital_path"]
+                    ];
+                }
 
                 $this->visualizacoes[$ps_visualizacao]["campos"][$this->chave_primaria[0]] = $this->visualizacoes["ficha"]["campos"][$this->chave_primaria[0]];
 
@@ -418,12 +433,7 @@ class objeto_base
         if (isset($this->visualizacoes[$ps_visualizacao]))
             return $this->visualizacoes[$ps_visualizacao];
         else 
-        {
-            if ($ps_visualizacao == "Ficha")
-                return $this->visualizacoes["ficha"];
-            else
-                return $this->visualizacoes["navegacao"];
-        }
+            return $this->visualizacoes["navegacao"];
     }
 
     public function get_campos_visualizacao($ps_visualizacao)

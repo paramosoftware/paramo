@@ -217,11 +217,8 @@
             $va_itens_listagem = $va_objetos_lista;
         }
         else
-        {
-            if ($vs_visualizacao == "ficha")
-                $vs_visualizacao = "Ficha";
-            
-            $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao);
+        {            
+            $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao, ($vn_contexto_visualizacao ?? null));
 
             if (isset($va_visualizacao_lista["ordem_campos"]))
                 $va_campos_visualizacao = $va_visualizacao_lista["ordem_campos"];

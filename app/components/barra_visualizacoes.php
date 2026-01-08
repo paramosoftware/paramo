@@ -7,10 +7,15 @@
         "label" => "Visualização", 
         "objeto" => "visualizacao", 
         "sem_valor" => false,
+        "atributo_obrigatorio" => true,
         "dependencia" => [
             [
                 "campo" => "recurso_sistema_codigo",
                 "atributo" => "visualizacao_recurso_sistema_codigo"
+            ],
+            [
+                "campo" => "visualizacao_contexto_visualizacao_codigo",
+                "atributo" => "visualizacao_contexto_visualizacao_codigo"
             ]
         ],
         "filtro" => [
@@ -30,6 +35,11 @@
         
     $va_valores["recurso_sistema_id"] = $vs_id_objeto_tela;
     $va_valores["recurso_sistema_codigo"] = $vn_recurso_sistema_codigo;
+
+    if ($vs_modo == "listagem")
+        $va_valores["visualizacao_contexto_visualizacao_codigo"] = 3;
+    elseif ($vs_modo == "ficha")
+        $va_valores["visualizacao_contexto_visualizacao_codigo"] = 4;
 
     $vo_combo_visualizacoes->build($va_valores, $va_parametros_campo);
 ?>
