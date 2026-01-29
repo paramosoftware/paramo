@@ -218,6 +218,18 @@ class objeto_base
         return $this->inicializar_atributos();
     }
 
+    public function tem_atributo($ps_atributo_id)
+    {
+        if (!isset($this->atributos[$ps_atributo_id]) && $this->objeto_pai)
+        {
+            $vo_objeto_pai = new $this->objeto_pai;
+
+            return isset($vo_objeto_pai->atributos[$ps_atributo_id]);
+        }
+
+        return isset($this->atributos[$ps_atributo_id]);
+    }
+
     public function get_atributo_identificador()
     {
         foreach ($this->atributos as $va_atributo)
@@ -1958,7 +1970,9 @@ class objeto_base
                 if (isset($va_filtros_busca_union))
                     $va_filtros_busca = $va_filtros_busca_union[$contador];
 
-                if ($vs_objeto)
+                if ($vs_objeto == $this->tabela_banco)
+                    $vo_objeto = $this;
+                else
                     $vo_objeto = new $vs_objeto($vs_objeto);
 
                 if (method_exists($vo_objeto, "get_filtros_interditados"))
@@ -2313,6 +2327,9 @@ class objeto_base
 
                     if (isset($va_item_resultado[$vo_objeto_pai->chave_primaria[0]])) 
                     {
+                        $vo_objeto_pai->visualizacoes[$ps_visualizacao]["campos"] = $va_visualizacao;
+                        $vo_objeto_pai->visualizacoes[$ps_visualizacao]["campos"][$vo_objeto_pai->chave_primaria[0]] = $vo_objeto_pai->visualizacoes["ficha"]["campos"][$vo_objeto_pai->chave_primaria[0]];
+
                         $va_resultado_pai = $vo_objeto_pai->ler($va_item_resultado[$vo_objeto_pai->chave_primaria[0]], $ps_visualizacao, $pn_idioma_codigo);
 
                         $va_item_resultado = array_merge($va_item_resultado, $va_resultado_pai);
@@ -2419,6 +2436,76 @@ class objeto_base
         }
 
         return $va_resultado;
+    }
+
+    function encontrar_pagina_item_acervo($ps_object_identifier, $ps_identifier_attribute, $pn_current_page, $pn_min, $pn_max)
+    {
+        if ($pn_min > $pn_max)
+        {
+            return false;
+        }
+
+        $vn_registros_por_pagina = 20;
+        $vn_primeiro_registro = ($pn_current_page - 1) * $vn_registros_por_pagina + 1;
+
+        if ($vn_primeiro_registro < 1)
+        {
+            return false;
+        }
+
+        $vs_identifier_attribute = $this->get_atributo_identificador();
+
+        if (isset($this->get_visualizacao("navegacao")["order_by"]))
+            $vs_main_sorter_attribute = array_keys($this->get_visualizacao("navegacao")["order_by"])[0];
+               
+
+        $va_lista_objetos = $this->ler_lista([], "lista", $vn_primeiro_registro, $vn_registros_por_pagina, $vs_main_sorter_attribute, "ASC");
+        
+        $va_codigos_objetos = array();
+
+        foreach ($va_lista_objetos as $va_objeto)
+        {
+            $va_identificadores_lista_objetos[] = $va_objeto[$ps_identifier_attribute];
+            $va_codigos_objetos[] = $va_objeto[$this->get_chave_primaria()[0]];
+        }
+
+        if (in_array($ps_object_identifier, $va_identificadores_lista_objetos, true))
+        {
+            return array($pn_current_page, $va_codigos_objetos);
+        }
+
+        $va_identificadores_lista_objetos[] = $ps_object_identifier;
+
+        sort($va_identificadores_lista_objetos);
+
+        $vn_list_first_item = reset($va_identificadores_lista_objetos);
+        $vn_list_last_item  = end($va_identificadores_lista_objetos);
+
+        if ($ps_object_identifier == $vn_list_last_item)
+        {
+            $pn_min = $pn_current_page + 1;
+        }
+        elseif ($ps_object_identifier == $vn_list_first_item)
+        {
+            $pn_max = $pn_current_page - 1;
+        } 
+        else
+        {
+            return false;
+        }
+
+        if ($pn_min > $pn_max)
+        {
+            return false;
+        }
+
+        $vn_next_page = floor(($pn_min + $pn_max) / 2);
+
+        if ($vn_next_page < 1) {
+            return false;
+        }
+
+        return $this->encontrar_pagina_item_acervo($ps_object_identifier, $ps_identifier_attribute, $vn_next_page, $pn_min, $pn_max);
     }
 
     public function ler_lista_quantitativa($ps_id_relacionamento, $ps_label_objeto_relacionamento, $pa_filtros_busca = null, $pb_ordenar_por_quantidade = false)
