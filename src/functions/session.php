@@ -312,4 +312,84 @@ class session
         return $vs_redirect_url;
     }
 
+    public static function validate_data(array &$pa_data, array $pa_rules, array|null $pa_messages = null)
+    {
+        $VA_RULES = [
+            "string" => function (&$p_value) {
+                if (!filter_var($p_value, FILTER_FLAG_EMPTY_STRING_NULL))
+                    return "";
+                return $p_value = filter_var(trim(strip_tags($p_value)), FILTER_DEFAULT);
+            },
+            "integer" => function (&$p_value) {
+                if(is_array($p_value)){
+                    $p_value = filter_var_array($p_value, FILTER_SANITIZE_NUMBER_INT);
+                    if(!filter_var_array($p_value, FILTER_VALIDATE_INT))
+                        return false;
+                }
+                else{
+                    $p_value = filter_var($p_value, FILTER_SANITIZE_NUMBER_INT);
+                    if(!filter_var($p_value, FILTER_VALIDATE_INT))
+                        return false;
+                }
+                return true;
+            },
+            "array" => function(&$p_value){
+                if(!filter_var($p_value, FILTER_DEFAULT, ["flags" => FILTER_REQUIRE_ARRAY]))
+                    return false;
+                return true;
+            },
+            "email" => function(&$p_value){
+                $p_value = filter_var($p_value, FILTER_SANITIZE_EMAIL);
+                if(!filter_var($p_value, FILTER_VALIDATE_EMAIL))
+                    return false;
+                return true;
+            },
+            "required" => function (&$p_value) {
+                return empty($p_value) ? false : true;
+            }
+        ];
+
+        $VA_MESSAGES = [
+            "string" => "O campo não é uma string compatível",
+            "required" => "O campo é obrigatório",
+            "email" => "E-mail preenchido inválido",
+            "array" => "O conjunto de elementos está inválido",
+            "integer" => "O campo é necessário ser um inteiro válido"
+        ];
+
+        $va_errors_message = [];
+        
+        foreach ($pa_rules as $vs_rule_index => $vs_rule_value) {
+            $v_data_value = !empty($pa_data[$vs_rule_index]) ? $pa_data[$vs_rule_index] : null;
+        
+            if (gettype($vs_rule_value) !== "array") {
+                if (isset($VA_RULES[$vs_rule_value]) && !$VA_RULES[$vs_rule_value]($v_data_value))
+                    $va_errors_message[$vs_rule_index][] = !empty($pa_messages[$vs_rule_index][$vs_rule_value]) ? $pa_messages[$vs_rule_index][$vs_rule_value] : $VA_MESSAGES[$vs_rule_value];
+            } else 
+                array_map(function ($ps_rule) use (&$va_errors_message, $pa_messages, $vs_rule_index, &$v_data_value, $VA_RULES, $VA_MESSAGES) {
+                    if (isset($VA_RULES[$ps_rule]) && !$VA_RULES[$ps_rule]($v_data_value))
+                        $va_errors_message[$vs_rule_index][] = !empty($pa_messages[$vs_rule_index][$ps_rule]) ? $pa_messages[$vs_rule_index][$ps_rule] : $VA_MESSAGES[$ps_rule];
+                }, $vs_rule_value);
+            
+            $pa_data[$vs_rule_index] = $v_data_value;
+        }
+
+        if (count($va_errors_message))
+            return ["error" => true, "errors" => $va_errors_message];
+    }
+
+    public static function send_response(string|array|null $p_response = null, int $pi_http_code = 200, string $ps_header_content_type = "application/json"){
+        http_response_code($pi_http_code);
+
+        if($ps_header_content_type){
+            header("Content-Type: $ps_header_content_type");
+            if (str_contains($ps_header_content_type, "json")) 
+                $p_response = json_encode($p_response);
+        }
+
+        if (!empty($p_response) && gettype($p_response) == "string")
+            echo $p_response;
+
+        exit();
+    }
 }
