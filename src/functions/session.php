@@ -346,30 +346,72 @@ class session
             },
             "required" => function (&$p_value) {
                 return empty($p_value) ? false : true;
+            },
+            "max" => function(&$p_value, $ps_max_value = 255){
+                if($p_value){
+                    if(is_array($p_value))
+                        return count($p_value) > $ps_max_value ? false : true;
+                    return strlen($p_value) > $ps_max_value ? false : true;
+                }
+                    
+                return true;
+            },
+            "min" => function(&$p_value, $ps_min_value = 5){
+                if($p_value){
+                    if(is_array($p_value))
+                        return count($p_value) < $ps_min_value ? false : true;
+                    return strlen($p_value) < $ps_min_value ? false : true;
+                }
+                return true;
             }
         ];
+
+        $VA_RULES_KEYS = array_keys($VA_RULES);
 
         $VA_MESSAGES = [
             "string" => "O campo não é uma string compatível",
             "required" => "O campo é obrigatório",
             "email" => "E-mail preenchido inválido",
             "array" => "O conjunto de elementos está inválido",
-            "integer" => "O campo é necessário ser um inteiro válido"
+            "integer" => "O campo é necessário ser um inteiro válido",
+            
+            "max" => fn($value, $ps_max = null) =>
+                is_array($value) ? ($ps_max ? "O campo tem de ter no máximo $ps_max itens" : 
+                "O campo entrou no limite de itens permitidos.") 
+                :
+                ($ps_max ? "O campo tem de ter máximo $ps_max caractere(s)" : 
+                "O campo entrou no limite de caracteres permitidos."),
+
+            "min" => fn($value, $ps_min = null) =>
+                is_array($value) ? ($ps_min ? "O campo tem de ter no mínimo $ps_min itens" : 
+                "O campo não entrou no limite de itens permitidos.") 
+                :
+                ($ps_min ? "O campo tem de ter no mínimo $ps_min caractere(s)" : 
+                "O campo não atingiu o limite de caracteres necessários.")
         ];
 
         $va_errors_message = [];
+        
+        $vf_add_errors_message =
+            fn(array &$va_errors_message, string $ps_rule_index, string $vs_rule, array $VA_MESSAGES, $p_data_value, $ps_rule_index_ = null) => 
+                $va_errors_message[$ps_rule_index][] =
+                !empty($pa_messages[$ps_rule_index][$vs_rule]) ?
+                $pa_messages[$ps_rule_index][$vs_rule] : (is_callable($VA_MESSAGES[$vs_rule]) ? 
+                $VA_MESSAGES[$vs_rule]($p_data_value, $ps_rule_index_) : $VA_MESSAGES[$vs_rule]);
         
         foreach ($pa_rules as $vs_rule_index => $vs_rule_value) {
             $v_data_value = !empty($pa_data[$vs_rule_index]) ? $pa_data[$vs_rule_index] : null;
         
             if (gettype($vs_rule_value) !== "array") {
                 if (isset($VA_RULES[$vs_rule_value]) && !$VA_RULES[$vs_rule_value]($v_data_value))
-                    $va_errors_message[$vs_rule_index][] = !empty($pa_messages[$vs_rule_index][$vs_rule_value]) ? $pa_messages[$vs_rule_index][$vs_rule_value] : $VA_MESSAGES[$vs_rule_value];
+                    $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule_value, $VA_MESSAGES,$v_data_value);
             } else 
-                array_map(function ($ps_rule) use (&$va_errors_message, $pa_messages, $vs_rule_index, &$v_data_value, $VA_RULES, $VA_MESSAGES) {
-                    if (isset($VA_RULES[$ps_rule]) && !$VA_RULES[$ps_rule]($v_data_value))
-                        $va_errors_message[$vs_rule_index][] = !empty($pa_messages[$vs_rule_index][$ps_rule]) ? $pa_messages[$vs_rule_index][$ps_rule] : $VA_MESSAGES[$ps_rule];
-                }, $vs_rule_value);
+                foreach($vs_rule_value as $vs_rule_index_ => $vs_rule){
+                    if (in_array($vs_rule, $VA_RULES_KEYS) && !$VA_RULES[$vs_rule]($v_data_value))
+                        $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule, $VA_MESSAGES,$v_data_value);
+                    else if(in_array($vs_rule_index_, $VA_RULES_KEYS) && !$VA_RULES[$vs_rule_index_]($v_data_value, $vs_rule))
+                        $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule_index_, $VA_MESSAGES,$v_data_value, $vs_rule);
+                }            
             
             $pa_data[$vs_rule_index] = $v_data_value;
         }
