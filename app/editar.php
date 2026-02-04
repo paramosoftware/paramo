@@ -104,14 +104,6 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
         $vn_objeto_codigo = implode("|", $va_objeto_codigo);
 
-        // Adiciona ao form os códigos dos objetos pais de todos os registros
-        /////////////////////////////////////////////////////////////////////
-
-        foreach($va_objetos_pais_codigos as $vs_chave_primaria_objeto_pai => $va_objeto_pai_codigos)
-        {
-            $va_objeto[$vs_chave_primaria_objeto_pai] = implode("|", $va_objeto_pai_codigos);
-        }
-
         $vs_modo = "lote";
     }
     else
@@ -252,6 +244,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
         <?php require_once dirname(__FILE__) ."/components/header.php"; ?>
 
         <form method="post" enctype="multipart/form-data" action="functions/salvar.php" id="form_cadastro">
+
             <input type="hidden" name="modo" id="modo" value="<?php print $vs_modo; ?>">
             <input type="hidden" name="recurso_sistema_codigo" id="recurso_sistema_codigo" value="<?php print $vn_recurso_sistema_codigo; ?>">
             <input type="hidden" name="obj" id="obj" value="<?php print $vs_id_objeto_tela; ?>">

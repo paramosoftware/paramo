@@ -88,11 +88,6 @@
             }
 
             $_POST[$vs_chave_primaria_objeto] = $vn_objeto_codigo;
-            
-            foreach($va_objetos_pais_codigos as $vs_chave_primaria_objeto_pai => $va_objeto_pai_codigos)
-            {
-                $_POST[$vs_chave_primaria_objeto_pai] = $va_objetos_pais_codigos[$vs_chave_primaria_objeto_pai][$vn_indice_objetos];
-            }
 
             $vo_objeto->salvar($_POST, true, $vn_idioma_catalogacao_codigo);
 
