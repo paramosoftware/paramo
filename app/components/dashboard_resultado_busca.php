@@ -28,7 +28,7 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
 
         $vn_numero_registros = $vo_objeto->ler_numero_registros([]);
         $vn_numero_paginas = ceil($vo_objeto->ler_numero_registros([]) / 20);
-        $vn_middle_page = floor($vn_numero_paginas / 2);
+        $vn_middle_page = ($vn_numero_paginas > 1) ? floor($vn_numero_paginas / 2) : 1;
 
         list($vn_pagina_atual, $va_codigos_listagem) = $vo_objeto->encontrar_pagina_item_acervo($vs_current_object_identifier, $vs_identifier_attribute, $vn_middle_page, 1, $vn_numero_paginas);
 
