@@ -2476,7 +2476,7 @@ class objeto_base
 
         $va_identificadores_lista_objetos[] = $ps_object_identifier;
 
-        sort($va_identificadores_lista_objetos);
+        natcasesort($va_identificadores_lista_objetos);
 
         $vn_list_first_item = reset($va_identificadores_lista_objetos);
         $vn_list_last_item  = end($va_identificadores_lista_objetos);
