@@ -317,7 +317,7 @@ class session
         $VA_RULES = [
             "string" => function (&$p_value) {
                 if (!filter_var($p_value, FILTER_FLAG_EMPTY_STRING_NULL))
-                    return "";
+                    return false;
                 return $p_value = filter_var(trim(strip_tags($p_value)), FILTER_DEFAULT);
             },
             "integer" => function (&$p_value) {
