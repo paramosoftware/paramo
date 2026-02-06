@@ -203,6 +203,7 @@
             $vn_primeiro_registro = ($vn_pagina_atual -1)*NUMERO_ITENS_PAGINA_LISTAGEM + 1;
             $vn_numero_registros_lista = NUMERO_ITENS_PAGINA_LISTAGEM;
         }
+
         else
             $vn_numero_registros_lista = $vn_numero_registros;
 

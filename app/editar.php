@@ -145,11 +145,24 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
 
         $vn_pagina_atual = 1;
         if (isset($_SESSION[$vs_id_objeto_tela]["campo_paginacao"]) && isset($_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]]))
-            $vn_pagina_atual = $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]];
+            $vn_pagina_atual = $_SESSION[$vs_id_objeto_tela][$_SESSION[$vs_id_objeto_tela]["campo_paginacao"]] ;
+        elseif (isset($_SESSION[$vs_id_objeto_tela]["campo_paginacao"]) && ($_SESSION[$vs_id_objeto_tela]["campo_paginacao"]))
+        {
+            $vn_pagina_atual = $_SESSION[$vs_id_objeto_tela]["campo_paginacao"];
+        }
         else
             $_SESSION[$vs_id_objeto_tela]["campo_paginacao"] = "paginacao_topo";
 
-        if (in_array($vn_objeto_codigo, ["p", "n", "f", "l"]))
+//        p = previous
+//        n = next
+//        f = first
+//        l = last
+
+
+        $vb_sincronizar = isset($_SESSION[$vs_id_objeto_tela]["sincronizar"]);
+
+
+        if (in_array($vn_objeto_codigo, ["p", "n", "f", "l"]) || isset($vb_sincronizar))
         {
             if ( ($vn_objeto_codigo == "p") && ($vn_pagina_atual > 1) )
                 $vn_pagina_atual = $vn_pagina_atual - 1;
@@ -171,8 +184,10 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             
             $vb_usar_parametros_sessao = true;
             $vs_modo = "listagem";
-            
+
+
             require dirname(__FILE__)."/functions/montar_listagem.php";
+
 
             $vs_modo = "edicao";
 
