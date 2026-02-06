@@ -38,7 +38,10 @@
     if (isset($_GET['visualizacao_codigo']))
         $vs_visualizacao = $_GET['visualizacao_codigo'];
     else
+    {
         $vs_visualizacao = "navegacao";
+        $vn_contexto_visualizacao = 3;
+    }
 
     $vb_back_from_editing = false;
     if (isset($_GET['back']) && $_GET['back'])
