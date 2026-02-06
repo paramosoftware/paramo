@@ -218,8 +218,8 @@
             $va_itens_listagem = $va_objetos_lista;
         }
         else
-        {
-            $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao);
+        {            
+            $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao, ($vn_contexto_visualizacao ?? null));
 
             if (isset($va_visualizacao_lista["ordem_campos"]))
                 $va_campos_visualizacao = $va_visualizacao_lista["ordem_campos"];
@@ -277,13 +277,13 @@
                             }
 
 
-                            if (isset($vs_label_campo_visualizacao["id_field"]))
+                            if (!empty($vs_label_campo_visualizacao["id_field"]))
                                 $vb_id_field = true;
 
-                            if (isset($vs_label_campo_visualizacao["main_field"]))
+                            if (!empty($vs_label_campo_visualizacao["main_field"]))
                                 $vb_main_field = true;
 
-                            if (isset($vs_label_campo_visualizacao["descriptive_field"]))
+                            if (!empty($vs_label_campo_visualizacao["descriptive_field"]))
                                 $vb_descriptive_field = true;
 
                             if (isset($vs_label_campo_visualizacao["label"]))

@@ -373,13 +373,39 @@ class objeto_base
         return $this->registros_filhos;
     }
 
-    public function get_visualizacao($ps_visualizacao)
+    public function get_visualizacao($ps_visualizacao, $pn_contexto_codigo = null)
     {
-        if (intval($ps_visualizacao) && !isset($this->visualizacoes[$ps_visualizacao])) {
-            $vo_visualizacao = new visualizacao;
-            $va_visualizacao = $vo_visualizacao->ler($ps_visualizacao, "ficha");
+        if ($this->recurso_sistema_codigo && (isset($pn_contexto_codigo) ||!isset($this->visualizacoes[$ps_visualizacao])) ) 
+        {
+            $va_filtro = array();
+            
+            if (intval($ps_visualizacao))
+                $va_filtro = ["visualizacao_codigo" => $ps_visualizacao];
+            elseif (isset($pn_contexto_codigo))
+            {
+                $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_contexto_visualizacao_codigo" => $pn_contexto_codigo];
+                $ps_visualizacao = $pn_contexto_codigo;
+            }
+            else
+                $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_nome" => $ps_visualizacao];
 
-            if (count($va_visualizacao)) {
+            $va_filtro["visualizacao_habilitado"] = 1;
+
+            $vo_visualizacao = new visualizacao;
+            $va_visualizacao = $vo_visualizacao->ler_lista($va_filtro, "ficha");
+
+            if (count($va_visualizacao)) 
+            {
+                $va_visualizacao = $va_visualizacao[0];
+
+                if (!empty($va_visualizacao["visualizacao_incluir_representante_digital"]))
+                {
+                    $this->visualizacoes[$ps_visualizacao]["campos"]["representante_digital_codigo"] = [
+                        "nome" => "representante_digital_codigo",
+                        "formato" => ["campo" => "representante_digital_path"]
+                    ];
+                }
+
                 $this->visualizacoes[$ps_visualizacao]["campos"][$this->chave_primaria[0]] = $this->visualizacoes["ficha"]["campos"][$this->chave_primaria[0]];
 
                 if (isset($this->visualizacoes["navegacao"]["order_by"]))
@@ -394,7 +420,13 @@ class objeto_base
                         if ($ps_key_campo_visualizacao == $va_campo_sistema_nome[0])
                         {
                             $this->visualizacoes[$ps_visualizacao]["campos"][$ps_key_campo_visualizacao] = $va_campo_visualizacao;
-                            $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"];
+                            
+                            $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = [
+                                "label" => $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"],
+                                "main_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["main_field"] ?? false,
+                                "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["id_field"] ?? false,
+                                "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["descriptive_field"] ?? false
+                            ];
                         }
                     }
 
@@ -412,7 +444,7 @@ class objeto_base
 
         if (isset($this->visualizacoes[$ps_visualizacao]))
             return $this->visualizacoes[$ps_visualizacao];
-        else
+        else 
             return $this->visualizacoes["navegacao"];
     }
 
@@ -2196,18 +2228,23 @@ class objeto_base
 
                 $va_visualizacao = $vo_objeto->get_visualizacao($ps_visualizacao)["campos"];
 
-                foreach ($va_visualizacao as $ps_key_campo_visualizacao => $va_campo_visualizacao) {
+                foreach ($va_visualizacao as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
+                {
                     // Primeiro, ver se o campo de visualização é atributo
                     //////////////////////////////////////////////////////
 
-                    if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]])) {
-                        if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"])) {
-                            if (isset($va_item_resultado[$ps_key_campo_visualizacao])) {
+                    if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]])) 
+                    {
+                        if (isset($vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"])) 
+                        {
+                            if (isset($va_item_resultado[$ps_key_campo_visualizacao])) 
+                            {
                                 $vs_id_objeto = $vo_objeto->atributos[$va_campo_visualizacao["nome"]]["objeto"];
 
                                 $vo_objeto_chave_estrangeira = new $vs_id_objeto($vs_id_objeto);
 
-                                if ($va_item_resultado[$ps_key_campo_visualizacao]) {
+                                if ($va_item_resultado[$ps_key_campo_visualizacao]) 
+                                {
                                     $va_objeto_chave_estrangeira = $vo_objeto_chave_estrangeira->ler($va_item_resultado[$ps_key_campo_visualizacao], "lista", $pn_idioma_codigo);
                                     $va_item_resultado[$ps_key_campo_visualizacao] = $va_objeto_chave_estrangeira;
                                 }
@@ -4883,6 +4920,9 @@ class objeto_base
                     }
 
                     $vs_valor_atributo = $this->$vs_funcao($va_valores_parametros);
+
+                    if ($vs_valor_atributo === false)
+                        continue;
                 }
 
                 $this->va_campos[] = $va_atributo["coluna_tabela"];
