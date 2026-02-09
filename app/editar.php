@@ -86,17 +86,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             $va_objeto_codigo[] = $va_item_listagem[$vs_chave_primaria_objeto];
 
             $vo_objeto_temp = $vo_objeto;
-            while ($vo_objeto_temp->get_objeto_pai())
-            {
-                $vs_id_objeto_pai = $vo_objeto_temp->get_objeto_pai();
 
-                $vo_objeto_pai = new $vs_id_objeto_pai('');
-                $vs_chave_primaria_objeto_pai = $vo_objeto_pai->get_chave_primaria()[0];
-
-                $va_objetos_pais_codigos[$vs_chave_primaria_objeto_pai][] = $va_item_listagem[$vs_chave_primaria_objeto_pai];
-
-                $vo_objeto_temp = $vo_objeto_pai;
-            }
         }
 
         // Adiciona ao form os códigos dos registros
