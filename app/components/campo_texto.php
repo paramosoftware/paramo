@@ -91,7 +91,22 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
         </div>
     <?php
     }
-    elseif ($vs_formato == "full")
+    elseif ($vs_formato == "datetime")
+    {
+    ?>
+        <div class="mb-3" style="float:left; padding-right:10px;
+        <?php
+            if ( !$vb_pode_exibir || $vb_hidden )
+                print ' display:none';
+        ?>">
+            <div class="">
+                <label class="form-label"><?php print $vs_label_campo; ?></label>
+                <input type="datetime-local" step="1" class="form-control input" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" id="<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>">
+            </div>
+        </div>
+    <?php
+    }
+    if ($vs_formato == "full")
     {
     ?>
         <div class="row mb-3" id="div_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
@@ -276,6 +291,21 @@ else
             >
         <?php
         }
+        elseif ($vs_formato == "datetime")
+        {
+        ?>
+            <input type="datetime-local" step="1"  class="form-control input <?php print $vs_css_class; ?>" name="<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>" id="<?php print $vs_id_campo . $vs_sufixo_nome_campo; ?>" value="<?php print htmlentities($vs_valor_campo, ENT_QUOTES, "UTF-8", false); ?>"
+            <?php
+                if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                    print ' disabled style="display:none"';
+
+                if (isset($pa_parametros_campo["readonly"]) && $pa_parametros_campo["readonly"])
+                    print ' readonly';
+            ?>
+            >
+        <?php
+        }
+    
         elseif ($vn_numero_linhas == 1)
         {
         ?>
