@@ -52,18 +52,6 @@
         $va_objetos_codigos = explode("|", $_POST[$vs_chave_primaria_objeto]);
         
         $vo_objeto_temp = $vo_objeto;
-        
-        while ($vo_objeto_temp->get_objeto_pai())
-        {
-            $vs_id_objeto_pai = $vo_objeto_temp->get_objeto_pai();
-
-            $vo_objeto_pai = new $vs_id_objeto_pai('');
-            $vs_chave_primaria_objeto_pai = $vo_objeto_pai->get_chave_primaria()[0];
-
-            $va_objetos_pais_codigos[$vs_chave_primaria_objeto_pai] = explode("|", $_POST[$vs_chave_primaria_objeto_pai]);
-
-            $vo_objeto_temp = $vo_objeto_pai;
-        }
 
         $vn_indice_objetos = 0;
         foreach($va_objetos_codigos as $vn_objeto_codigo)
@@ -88,10 +76,10 @@
             }
 
             $_POST[$vs_chave_primaria_objeto] = $vn_objeto_codigo;
-            
-            foreach($va_objetos_pais_codigos as $vs_chave_primaria_objeto_pai => $va_objeto_pai_codigos)
+
+            if (isset($_POST[$vo_objeto->get_campo_relacionamento_pai()]) && $_POST[$vo_objeto->get_campo_relacionamento_pai()] == "" || empty($_POST[$vo_objeto->get_campo_relacionamento_pai()]))
             {
-                $_POST[$vs_chave_primaria_objeto_pai] = $va_objetos_pais_codigos[$vs_chave_primaria_objeto_pai][$vn_indice_objetos];
+                unset($_POST[$vo_objeto->get_campo_relacionamento_pai()]);
             }
 
             $vo_objeto->salvar($_POST, true, $vn_idioma_catalogacao_codigo);
