@@ -33,6 +33,7 @@ class utils
         $port = config::get(["smtp_port"]);
         $from_name = config::get(["smtp_name"]);
         $image_footer_path = config::get(["smtp_email_footer"]);
+        $logo_path = "../" . config::get(["logo"]);
 
         $mail = new PHPMailer(true);
 
@@ -51,10 +52,15 @@ class utils
 
             $mail->isHTML();
             $mail->Subject = $subject;
+            
+            if(!empty($logo_path))
+                $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+
             if ($image_footer_path != "") {
                 $mail->addEmbeddedImage($image_footer_path, 'rodape-email', 'custom-email-footer.png');
                 $message .= '<img src="cid:rodape-email" alt="rodape email" width="400">';
             }
+
             $mail->Body = $message;
             $mail->AltBody = $message;
             $mail->CharSet = 'UTF-8';
