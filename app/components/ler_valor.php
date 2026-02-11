@@ -39,6 +39,9 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
 
         elseif ($pa_opcoes_campo["formato"]["data"] == "completo")
             $va_data = $vo_data->get_data_exibicao();
+       
+        elseif ($pa_opcoes_campo["formato"]["data"] == "data_hora")
+            $va_data = $vo_data->get_data_exibicao() . " | " . $vo_data->get_hora_completa();
 
         return $va_data;
     }
