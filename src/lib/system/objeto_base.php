@@ -1547,7 +1547,7 @@ class objeto_base
                             $pa_wheres_select[] = $vs_tabela_banco . "." . $vs_campo_tabela . " IS NOT NULL ";
                     }
                     //elseif (($pb_retornar_ramos_inferiores) && $vo_objeto_coluna->campo_hierarquico && ($va_filtro[0] != $po_objeto->campo_hierarquico))
-                    elseif (($pb_retornar_ramos_inferiores) && $vo_objeto_coluna->campo_hierarquico && !is_null($pa_valores_busca[0]))
+                    elseif (($pb_retornar_ramos_inferiores) && $vo_objeto_coluna->campo_hierarquico && ($this->tipo_hierarquia != "subordinada") && !is_null($pa_valores_busca[0]))
                     {
                         $this->adicionar_ramos_hierarquicos($po_objeto, $vo_objeto_coluna, $vs_campo_tabela, $vs_tipo_dado_campo, $pa_valores_busca, $ps_operador, $ps_interrogacoes, $ps_operador_logico, false, $pn_primeiro_registro, $pn_numero_registros);
                     }
@@ -1591,7 +1591,7 @@ class objeto_base
                             $pa_wheres_select[] = $vs_alias_tabela_join . "." . $vs_campo_tabela_join . " IS NULL ";
                         }
                     }
-                    elseif (($pb_retornar_ramos_inferiores) && isset($vo_objeto_tabela_intermediaria) && $vo_objeto_tabela_intermediaria->campo_hierarquico)
+                    elseif (($pb_retornar_ramos_inferiores) && isset($vo_objeto_tabela_intermediaria) && $vo_objeto_tabela_intermediaria->campo_hierarquico && ($this->tipo_hierarquia != "subordinada"))
                     {
                         $vs_campo = "codigo";
                         $vs_tipo_campo = "i";
@@ -1781,11 +1781,7 @@ class objeto_base
             "wheres" => $va_wheres_select,
         ];
 
-        $vs_limit = "";
-        if ($pn_primeiro_registro && $po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco)
-            $vs_limit = " LIMIT " . ($pn_primeiro_registro - 1) . ", " . $pn_numero_registros;
-
-        $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select, null, $vs_limit);
+        $va_objetos_match_filtro_busca = $this->banco_dados->consultar($va_selects, $va_tipos_parametros_select, $va_parametros_select);
 
         $pa_valores_busca = array();
         $va_interrogracoes = array();
@@ -1816,6 +1812,9 @@ class objeto_base
                 $pa_valores_busca[] = $vn_codigo_no;
                 $va_interrogracoes[] = "?";
             }
+
+            if ($pn_primeiro_registro && ($po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco) && (count($pa_valores_busca) > ($pn_primeiro_registro + $pn_numero_registros - 1)))
+                break;
         }
 
         if ($po_objeto_coluna->tabela_banco == $po_objeto->tabela_banco)
