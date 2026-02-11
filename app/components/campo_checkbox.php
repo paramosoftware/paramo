@@ -55,11 +55,6 @@ else
         print ' style="display:none"';
 ?>
 >
-    
-    <?php
-    if ($vs_label_campo && (!isset($pa_parametros_campo["1_linha"]) || (isset($pa_parametros_campo["1_linha"]) && !$pa_parametros_campo["1_linha"])))
-    {
-    ?>
         <div class="label_campo_formulario">
             <?php if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
             {
@@ -68,14 +63,19 @@ else
             <?php
             }
             ?>
-
+            <?php
+                if ($vs_label_campo && (!isset($pa_parametros_campo["1_linha"]) || (isset($pa_parametros_campo["1_linha"]) && !$pa_parametros_campo["1_linha"])))
+                {
+            ?>
             <label class="form-label" title="<?php if (isset($pa_parametros_campo["descricao"])) print $pa_parametros_campo["descricao"]; ?>">  
                 <?php print $vs_label_campo; ?>
             </label>
-        </div>
+
+
     <?php
     }
     ?>
+    </div>
     
     <div class="input_campo_formulario">
         
