@@ -1,6 +1,6 @@
 <?php
 
-function get_file_path($ps_file, $ps_size = null, $ps_folder = null): string
+function get_file_path($ps_file, $ps_size = null, $ps_folder = null, $ps_original_file_name = null): string
 {
     $vs_ext = strtolower(pathinfo($ps_file, PATHINFO_EXTENSION));
     $vs_folder = $ps_folder ?? utils::get_media_folder($vs_ext);
@@ -19,12 +19,11 @@ function get_file_path($ps_file, $ps_size = null, $ps_folder = null): string
         }
     }
 
-    return get_image_path($ps_file, $ps_size);
+    return get_image_path($ps_file, $ps_size, $ps_original_file_name);
 }
 
-function get_image_path($ps_file, $ps_size = null): string
+function get_image_path($ps_file, $ps_size = null, $ps_original_file_name = null): string
 {
-
     $va_pasta_images = config::get(["pasta_media", "images"]);
     krsort($va_pasta_images);
     $vs_file_path = "";
@@ -36,7 +35,32 @@ function get_image_path($ps_file, $ps_size = null): string
 
     if ($ps_size)
     {
+        if ($ps_size == "original")
+        {
+            $vs_file_path = $va_pasta_images[$ps_size] . $ps_file;
+
+            if (file_exists($vs_file_path))
+            {
+                return $vs_file_path;
+            }
+            elseif (isset($ps_original_file_name))
+            {
+                $vs_original_file_name_extension = strtolower(pathinfo($ps_original_file_name, PATHINFO_EXTENSION));
+                $vs_file_hash = pathinfo($ps_file, PATHINFO_FILENAME);
+
+                $vs_file_path = $va_pasta_images[$ps_size] . $vs_file_hash . "." . $vs_original_file_name_extension;
+
+                if (file_exists($vs_file_path))
+                    return $vs_file_path;
+                else
+                    $ps_size == "large";
+            }
+            else
+                $ps_size == "large";
+        }
+
         $vs_file_path = $va_pasta_images[$ps_size] . $ps_file;
+
         if (file_exists($vs_file_path))
         {
             return $vs_file_path;
