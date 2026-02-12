@@ -41,7 +41,11 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
             $va_data = $vo_data->get_data_exibicao();
        
         elseif ($pa_opcoes_campo["formato"]["data"] == "data_hora")
-            $va_data = $vo_data->get_data_exibicao() . " | " . $vo_data->get_hora_completa();
+            $va_data = (!empty($vo_data->get_data_exibicao()) && !empty($vo_data->get_hora_completa("H:i"))) ? 
+            ($vo_data->get_data_exibicao() . " | " . $vo_data->get_hora_completa("H:i")) : 
+            ((empty($vo_data->get_data_exibicao()) && !empty($vo_data->get_hora_completa("H:i"))) ? 
+            $vo_data->get_hora_completa("H:i") : $vo_data->get_data_exibicao());
+
 
         return $va_data;
     }

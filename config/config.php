@@ -25,6 +25,10 @@ class config
             $va_custom_config = require_once $custom_config;
             self::$configs = array_replace_recursive(self::$configs, $va_custom_config);
         }
+
+        if(!empty(self::$configs["timezone"]))
+            date_default_timezone_set(self::$configs["timezone"]);
+        
     }
 
     public static function get($pa_config_path)
