@@ -36,7 +36,7 @@ return [
     "data_indisponivel" => "[s.d.]",
 
     #Timezone padrão de inicialização
-    "timezone" => "America/Sao_Paulo",
+    "timezone" => date_default_timezone_set("America/Sao_Paulo"),
 
     # ================================================ MENU LATERAL ================================================ #
 
