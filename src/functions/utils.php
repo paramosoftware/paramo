@@ -20,7 +20,14 @@ class utils
         return pathinfo($file_path, PATHINFO_EXTENSION);
     }
 
-    public static function send_email(string $to, string $to_name, string $subject, string $message) : bool
+    public static function send_email(
+      string $to,
+      string $to_name,
+      string $subject,
+      string $message,
+      array $cc = [],
+      array $reply_to = [],
+    ) : bool
     {
 
         require_once dirname(__FILE__) . "/../vendors/PHPMailer/src/PHPMailer.php";
@@ -48,7 +55,23 @@ class utils
 
             $mail->setFrom($from, $from_name);
             $mail->addAddress($to, $to_name);
-            $mail->addReplyTo($from, $from_name);
+
+            foreach ($cc as $cc_email => $cc_name)
+            {
+                $mail->addCC($cc_email, $cc_name);
+            }
+
+            if (!empty($reply_to))
+            {
+                foreach ($reply_to as $reply_email => $reply_name)
+                {
+                    $mail->addReplyTo($reply_email, $reply_name);
+                }
+            }
+            else
+            {
+                $mail->addReplyTo($from, $from_name);
+            }
 
             $mail->isHTML();
             $mail->Subject = $subject;
