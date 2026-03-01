@@ -314,124 +314,200 @@ class session
 
     public static function validate_data(array &$pa_data, array $pa_rules, array|null $pa_messages = null)
     {
-        $VA_RULES = [
-            "string" => function (&$p_value) {
-                if (!filter_var($p_value, FILTER_FLAG_EMPTY_STRING_NULL))
+        // REGRAS DE VALIDAÇÃO DISPONÍVEIS:
+        $validation_rules = [
+            "string" => function (&$value)
+            {
+                if (!filter_var($value, FILTER_FLAG_EMPTY_STRING_NULL))
+                {
                     return false;
-                return $p_value = filter_var(trim(strip_tags($p_value)), FILTER_DEFAULT);
-            },
-            "integer" => function (&$p_value) {
-                if(is_array($p_value)){
-                    $p_value = filter_var_array($p_value, FILTER_SANITIZE_NUMBER_INT);
-                    if(!filter_var_array($p_value, FILTER_VALIDATE_INT))
-                        return false;
                 }
-                else{
-                    $p_value = filter_var($p_value, FILTER_SANITIZE_NUMBER_INT);
-                    if(!filter_var($p_value, FILTER_VALIDATE_INT))
-                        return false;
+                $value = filter_var(trim(strip_tags($value)), FILTER_DEFAULT);
+                return true;
+            },
+            "integer" => function (&$value)
+            {
+                if (is_array($value))
+                {
+                    $value = filter_var_array($value, FILTER_SANITIZE_NUMBER_INT);
+                    return filter_var_array($value, FILTER_VALIDATE_INT) !== false;
                 }
-                return true;
+
+                $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+                return filter_var($value, FILTER_VALIDATE_INT) !== false;
             },
-            "array" => function(&$p_value){
-                if(!filter_var($p_value, FILTER_DEFAULT, ["flags" => FILTER_REQUIRE_ARRAY]))
-                    return false;
-                return true;
+            "array" => function(&$value)
+            {
+                return filter_var($value, FILTER_DEFAULT, ["flags" => FILTER_REQUIRE_ARRAY]) !== false;
             },
-            "email" => function(&$p_value){
-                $p_value = filter_var($p_value, FILTER_SANITIZE_EMAIL);
-                if(!filter_var($p_value, FILTER_VALIDATE_EMAIL))
-                    return false;
-                return true;
+            "email" => function(&$value)
+            {
+                $value = filter_var($value, FILTER_SANITIZE_EMAIL);
+                return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
             },
-            "required" => function (&$p_value) {
-                return empty($p_value) ? false : true;
+            "required" => function (&$value)
+            {
+                return !empty($value);
             },
-            "max" => function(&$p_value, $ps_max_value = 255){
-                if($p_value){
-                    if(is_array($p_value))
-                        return count($p_value) > $ps_max_value ? false : true;
-                    return strlen($p_value) > $ps_max_value ? false : true;
+            "max" => function(&$value, $max_value = 255)
+            {
+                if (!$value)
+                {
+                    return true;
                 }
-                    
-                return true;
+
+                $length = is_array($value) ? count($value) : strlen($value);
+                return $length <= $max_value;
             },
-            "min" => function(&$p_value, $ps_min_value = 5){
-                if($p_value){
-                    if(is_array($p_value))
-                        return count($p_value) < $ps_min_value ? false : true;
-                    return strlen($p_value) < $ps_min_value ? false : true;
+            "min" => function(&$value, $min_value = 5)
+            {
+                if (!$value)
+                {
+                    return true;
                 }
-                return true;
+                $length = is_array($value) ? count($value) : strlen($value);
+                return $length >= $min_value;
             }
         ];
 
-        $VA_RULES_KEYS = array_keys($VA_RULES);
-
-        $VA_MESSAGES = [
-            "string" => "O campo não é uma string compatível",
+        // MENSAGENS DE ERRO PADRÃO PARA CADA REGRA DE VALIDAÇÃO
+        $error_messages = [
+            "string" => "O campo deve conter apenas texto válido",
             "required" => "O campo é obrigatório",
-            "email" => "E-mail preenchido inválido",
-            "array" => "O conjunto de elementos está inválido",
-            "integer" => "O campo é necessário ser um inteiro válido",
-            
-            "max" => fn($value, $ps_max = null) =>
-                is_array($value) ? ($ps_max ? "O campo tem de ter no máximo $ps_max itens" : 
-                "O campo entrou no limite de itens permitidos.") 
-                :
-                ($ps_max ? "O campo tem de ter máximo $ps_max caractere(s)" : 
-                "O campo entrou no limite de caracteres permitidos."),
-
-            "min" => fn($value, $ps_min = null) =>
-                is_array($value) ? ($ps_min ? "O campo tem de ter no mínimo $ps_min itens" : 
-                "O campo não entrou no limite de itens permitidos.") 
-                :
-                ($ps_min ? "O campo tem de ter no mínimo $ps_min caractere(s)" : 
-                "O campo não atingiu o limite de caracteres necessários.")
+            "email" => "O campo deve conter um endereço e-mail válido",
+            "array" => "O campo deve conter um conjunto válido de elementos",
+            "integer" => "O campo deve conter um valor numérico inteiro válido",
+            "max" => fn($value, $max = null) =>
+                is_array($value)
+                  ? "O campo não pode conter mais de $max itens"
+                  : "O campo não pode conter mais de $max caracteres",
+            "min" => fn($value, $min = null) =>
+                is_array($value)
+                    ? "O campo deve conter no mínimo $min itens"
+                    : "O campo deve conter no mínimo $min caracteres"
         ];
 
-        $va_errors_message = [];
-        
-        $vf_add_errors_message =
-            fn(array &$va_errors_message, string $ps_rule_index, string $vs_rule, array $VA_MESSAGES, $p_data_value, $ps_rule_index_ = null) => 
-                $va_errors_message[$ps_rule_index][] =
-                !empty($pa_messages[$ps_rule_index][$vs_rule]) ?
-                $pa_messages[$ps_rule_index][$vs_rule] : (is_callable($VA_MESSAGES[$vs_rule]) ? 
-                $VA_MESSAGES[$vs_rule]($p_data_value, $ps_rule_index_) : $VA_MESSAGES[$vs_rule]);
-        
-        foreach ($pa_rules as $vs_rule_index => $vs_rule_value) {
-            $v_data_value = !empty($pa_data[$vs_rule_index]) ? $pa_data[$vs_rule_index] : null;
-        
-            if (gettype($vs_rule_value) !== "array") {
-                if (isset($VA_RULES[$vs_rule_value]) && !$VA_RULES[$vs_rule_value]($v_data_value))
-                    $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule_value, $VA_MESSAGES,$v_data_value);
-            } else 
-                foreach($vs_rule_value as $vs_rule_index_ => $vs_rule){
-                    if (in_array($vs_rule, $VA_RULES_KEYS) && !$VA_RULES[$vs_rule]($v_data_value))
-                        $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule, $VA_MESSAGES,$v_data_value);
-                    else if(in_array($vs_rule_index_, $VA_RULES_KEYS) && !$VA_RULES[$vs_rule_index_]($v_data_value, $vs_rule))
-                        $vf_add_errors_message($va_errors_message, $vs_rule_index, $vs_rule_index_, $VA_MESSAGES,$v_data_value, $vs_rule);
-                }            
-            
-            $pa_data[$vs_rule_index] = $v_data_value;
+        $validation_rule_names = array_keys($validation_rules);
+        $collected_errors = [];
+
+        foreach ($pa_rules as $field_name => $field_rules)
+        {
+            $field_value = $pa_data[$field_name] ?? null;
+            $field_errors = [];
+
+            // Se tem somente uma regra: "nome" => "required"
+            if (is_string($field_rules))
+            {
+                $rule_name = $field_rules;
+
+                if (isset($validation_rules[$rule_name]) && !$validation_rules[$rule_name]($field_value))
+                {
+                    $error_message = $pa_messages[$field_name][$rule_name] ?? null;
+
+                    if (empty($error_message))
+                    {
+                        $default_message = $error_messages[$rule_name];
+                        $error_message = is_callable($default_message) ? $default_message($field_value, null) : $default_message;
+                    }
+
+                    $field_errors[] = $error_message;
+                }
+            }
+            // Se tem múltiplas regras: "nome" => ["required", "max" => 100]
+            elseif (is_array($field_rules))
+            {
+                foreach ($field_rules as $rule_key => $rule_value)
+                {
+                    $rule_name = $rule_value;
+                    $rule_parameter = null;
+
+                    // se parametrizado: "max" => 100
+                    if (is_string($rule_key) && in_array($rule_key, $validation_rule_names))
+                    {
+                        $rule_name = $rule_key;
+                        $rule_parameter = $rule_value;
+                    }
+
+                    if (!in_array($rule_name, $validation_rule_names))
+                    {
+                        continue;
+                    }
+
+                    if (!$validation_rules[$rule_name]($field_value, $rule_parameter))
+                    {
+                        $error_message = $pa_messages[$field_name][$rule_name] ?? null;
+
+                        if (empty($error_message))
+                        {
+                            $default_message = $error_messages[$rule_name];
+                            $error_message = is_callable($default_message) ? $default_message($field_value, $rule_parameter) : $default_message;
+                        }
+
+                        $field_errors[] = $error_message;
+                    }
+                }
+            }
+
+            if (!empty($field_errors))
+            {
+                $collected_errors[$field_name] = $field_errors;
+            }
+
+            // Salva o valor sanitizado
+            $pa_data[$field_name] = $field_value;
         }
 
-        if (count($va_errors_message))
-            return ["error" => true, "errors" => $va_errors_message];
+        if (!empty($collected_errors))
+        {
+            return ["error" => true, "errors" => $collected_errors];
+        }
+
+        return null;
     }
 
-    public static function send_response(string|array|null $p_response = null, int $pi_http_code = 200, string $ps_header_content_type = "application/json"){
+    public static function send_response(
+      mixed $p_response = null,
+      int $pi_http_code = 200,
+      string $ps_header_content_type = "application/json"
+    ): void
+    {
         http_response_code($pi_http_code);
 
-        if($ps_header_content_type){
+        if ($ps_header_content_type)
+        {
             header("Content-Type: $ps_header_content_type");
-            if (str_contains($ps_header_content_type, "json")) 
+
+            if (str_contains($ps_header_content_type, "json"))
+            {
                 $p_response = json_encode($p_response);
+            }
         }
 
         if (!empty($p_response) && gettype($p_response) == "string")
+        {
             echo $p_response;
+        }
 
         exit();
+    }
+
+    public static function get_body(): array
+    {
+        $body = file_get_contents("php://input");
+        if (str_contains($body, "="))
+        {
+            parse_str($body, $output);
+            return $output;
+        }
+        elseif (str_contains($body, ":") && $body_ = json_decode($body, true))
+        {
+            return $body_;
+        }
+        elseif (!empty($_POST))
+        {
+            return $_POST;
+        }
+
+        return [];
     }
 }

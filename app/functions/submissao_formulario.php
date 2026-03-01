@@ -1,47 +1,32 @@
 <?php
 
-if (!defined("AUTOLOAD")) {
+if (!defined("AUTOLOAD"))
+{
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
-$body = get_body();
 
-if($errors = session::validate_data(
-    $body,
-    ["obj" => ["string", "required"]],
-    ["obj" => ["string" => "O valor obj é obrigatório ser uma string"]]
-)){
-    if(isset($errors["error"]))
-        return session::send_response($errors, 400);
+$body = session::get_body();
+
+$vs_id_objeto = $body['obj'] ?? null;
+$vb_requisicao_post = ($_SERVER['REQUEST_METHOD'] ?? "") == "POST";
+$va_objetos_permitidos = config::get(["submissao_formulario_objetos_permitidos"]);
+
+if (false || !in_array($vs_id_objeto, $va_objetos_permitidos))
+{
+    return session::send_response(["error" => true, "errors" => "Requisição inválida."], 400);
 }
-
-$vs_id_objeto = $body['obj'];
-
-if (!object_authorized($vs_id_objeto) || $_SERVER['REQUEST_METHOD'] != "POST")
-    return session::send_response(["error" => true, "errors" => "Unauthorized access."], 401);
 
 $vo_objeto = new $vs_id_objeto();
 
-$vo_objeto->create_($body);
-
-function object_authorized(string $ps_id_objeto)
+if (method_exists($vo_objeto, "criar_registro_de_submissao_externa"))
 {
-    $vs_id_objetos = config::get(["OBJETOS_PERMITIDOS"]);
-    if (gettype($vs_id_objetos) == "string")
-        return $vs_id_objetos == $ps_id_objeto;
-    elseif (gettype($vs_id_objetos) == "array")
-        return in_array($ps_id_objeto, $vs_id_objetos);
-    return false;
+    $va_response = $vo_objeto->criar_registro_de_submissao_externa($body);
+    session::send_response($va_response);
 }
-
-function get_body(): array
+else
 {
-    $body = file_get_contents("php://input");
-    if (str_contains($body, "=")) {
-        parse_str($body, $output);
-        return $output;
-    } else if (str_contains($body, ":") && $body_ = json_decode($body, true)) {
-        return $body_;
-    } else if (!empty($_POST))
-        return $_POST;
-    return [];
+    session::send_response([
+        "error" => true,
+        "errors" => "O objeto $vs_id_objeto não possui o método criar_registro_de_submissao_externa."
+      ], 400);
 }

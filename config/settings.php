@@ -112,9 +112,9 @@ return [
 
     # ============================================== SUBMISSÃO DE FORMULÁRIO ============================================== #
 
-    "OBJETOS_PERMITIDOS" => ["pedido_pesquisa"]
-
-
+    # Lista de objetos do sistema autorizados a receber submissões de formulários externas, ou seja, fora do ambiente administrativo do sistema.
+    # Para que um objeto possa receber submissões externas, é necessário que ele possua o método criar_registro_de_submissao_externa() implementado.
+    "submissao_formulario_objetos_permitidos" => []
 ];
 
 
