@@ -83,10 +83,10 @@ public function get_dia_inicial()
 	}
 }
 
-public function get_hora_completa()
+public function get_hora_completa(string $ps_format = "H:i:s")
 {
 	if ($this->data_inicial)
-		return date("H:i:s", strtotime($this->data_inicial));
+		return date($ps_format, strtotime($this->data_inicial));
 	else
 		return "";
 }
