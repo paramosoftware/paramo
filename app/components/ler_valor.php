@@ -14,6 +14,11 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
         return "";
     }
 
+    if (isset($pa_item[$ps_atributo]) && isset($pa_opcoes_campo["valores"]))
+    {
+        return $pa_opcoes_campo["valores"][$pa_item[$ps_atributo]] ?? "";
+    }
+
     if (isset($pa_opcoes_campo["formato"]["data"]))
     {
         $vo_data = new Periodo;
@@ -33,6 +38,9 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
 
         if (isset($pa_item[$ps_atributo . "_sem_data"]))
             $vo_data->set_sem_data($pa_item[$ps_atributo . "_sem_data"]);
+
+        if (isset($pa_item[$ps_atributo . "_periodo"]))
+            $vo_data->set_complemento($pa_item[$ps_atributo . "_periodo"]);
 
         if ($pa_opcoes_campo["formato"]["data"] == "ano")
             $va_data = $vo_data->get_data_exibicao();

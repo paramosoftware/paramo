@@ -14,13 +14,37 @@ foreach ($va_objetos_itens_acervo as $vs_id_objeto_tela => $va_recurso_sistema)
         $va_parametros_filtros_consulta[$vo_dashboard->get_filtro_busca_geral($vs_id_objeto_tela)] = [$vs_termo_busca, "LIKE"];
 
     $vs_formato_listagem = "default";
+
     require dirname(__FILE__) . "/../functions/montar_listagem.php";
 
     $va_itens_listagem = $va_itens_listagem ?? [];
 
-    if ($vb_busca_id && count($va_itens_listagem))
+    if ($vb_busca_id && count($va_itens_listagem) != 0)
     {
-        print '<script>window.location="editar.php?obj=' . $vs_id_objeto_tela .'&cod=' . $va_itens_listagem[0][$vo_objeto->get_chave_primaria()[0]] . '";</script>';
+        $vs_identifier_attribute = $vo_objeto->tem_atributo("item_acervo_identificador_sort") ? "item_acervo_identificador_sort" : "item_acervo_identificador";
+        
+        $vn_objeto_codigo =  $va_itens_listagem[0][$vo_objeto->get_chave_primaria()[0]];
+        $vs_current_object_identifier = $va_itens_listagem[0][$vs_identifier_attribute];
+
+        $vn_numero_registros = $vo_objeto->ler_numero_registros([]);
+        $vn_numero_paginas = ceil($vo_objeto->ler_numero_registros([]) / 20);
+        $vn_middle_page = ($vn_numero_paginas > 1) ? floor($vn_numero_paginas / 2) : 1;
+
+        list($vn_pagina_atual, $va_codigos_listagem) = $vo_objeto->encontrar_pagina_item_acervo($vs_current_object_identifier, $vs_identifier_attribute, $vn_middle_page, 1, $vn_numero_paginas);
+
+        $vn_primeiro_registro = ($vn_pagina_atual - 1)*20 + 1;
+        $vn_ultimo_registro = $vn_primeiro_registro + 19;
+
+        if ($vn_ultimo_registro > $vn_numero_registros)
+            $vn_ultimo_registro = $vn_numero_registros;
+ 
+        //$_SESSION[$vs_id_objeto_tela]["numero_registros"] = count($va_lista_objetos);
+        $_SESSION[$vs_id_objeto_tela]["numero_registros"] = $vn_numero_registros;
+        $_SESSION[$vs_id_objeto_tela]['campo_paginacao'] = 'paginacao_top';
+        $_SESSION[$vs_id_objeto_tela]['paginacao_top'] = $vn_pagina_atual;
+        $_SESSION[$vs_id_objeto_tela]["listagem_codigos"] = $va_codigos_listagem;
+
+        print '<script>window.location="editar.php?obj=' . $vs_id_objeto_tela . '&cod=' . $vn_objeto_codigo . '";</script>';
     }
 
     if (count($va_itens_listagem))
