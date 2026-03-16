@@ -375,16 +375,21 @@ class objeto_base
 
     public function get_visualizacao($ps_visualizacao, $pn_contexto_codigo = null)
     {
-        if ($this->recurso_sistema_codigo && (isset($pn_contexto_codigo) ||!isset($this->visualizacoes[$ps_visualizacao])) ) 
+        if ($this->recurso_sistema_codigo && (isset($pn_contexto_codigo) || !isset($this->visualizacoes[$ps_visualizacao]))) 
         {
             $va_filtro = array();
+            $vb_busca_contexto_visualizacao = false;
             
             if (intval($ps_visualizacao))
                 $va_filtro = ["visualizacao_codigo" => $ps_visualizacao];
             elseif (isset($pn_contexto_codigo))
             {
                 $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_contexto_visualizacao_codigo" => $pn_contexto_codigo];
+                
+                $vs_visualizacao = $ps_visualizacao;
                 $ps_visualizacao = $pn_contexto_codigo;
+
+                $vb_busca_contexto_visualizacao = true;
             }
             else
                 $va_filtro = ["visualizacao_recurso_sistema_codigo" => $this->recurso_sistema_codigo, "visualizacao_nome" => $ps_visualizacao];
@@ -439,6 +444,12 @@ class objeto_base
                         $this->visualizacoes[$ps_visualizacao]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]] = $this->visualizacoes["ficha"]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]];
                     }
                 }
+            }
+            elseif ($vb_busca_contexto_visualizacao && $vs_visualizacao)
+            {
+                $this->get_visualizacao($vs_visualizacao);
+                
+                $ps_visualizacao = $vs_visualizacao;
             }
         }
 
