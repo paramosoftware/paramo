@@ -1,10 +1,11 @@
 <?php
 
 #[\AllowDynamicProperties]
+
 class html_combo_input extends html_input
 {
 
-private $itens;
+private $itens = array();
 
 public function get_itens()
 {
@@ -221,6 +222,12 @@ public function preencher($pa_filtro_listagem, $pa_parametros_campo)
             $this->adicionar_item($vn_item_lista_option, $vs_item_lista_value);
         }
     }
+
+    // Vou reoordenar obrigatoriamente se for 
+    // um campo com hierarquias sendo exibidas
+
+    if ($vs_campo_hierarquia ?? false)
+        asort($this->itens);
 }
 
 public function adicionar_item($ps_key, $ps_valor)
