@@ -277,7 +277,7 @@
                             }
 
 
-                            if (!empty($vs_label_campo_visualizacao["id_field"]))
+                            if (!empty($vs_label_campo_visualizacao["id_field"]) && ($vb_separar_campos ?? true))
                                 $vb_id_field = true;
 
                             if (!empty($vs_label_campo_visualizacao["main_field"]))
