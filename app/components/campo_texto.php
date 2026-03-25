@@ -106,7 +106,7 @@ if ( ($vs_escopo == "interno") || ($vs_ui_element == "linha") )
         </div>
     <?php
     }
-    if ($vs_formato == "full")
+    elseif ($vs_formato == "full")
     {
     ?>
         <div class="row mb-3" id="div_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
