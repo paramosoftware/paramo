@@ -420,6 +420,7 @@ class objeto_base
                 {
                     foreach ($this->visualizacoes["ficha"]["campos"] as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
                     {
+                        $vs_campo_sistema_nome = $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"];
                         $va_campo_sistema_nome = explode("_0_", $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]);
 
                         if ($ps_key_campo_visualizacao == $va_campo_sistema_nome[0])
@@ -432,6 +433,14 @@ class objeto_base
                                 "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["id_field"] ?? false,
                                 "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["descriptive_field"] ?? false
                             ];
+
+                            if ($vs_campo_controlador_exibicao = config::get(["controle_visualizacao_public", $vs_campo_sistema_nome]) ?? false)
+                            {
+                                $this->visualizacoes[$ps_visualizacao]["campos"][$vs_campo_controlador_exibicao] = $this->visualizacoes["ficha"]["campos"][$vs_campo_controlador_exibicao];
+                                $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$vs_campo_controlador_exibicao]["label"] = $this->visualizacoes["ficha"]["campos"][$vs_campo_controlador_exibicao]["nome"];
+
+                                $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$vs_campo_sistema_nome]["controlado_por"] = $vs_campo_controlador_exibicao;
+                            }
                         }
                     }
 
