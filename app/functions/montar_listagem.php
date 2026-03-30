@@ -263,7 +263,7 @@
 
                         if (is_array($vs_label_campo_visualizacao))
                         {
-                            if (isset($vs_label_campo_visualizacao["controlado_por"]))
+                            if (isset($vs_label_campo_visualizacao["controlado_por"]) && ($vb_controlar_exibicao_campos ?? false))
                             {
                                 $vs_controlado_por = $vs_label_campo_visualizacao["controlado_por"];
 
@@ -277,7 +277,7 @@
                             }
 
 
-                            if (!empty($vs_label_campo_visualizacao["id_field"]))
+                            if (!empty($vs_label_campo_visualizacao["id_field"]) && ($vb_separar_campos ?? true))
                                 $vb_id_field = true;
 
                             if (!empty($vs_label_campo_visualizacao["main_field"]))
@@ -344,6 +344,7 @@
                             /* if ($vs_valor_atributo != "")
                             { */
 
+                                $va_atributo_item_listagem["id"] = $vs_key_campo_visualizacao;
                                 $va_atributo_item_listagem["label"] = $vs_label_campo;
                                 $va_atributo_item_listagem["valor"] = $vs_valor_atributo;
 
