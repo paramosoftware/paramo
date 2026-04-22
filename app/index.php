@@ -230,6 +230,17 @@ function get_info_setores(array $pa_setores, $pn_usuario_logado_instituicao_codi
             if (isset($va_recurso_sistema["setor_sistema_recurso_sistema_codigo"]["recurso_sistema_item_acervo"]) && ($va_recurso_sistema["setor_sistema_recurso_sistema_codigo"]["recurso_sistema_item_acervo"]))
             {
                 $vs_objeto_item_acervo = $va_recurso_sistema["setor_sistema_recurso_sistema_codigo"]["recurso_sistema_id"];
+
+                if (!class_exists($vs_objeto_item_acervo)) 
+                {
+                    utils::log(
+                        "Classe de item de acervo do recurso do sistema não existe: " . $vs_objeto_item_acervo,
+                        __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " . var_export($va_recurso_sistema, true)
+                    );
+                    continue;
+                }
+                    
+
                 $vo_item_acervo = new $vs_objeto_item_acervo($vs_objeto_item_acervo);
 
                 $vb_controlar_acesso_instituicao = config::get(["controle_acesso", "_atributos_", "instituicao_codigo"]) ?? false;
