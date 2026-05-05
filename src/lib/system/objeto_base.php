@@ -373,7 +373,7 @@ class objeto_base
         return $this->registros_filhos;
     }
 
-    public function get_visualizacao($ps_visualizacao, $pn_contexto_codigo = null)
+    public function get_visualizacao($ps_visualizacao, $pn_contexto_codigo = null, $ps_visualizacao_base = "ficha")
     {
         if ($this->recurso_sistema_codigo && (isset($pn_contexto_codigo) || !isset($this->visualizacoes[$ps_visualizacao]))) 
         {
@@ -411,14 +411,14 @@ class objeto_base
                     ];
                 }
 
-                $this->visualizacoes[$ps_visualizacao]["campos"][$this->chave_primaria[0]] = $this->visualizacoes["ficha"]["campos"][$this->chave_primaria[0]];
+                $this->visualizacoes[$ps_visualizacao]["campos"][$this->chave_primaria[0]] = $this->visualizacoes[$ps_visualizacao_base]["campos"][$this->chave_primaria[0]];
 
                 if (isset($this->visualizacoes["navegacao"]["order_by"]))
                     $this->visualizacoes[$ps_visualizacao]["order_by"] = $this->visualizacoes["navegacao"]["order_by"];
 
                 foreach ($va_visualizacao["visualizacao_campo_sistema_codigo"] as $va_campo_sistema)
                 {
-                    foreach ($this->visualizacoes["ficha"]["campos"] as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
+                    foreach ($this->visualizacoes[$ps_visualizacao_base]["campos"] as $ps_key_campo_visualizacao => $va_campo_visualizacao) 
                     {
                         $vs_campo_sistema_nome = $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"];
                         $va_campo_sistema_nome = explode("_0_", $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]);
@@ -429,15 +429,15 @@ class objeto_base
                             
                             $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]] = [
                                 "label" => $va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_alias"],
-                                "main_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["main_field"] ?? false,
-                                "id_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["id_field"] ?? false,
-                                "descriptive_field" => $this->visualizacoes["ficha"]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["descriptive_field"] ?? false
+                                "main_field" => $this->visualizacoes[$ps_visualizacao_base]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["main_field"] ?? false,
+                                "id_field" => $this->visualizacoes[$ps_visualizacao_base]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["id_field"] ?? false,
+                                "descriptive_field" => $this->visualizacoes[$ps_visualizacao_base]["ordem_campos"][$va_campo_sistema["visualizacao_campo_sistema_codigo"]["campo_sistema_nome"]]["descriptive_field"] ?? false
                             ];
 
                             if ($vs_campo_controlador_exibicao = config::get(["controle_visualizacao_public", $vs_campo_sistema_nome]) ?? false)
                             {
-                                $this->visualizacoes[$ps_visualizacao]["campos"][$vs_campo_controlador_exibicao] = $this->visualizacoes["ficha"]["campos"][$vs_campo_controlador_exibicao];
-                                $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$vs_campo_controlador_exibicao]["label"] = $this->visualizacoes["ficha"]["campos"][$vs_campo_controlador_exibicao]["nome"];
+                                $this->visualizacoes[$ps_visualizacao]["campos"][$vs_campo_controlador_exibicao] = $this->visualizacoes[$ps_visualizacao_base]["campos"][$vs_campo_controlador_exibicao];
+                                $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$vs_campo_controlador_exibicao]["label"] = $this->visualizacoes[$ps_visualizacao_base]["campos"][$vs_campo_controlador_exibicao]["nome"];
 
                                 $this->visualizacoes[$ps_visualizacao]["ordem_campos"][$vs_campo_sistema_nome]["controlado_por"] = $vs_campo_controlador_exibicao;
                             }
@@ -447,10 +447,10 @@ class objeto_base
                     if (
                         isset($va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]) 
                         &&
-                        isset($this->visualizacoes["ficha"]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]])
+                        isset($this->visualizacoes[$ps_visualizacao_base]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]])
                     )
                     {
-                        $this->visualizacoes[$ps_visualizacao]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]] = $this->visualizacoes["ficha"]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]];
+                        $this->visualizacoes[$ps_visualizacao]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]] = $this->visualizacoes[$ps_visualizacao_base]["campos"][$va_campo_sistema["campo_sistema_campo_sistema_superior_codigo"]["campo_sistema_nome"]];
                     }
                 }
             }
