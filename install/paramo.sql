@@ -5584,7 +5584,8 @@ CREATE TABLE `visualizacao` (
   `codigo` int(11) NOT NULL,
   `nome` varchar(250) NOT NULL,
   `recurso_sistema_codigo` int(11) NOT NULL,
-  `habilitado` tinyint(1) DEFAULT NULL,
+  `habilitada` tinyint(1) DEFAULT NULL,
+  `incluir_representante_digital` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`codigo`),
   KEY `recurso_sistema_codigo` (`recurso_sistema_codigo`),
   CONSTRAINT `visualizacao_ibfk_1` FOREIGN KEY (`recurso_sistema_codigo`) REFERENCES `recurso_sistema` (`codigo`)
