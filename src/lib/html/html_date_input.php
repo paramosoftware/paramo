@@ -91,8 +91,8 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
             $vb_campo_preenchido = true;
     }
 
-    if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_presumido" . $vs_sufixo_nome_campo]))
-        $vb_presumido = $pa_valores_form[$pa_parametros_campo["nome"] . "_presumido" . $vs_sufixo_nome_campo];
+    if (isset($pa_valores_form[$pa_parametros_campo["nome"] . "_presumido" . $vs_sufixo_nome_campo]) || isset($pa_valores_form[$pa_parametros_campo["nome"] . "_data_presumida" . $vs_sufixo_nome_campo]))
+        $vb_presumido = $pa_valores_form[$pa_parametros_campo["nome"] . "_presumido" . $vs_sufixo_nome_campo] ?? $pa_valores_form[$pa_parametros_campo["nome"] . "_data_presumida" . $vs_sufixo_nome_campo];
     else
         $vb_presumido = 0;
 

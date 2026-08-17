@@ -55,11 +55,9 @@ $counter = 1;
 foreach ($va_files as $va_rd)
 {
     $ps_size = 'original';
-    if ($va_rd['representante_digital_formato'] != "pdf")
-    {
-        $ps_size = 'large';
-    }
-    $vs_file_path = get_file_path($va_rd['representante_digital_path'], $ps_size);
+
+    $vs_file_path = get_file_path($va_rd['representante_digital_path'], $ps_size, null, $va_rd['representante_digital_nome_original']);
+
     if (file_exists($vs_file_path))
     {
         $zip->addFile($vs_file_path, $vs_identificador . "-$counter." . pathinfo($vs_file_path, PATHINFO_EXTENSION));

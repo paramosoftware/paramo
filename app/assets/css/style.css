@@ -15020,3 +15020,7 @@ padding-right: 0px;
     align-items: center;
     justify-content: center;
 }
+
+.fs-7 {
+    font-size: 0.85rem !important;
+}

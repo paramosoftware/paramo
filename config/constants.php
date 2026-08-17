@@ -13,7 +13,7 @@
 return [
     # ================================================ DEPURAÇÃO ================================================ #
 
-    "versao" => "1.4.41",
+    "versao" => "1.4.46",
     "pasta_logs" => dirname(__FILE__) . "/../src/logs/",
 
     # ================================================ ASSETS E MÍDIA  ================================================ #
@@ -69,9 +69,13 @@ return [
         "assets/custom/img/logo.png" : "assets/img/favicon.png",
 
     "media_types" => [
-        "image/jpeg" => [
+        "image/jpg" => [
             "folder" => "images",
             "format" => "jpg"
+        ],
+        "image/jpeg" => [
+            "folder" => "images",
+            "format" => "jpeg"
         ],
         "image/png" => [
             "folder" => "images",

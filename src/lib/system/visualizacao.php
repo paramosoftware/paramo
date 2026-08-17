@@ -51,6 +51,12 @@ class visualizacao extends objeto_base
             'tipo_dado' => 'b'
         ];
 
+        $va_atributos['visualizacao_incluir_representante_digital'] = [
+            'visualizacao_incluir_representante_digital',
+            'coluna_tabela' => 'incluir_representante_digital',
+            'tipo_dado' => 'b'
+        ];        
+
         return $va_atributos;
     }
 
@@ -70,7 +76,7 @@ class visualizacao extends objeto_base
                 [
                     'visualizacao_campo_sistema_codigo' => 'campo_sistema_codigo',
                     'visualizacao_campo_sistema_sequencia' => [
-                        'sequencia',
+                        'ordem',
                         'valor_sequencial' => true
                     ],
                 ],
@@ -111,7 +117,7 @@ class visualizacao extends objeto_base
             "sem_valor" => false,
             "conectar" => [
                 [
-                    "campo" => "visualizacao_campos_sistema",
+                    "campo" => "visualizacao_campo_sistema_codigo",
                     "atributo" => "campo_sistema_recurso_sistema_codigo"
                 ]
             ]
@@ -125,29 +131,28 @@ class visualizacao extends objeto_base
         ];
 
         $va_campos_edicao["visualizacao_campo_sistema_codigo"] = [
-            "html_multi_itens_input",
-            "nome" => "visualizacao_campo_sistema_codigo",
+            "html_autocomplete",
+            "nome" => ["visualizacao_campo_sistema", "visualizacao_campo_sistema_codigo"],
             "label" => "Campos",
-            "dependencia_linha" => ["campo" => "visualizacao_recurso_sistema_codigo"],
-            "subcampos" => [
-                "visualizacao_campo_sistema_codigo" =>
-                    [
-                        "html_combo_input",
-                        "nome" => "visualizacao_campo_sistema_codigo",
-                        "label" => "Campo",
-                        "objeto" => "campo_sistema",
-                        "atributos" => ["campo_sistema_codigo", "campo_sistema_alias"],
-                        "atributo" => "campo_sistema_codigo",
-                        "sem_valor" => false,
-                        "dependencia" => [
-                            "campo" => "visualizacao_recurso_sistema_codigo",
-                            "atributo" => "campo_sistema_recurso_sistema_codigo"
-                        ],
-                        "campo_pai" => "visualizacao_campo_sistema_codigo"
-                    ]
-
-            ],
+            "objeto" => "campo_sistema",
+            "atributos" => ["campo_sistema_codigo", "campo_sistema_alias"],
+            "multiplos_valores" => true,
+            "procurar_por" => "campo_sistema_alias",
+            "visualizacao" => "lista",
+            "permitir_cadastro" => false,
             "draggable" => true,
+            "dependencia" => [
+                [
+                    "campo" => "visualizacao_recurso_sistema_codigo",
+                    "atributo" => "campo_sistema_recurso_sistema_codigo"
+                ]
+            ]
+        ];
+
+        $va_campos_edicao["visualizacao_incluir_representante_digital"] = [
+            "html_checkbox_input",
+            "nome" => "visualizacao_incluir_representante_digital",
+            "label" => "Incluir representantes digitais"
         ];
 
         $va_campos_edicao["visualizacao_contexto_visualizacao_codigo"] = [
@@ -162,7 +167,7 @@ class visualizacao extends objeto_base
         $va_campos_edicao["visualizacao_habilitado"] = [
             "html_checkbox_input",
             "nome" => "visualizacao_habilitado",
-            "label" => "Habilitado"
+            "label" => "Habilitada"
         ];
 
         return $va_campos_edicao;
@@ -206,6 +211,10 @@ class visualizacao extends objeto_base
             "nome" => "visualizacao_habilitado"
         ];
 
+        $va_campos_visualizacao["visualizacao_incluir_representante_digital"] = [
+            "nome" => "visualizacao_incluir_representante_digital"
+        ];
+        
         $this->visualizacoes["navegacao"]["campos"] = $va_campos_visualizacao;
         $this->visualizacoes["navegacao"]["order_by"] = ["visualizacao_nome" => "Nome"];
         $this->visualizacoes["navegacao"]["ordem_campos"] = [

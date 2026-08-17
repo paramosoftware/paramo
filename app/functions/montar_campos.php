@@ -198,6 +198,27 @@
                 if (isset($va_parametros_campo["foco"]))
                     $vs_campo_foco = $va_parametros_campo["nome"];
             }
+            elseif ($vs_campo_key == 'representante_digital_codigo' && !isset($va_campos[$vs_campo_key]))
+            {
+                echo '
+                    <div class="accordion mb-3 google-drive opacity-50">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button 
+                                class="accordion-button collapsed"  
+                                style="cursor: help" 
+                                type="button" 
+                                data-coreui-toggle="tooltip" 
+                                data-coreui-placement="top" 
+                                data-coreui-title="Indisponível durante criação de registro (é possível incluir representantes digitais após a criação do registro)"
+                                >
+                                Representantes digitais  
+                                </button>
+                                
+                            </h2>
+                        </div>
+                    </div>';
+            }
         }
 
         if (!$vb_atualizacao_campo && ($vs_modo != "listagem") && isset($va_aba["campos"]) && count($va_aba["campos"]))
@@ -210,3 +231,9 @@
         $contador++;
     }
 ?>
+
+<script>
+    const tooltipTriggerList = document.querySelectorAll('[data-coreui-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new coreui.Tooltip(tooltipTriggerEl))
+
+</script>

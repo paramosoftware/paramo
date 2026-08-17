@@ -200,6 +200,11 @@ class Banco
         $this->conexao_banco->executar_sql($ps_sql);
     }
 
+    public function executar($ps_sql, $pa_tipos_parametros, $pa_parametros): void
+    {
+        $this->conexao_banco->executar($ps_sql, $pa_tipos_parametros, $pa_parametros);
+    }
+
     function iniciar_transacao()
     {
         $this->conexao_banco->iniciar_transacao();

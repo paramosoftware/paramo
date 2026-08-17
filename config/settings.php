@@ -35,6 +35,9 @@ return [
     # Mensagem que aparece para datas marcadas como "sem data"
     "data_indisponivel" => "[s.d.]",
 
+    #Timezone padrão de inicialização
+    "timezone" => date_default_timezone_set("America/Sao_Paulo"),
+
     # ================================================ MENU LATERAL ================================================ #
 
     # O menu lateral é composto por 3 seções padrões: institucional, permissões e configurações.
@@ -105,7 +108,17 @@ return [
             "acervo_codigo" => "vn_usuario_logado_acervo_codigo"
         ],
         "_combinacao_" => "AND"
-    ]
+    ],
+
+    # ============================================== SUBMISSÃO DE FORMULÁRIO ============================================== #
+
+    # Lista de objetos do sistema autorizados a receber submissões de formulários externas, ou seja, fora do ambiente administrativo do sistema.
+    # Para que um objeto possa receber submissões externas, é necessário que ele possua o método criar_registro_de_submissao_externa() implementado.
+    "submissao_formulario_objetos_permitidos" => [],
+
+    # token usado para validar requisições externas de submissão de formulários.
+    # deve ser configurado em config/custom/settings.php
+    "submissao_formulario_token" => ""
 ];
 
 

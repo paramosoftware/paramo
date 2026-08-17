@@ -29,7 +29,7 @@ $va_info_setores = $va_info_setores ?? [];
                         <div class="border-start border-start-4 border-start-danger px-3 mb-3">
                             <a style="text-decoration:none; color:unset;" href="listar.php?obj=<?php print htmlspecialchars($va_info_setor["link_recurso_sistema"]); ?>&s=<?php print $va_info_setor["codigo"]; ?>">
                                 <small class="text-medium-emphasis"><?php print $va_info_setor["nome"]; ?></small>
-                                <div class="fs-5 fw-semibold"><?php print $va_info_setor["quantidade"]; ?> itens</div>
+                                <div class="fs-5 fw-semibold"><?php print $va_info_setor["quantidade"]; ?><?= $va_info_setor["quantidade"] == 1 ? " item" : " itens"?></div>
                             </a>
                         </div>
                     </div>

@@ -40,7 +40,10 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
     if (isset($_GET['visualizacao_codigo']))
         $vs_visualizacao = $_GET['visualizacao_codigo'];
     else
+    {
         $vs_visualizacao = "ficha";
+        $vn_contexto_visualizacao = 4;
+    }
 
     $va_registros_filhos = array();
 

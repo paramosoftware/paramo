@@ -20,7 +20,14 @@ class utils
         return pathinfo($file_path, PATHINFO_EXTENSION);
     }
 
-    public static function send_email(string $to, string $to_name, string $subject, string $message) : bool
+    public static function send_email(
+      string $to,
+      string $to_name,
+      string $subject,
+      string $message,
+      array $cc = [],
+      array $reply_to = [],
+    ) : bool
     {
 
         require_once dirname(__FILE__) . "/../vendors/PHPMailer/src/PHPMailer.php";
@@ -33,6 +40,7 @@ class utils
         $port = config::get(["smtp_port"]);
         $from_name = config::get(["smtp_name"]);
         $image_footer_path = config::get(["smtp_email_footer"]);
+        $logo_path = "../" . config::get(["logo"]);
 
         $mail = new PHPMailer(true);
 
@@ -47,14 +55,35 @@ class utils
 
             $mail->setFrom($from, $from_name);
             $mail->addAddress($to, $to_name);
-            $mail->addReplyTo($from, $from_name);
+
+            foreach ($cc as $cc_email => $cc_name)
+            {
+                $mail->addCC($cc_email, $cc_name);
+            }
+
+            if (!empty($reply_to))
+            {
+                foreach ($reply_to as $reply_email => $reply_name)
+                {
+                    $mail->addReplyTo($reply_email, $reply_name);
+                }
+            }
+            else
+            {
+                $mail->addReplyTo($from, $from_name);
+            }
 
             $mail->isHTML();
             $mail->Subject = $subject;
+            
+            if(!empty($logo_path))
+                $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+
             if ($image_footer_path != "") {
                 $mail->addEmbeddedImage($image_footer_path, 'rodape-email', 'custom-email-footer.png');
                 $message .= '<img src="cid:rodape-email" alt="rodape email" width="400">';
             }
+
             $mail->Body = $message;
             $mail->AltBody = $message;
             $mail->CharSet = 'UTF-8';

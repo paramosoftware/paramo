@@ -83,10 +83,10 @@ public function get_dia_inicial()
 	}
 }
 
-public function get_hora_completa()
+public function get_hora_completa(string $ps_format = "H:i:s")
 {
 	if ($this->data_inicial)
-		return date("H:i:s", strtotime($this->data_inicial));
+		return date($ps_format, strtotime($this->data_inicial));
 	else
 		return "";
 }
@@ -638,6 +638,8 @@ public function get_data_exibicao($ps_separador='')
 	if ($this->get_presumido())
 		$vs_data_exibicao = "[" . $vs_data_exibicao . "]";
 
+	if ($this->get_complemento())
+		$vs_data_exibicao .= " (" . $this->get_complemento() . ")";
 
 	return $vs_data_exibicao;
 }
