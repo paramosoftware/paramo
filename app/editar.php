@@ -95,6 +95,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
         $vn_objeto_codigo = implode("|", $va_objeto_codigo);
 
         $vs_modo = "lote";
+        set_time_limit(3600);
     }
     else
     {

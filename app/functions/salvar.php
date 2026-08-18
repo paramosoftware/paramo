@@ -47,6 +47,8 @@
     if (isset($_POST["modo"]) && ($_POST["modo"] == "lote"))
     {
 
+        set_time_limit(3600);
+
         $vo_objeto->iniciar_transacao();
 
         $va_objetos_codigos = explode("|", $_POST[$vs_chave_primaria_objeto]);
