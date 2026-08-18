@@ -122,20 +122,19 @@ public function build(&$pa_valores_form=null, $pa_parametros_campo=array())
     if (isset($pa_parametros_campo["exibir_quando_preenchido"]))
         $vb_pode_exibir = $vb_pode_exibir && ($vb_campo_preenchido || $vb_marcar_sem_valor || $vb_marcar_com_valor) && $pa_parametros_campo["exibir_quando_preenchido"];
 
-    if (isset($pa_parametros_campo["formato"]))
+    if (!isset($vo_data))
+        $vo_data = new Periodo;
+
+    if ($vb_campo_preenchido && !empty($pa_parametros_campo["permitir_escolha_formato"]))
+        $vn_formato_data = $vo_data->get_formato_data();
+    elseif (isset($pa_parametros_campo["formato"]))
         $vn_formato_data = $pa_parametros_campo["formato"];
     else
         $vn_formato_data = 1;
 
     $va_periodos_amplos = array();
 
-    if (!isset($vo_data))
-        $vo_data = new Periodo;
-
-    if (isset($pa_parametros_campo["formato"]))
-        $vn_formato_data = $pa_parametros_campo["formato"];
-    else
-        $vn_formato_data = $vo_data->get_formato_data();
+    
 
     $va_periodos_amplos = $vo_data->get_periodos_amplos();
 

@@ -320,6 +320,22 @@ function ler_valor1($ps_atributo, $pa_item, $pa_opcoes_campo=null, $pn_numero_it
                 $vs_valor_expressao .= $pa_opcoes_campo["formato"]["termo_complementar"];
         }
 
+        if (isset($pa_opcoes_campo["formato"]["termo_complementar_condicional"]))
+        {
+            $vb_pode_exibir = false;
+
+            $vs_valor_condicao = ler_parte_expressao($pa_opcoes_campo["formato"]["termo_complementar_condicional"]["condicao"][0], $pa_item);
+            $vs_valor_desejado_condicao = $pa_opcoes_campo["formato"]["termo_complementar_condicional"]["condicao"][1];
+            
+            if ( ($vs_valor_desejado_condicao == "<>vazio") && (trim($vs_valor_condicao) != "") )
+                $vb_pode_exibir = true;
+            elseif ($vs_valor_condicao == $vs_valor_desejado_condicao)
+                $vb_pode_exibir = true;
+
+            if ($vb_pode_exibir)
+                $vs_valor_expressao .= $pa_opcoes_campo["formato"]["termo_complementar_condicional"]["termo"];
+        }
+
         return $vs_valor_expressao;
     }
 }

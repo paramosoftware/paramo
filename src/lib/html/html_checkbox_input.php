@@ -7,6 +7,7 @@ public function build(&$pa_valores_form=array(), $pa_parametros_campo=array())
 {
     $vs_tela = $this->get_tela();
     $vs_ui_element = $this->get_ui_element();
+    $vs_modo = $this->get_modo_form();
 
     $vs_sufixo_nome_campo = "";
     if (isset($pa_parametros_campo["sufixo_nome"]))

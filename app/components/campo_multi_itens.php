@@ -246,7 +246,7 @@ $(document).on('click', "#chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo
 {
     $("#btn_adicionar_campo_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>").toggle();
     $("#div_campos_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>").toggle();
-    $("#numero_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>').prop('disabled'));
+    $("#numero_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").prop("disabled", !$("#numero_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").prop('disabled'));
 });
 
 
