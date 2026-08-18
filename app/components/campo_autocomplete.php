@@ -298,7 +298,7 @@
         
     <div id="div_selecionados_<?php print $vs_nome_campo_lookup ?>"
     <?php
-    if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+        if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
             print ' style="display:none"';
     ?>
     >
@@ -602,8 +602,26 @@ $(document).on('click', "#chk_nulo_<?php print $vs_nome_campo_lookup . $vs_sufix
 
 $(document).on('click', "#chk_<?php print $vs_nome_campo_lookup . $vs_sufixo_nome_campo; ?>", function()
 {
-    $("#<?php print $vs_nome_campo_lookup; ?>").toggle();
-    $("#div_selecionados_<?php print $vs_nome_campo_lookup; ?>").toggle();
+
+    <?php if ($vs_modo !== "lote"): ?>
+        $("#<?php print $vs_nome_campo_lookup; ?>").toggle();
+        $("#div_selecionados_<?php print $vs_nome_campo_lookup; ?>").toggle();
+
+    <?php else:  ?>
+        if (!$("#<?php print $vs_nome_campo_lookup; ?>").is(":disabled")) {
+
+            $("#<?php print $vs_nome_campo_lookup ?>").val('');
+            $("#div_sugestoes_<?php print $vs_nome_campo_lookup ?>").empty();
+            $("#lista_<?php print $vs_nome_campo_lookup ?>").focus();
+
+        }
+
+        $("#div_selecionados_<?php print $vs_nome_campo_lookup; ?>").toggle();
+        $("#div_selecionados_<?php print $vs_nome_campo_lookup ?>").empty();
+
+        $('#<?php print $vs_id_campo_codigos ?>').val('');
+
+    <?php endif; ?>
 
     $("#<?php print $vs_id_campo_codigos ?>").prop("disabled", !$('#<?php print $vs_id_campo_codigos ?>').prop('disabled'));
     $("#<?php print $vs_nome_campo_lookup ?>").prop("disabled", !$('#<?php print $vs_nome_campo_lookup ?>').prop('disabled'));

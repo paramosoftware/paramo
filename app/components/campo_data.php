@@ -85,11 +85,16 @@
                 </label>
             </div>
 
-            <?php if (isset($pa_parametros_campo["permitir_escolha_formato"]) && $pa_parametros_campo["permitir_escolha_formato"])
+            <?php if (isset($pa_parametros_campo["permitir_escolha_formato"]) && $pa_parametros_campo["permitir_escolha_formato"] )
             {
             ?>
             <div class="col-3">
-                <select class="form-select" id="formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>">
+                <select class="form-select" id="formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>"
+                        <?php
+                            if (isset($pa_parametros_campo["desabilitar"]) && $pa_parametros_campo["desabilitar"])
+                            print ' disabled style="display: none"';
+                        ?>
+                >
                     <option value="1" <?php print ($vn_formato_data == 1) ? " selected" : ""; ?>>dia</option>
                     <option value="2" <?php print ($vn_formato_data == 2) ? " selected" : ""; ?>>mês/ano</option>
                     <option value="3" <?php print ($vn_formato_data == 3) ? " selected" : ""; ?>>ano</option>
@@ -424,11 +429,22 @@ $(document).on('click', "#chk_<?php print $vs_nome_campo . $vs_sufixo_nome_campo
 {
     $("#linha_data_1_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").toggle();
     $("#linha_data_2_<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").toggle();
+    $("#formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>").toggle();
+
+
+            <?php
+        $date_periods = [
+                '_dia_inicial', '_mes_inicial', '_ano_inicial', '_dia_final', '_mes_final', '_ano_final', '_presumido', '_decada', '_seculo','_sem_data'
+        ];
+
+        foreach ($date_periods as $date_period) {
+        echo '$("#' . $vs_nome_campo . $date_period . $vs_sufixo_nome_campo . '").prop("disabled", !$("#' . $vs_nome_campo . $date_period . $vs_sufixo_nome_campo . '").prop("disabled"));' . "\n";
+    }
+    ?>
 
     $("#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo . $vs_sufixo_nome_campo ?>').prop('disabled'));
-    $("#<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_ano_inicial<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
-    $("#<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
-    $("#<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
+    $("#formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>").prop("disabled", !$("#formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>").prop('disabled'));
+
 });
 
 $(document).on('click', "#<?php print $vs_nome_campo ?>_sem_data<?php print $vs_sufixo_nome_campo ?>", function()
@@ -442,6 +458,7 @@ $(document).on('click', "#<?php print $vs_nome_campo ?>_sem_data<?php print $vs_
     $("#<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_presumido<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
     $("#<?php print $vs_nome_campo ?>_decada<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_decada<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
     $("#<?php print $vs_nome_campo ?>_seculo<?php print $vs_sufixo_nome_campo ?>").prop("disabled", !$('#<?php print $vs_nome_campo ?>_seculo<?php print $vs_sufixo_nome_campo ?>').prop('disabled'));
+
 });
 
 $(document).on('change', "#formato_data_<?php print $vs_nome_campo . $vs_sufixo_nome_campo; ?>", function()

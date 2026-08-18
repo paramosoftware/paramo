@@ -163,6 +163,24 @@
             {
                 $va_campo["desabilitar"] = true;
             }
+            
+            unset($va_campo);
+
+            // Campos com valor único (valor_nao_repete) não devem ser editados em lote
+            $va_atributos_objeto = $vo_objeto->get_atributos();
+
+            $vo_objeto_ancestral = $vo_objeto;
+            while ($vs_id_objeto_pai = $vo_objeto_ancestral->get_objeto_pai())
+            {
+                $vo_objeto_ancestral = new $vs_id_objeto_pai($vs_id_objeto_pai);
+                $va_atributos_objeto += $vo_objeto_ancestral->get_atributos();
+            }
+
+            foreach (array_keys($va_campos) as $vs_key_campo)
+            {
+                if (isset($va_atributos_objeto[$vs_key_campo]["valor_nao_repete"]))
+                    unset($va_campos[$vs_key_campo]);
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////
