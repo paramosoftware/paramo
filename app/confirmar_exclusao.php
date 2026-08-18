@@ -56,6 +56,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
     $vn_ordenacao = "";
     $vs_ordem = "";
     $vb_tem_filtros_consulta = true;
+    $vb_buscar_niveis_inferiores = true;
 
     require_once dirname(__FILE__)."/functions/montar_listagem.php";
     

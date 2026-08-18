@@ -34,6 +34,15 @@
     // objeto passado por parâmetro no construtor
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
+    if (!class_exists($vs_id_objeto_tela))
+    {
+        utils::log(
+            "Tentativa de acesso a objeto inexistente: ",
+            __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+        );
+        session::redirect();
+    }
+
     $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
