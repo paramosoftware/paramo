@@ -258,8 +258,20 @@ if (!$vb_usuario_externo)
             
             if ($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
                 $va_recursos_configuracoes = $va_recursos_sidebar["configuracoes"];
-            else
-                unset($va_recursos_permissoes[array_search("grupo_usuario", $va_recursos_permissoes)]);
+            else 
+            {
+                $va_recursos_restritos = ["grupo_usuario"];
+
+                foreach($va_recursos_restritos as $vs_recurso_restrito)
+                {
+                    $vb_pode_ler_recurso_sistema = !empty($va_recursos_sistema[$vs_recurso_restrito]['grupo_usuario_recurso_sistema_ler'] ?? false);
+
+                    if (!$vb_pode_ler_recurso_sistema) 
+                    {
+                        unset($va_recursos_permissoes[array_search($vs_recurso_restrito, $va_recursos_permissoes)]);
+                    }
+                }
+            }
 
             ///////////////////////////////////////////////
 
