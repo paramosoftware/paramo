@@ -171,19 +171,6 @@
         }
     }
 
-    //////////////////////////////////////////////////////////
-
-    if (
-        !($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
-        &&
-        (!in_array($vs_id_objeto_tela, ["campo_sistema"]))
-        &&
-        (in_array($vs_id_objeto_tela, ["grupo_usuario"]) || in_array($vs_id_objeto_tela, config::get(["sidebar"])["configuracoes"]))
-    )
-    {
-        exit();
-    }
-
     $va_usuario_logado_setores_codigos = array();
     $va_usuario_logado_setores_nomes = array();
 
@@ -445,6 +432,37 @@
     foreach(array_keys($va_recursos_sistema_nomes) as $vs_key_recurso_sistema)
     {
         $va_recursos_sistema[$vs_key_recurso_sistema] = $va_recursos_sistema_temp[$vs_key_recurso_sistema];
+    }
+
+    // Bloqueia recursos restritos a menos que o usuário
+    // tenha permissão de edição (ou criação) via recurso_sistema
+    //////////////////////////////////////////////////////////
+
+    if (
+        !($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin)
+        &&
+        (!in_array($vs_id_objeto_tela, ["campo_sistema"]))
+        &&
+        (in_array($vs_id_objeto_tela, config::get(["sidebar"])["configuracoes"]))
+    )
+    {
+        exit();
+    }
+
+    $va_recursos_restritos = ["grupo_usuario"];
+
+    foreach($va_recursos_restritos as $vs_recurso_restrito)
+    {
+        if (
+            ($vs_id_objeto_tela == $vs_recurso_restrito)
+            &&
+            (!($vb_usuario_administrador && $vb_usuario_logado_instituicao_admin))
+            &&
+            (($vb_usuario_externo) || (!$vb_pode_editar && !$vb_pode_inserir))
+        )
+        {
+            exit();
+        }
     }
 
     $vn_usuario_logado_grupo_usuario_codigo = join("|", $va_usuario_grupos_usuario);
