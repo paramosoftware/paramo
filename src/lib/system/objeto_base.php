@@ -5588,6 +5588,8 @@ class objeto_base
     {
         $vs_tabela_relacionamento = $pa_relacionamento["tabela_intermediaria"];
 
+        if ($vs_tabela_relacionamento == "representante_digital") return true;
+
         // Vamos considerar a possibilidade de a exportação da chave acontecer
         // para duas colunas tabela intermediária (auto-relacionamento nxn)
         //////////////////////////////////////////////////////////////////////
@@ -5660,7 +5662,7 @@ class objeto_base
             // e o relacionamento não for 1xn
             ////////////////////////////////////////////////////////////////////
 
-            if ((isset($pa_valores_form[$vs_id_relacionamento]) || isset($pa_valores_form["numero_" . $vs_id_relacionamento])) && !$vb_relacionamento_1n && !$vb_relacionamento_1x1)
+            if ((isset($pa_valores_form[$vs_id_relacionamento]) || isset($pa_valores_form["numero_" . $vs_id_relacionamento])) && !$vb_relacionamento_1n && !$vb_relacionamento_1x1 && !in_array($vs_id_relacionamento, ["arquivo_download_codigo", "representante_digital_codigo"]))
             {
                 $vs_objeto_relacionamento = "";
                 if (isset($va_relacionamento["objeto"]))
@@ -6050,6 +6052,7 @@ class objeto_base
 
     public function excluir_relacionamentos($ps_tabela, $pa_chave_primaria, $pn_codigo, $pn_idioma_codigo = null, $pa_campos_relacionamento = array(), $pa_tipos_campos_relacionamento = array(), $ps_objeto_relacionamento = "", $pa_filtros = array())
     {
+        if ($ps_tabela == "representante_digital") return true;
 
         $this->banco_dados = $this->get_banco();
         $vb_iniciada_transacao = $this->iniciar_transacao();
