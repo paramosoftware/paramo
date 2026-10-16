@@ -361,5 +361,25 @@ class utils
         }
     }
 
+    public static function is_phpspreadsheet_installed(): bool 
+    {
+        $autoloadPath = dirname(__FILE__) . "/../vendor/autoload.php";
 
+        if (file_exists($autoloadPath)) 
+        {
+            require_once $autoloadPath;
+        } 
+        else 
+        {
+            return false;
+        }
+
+        if (!class_exists('PhpOffice\PhpSpreadsheet\IOFactory')) 
+        {
+            return false;
+        }
+
+        return true;
+
+    }
 }

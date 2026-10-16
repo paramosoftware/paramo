@@ -1,0 +1,12 @@
+{
+    "config": {
+        "policy": {
+            "advisories": {
+                "block": false
+            }
+        }
+    },
+    "require": {
+        "phpoffice/phpspreadsheet": "2.1"
+    }
+}
