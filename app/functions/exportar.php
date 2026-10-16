@@ -7,7 +7,8 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-$vs_file_extension = utils::is_phpspreadsheet_installed() ? ".xlsx" : ".csv";
+$vb_include_image = (isset($_POST["incluir_representante_digital_exportacao"]) && $_POST["incluir_representante_digital_exportacao"] == "1") ? true : false;
+$vs_file_extension = (!empty($_POST["formato_exportacao"]) && utils::is_phpspreadsheet_installed()) ? ("." . $_POST["formato_exportacao"]) : ".csv";
 $vs_file_name = "exportar-" . date("Y-m-d-H-i-s") . $vs_file_extension;
 utils::callback_progress($vs_file_name, 0);
 require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
@@ -36,20 +37,22 @@ $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
 $vn_numero_maximo_paginas = $vn_numero_maximo_paginas ?? 0;
 
-if(utils::is_phpspreadsheet_installed())
+if($vs_file_extension == ".xlsx")
 {
     $spreadsheet = new Spreadsheet();
     $vr_file = $spreadsheet->getActiveSheet();
-    $vr_file->getDefaultRowDimension()->setRowHeight(120);
-    $vr_file->getRowDimension('1')->setRowHeight(20);
-    // $vr_file->getColumnDimension('A')->setWidth(30);
+    if($vb_include_image)
+    {
+        $vr_file->getDefaultRowDimension()->setRowHeight(120);
+        $vr_file->getRowDimension('1')->setRowHeight(20);
+    }
 }
 else
     $vr_file = fopen($vs_file_path, "w");
 
-create_header($vr_file, $va_itens_listagem ?? []);
+create_header($vr_file, $va_itens_listagem ?? [], $vs_file_extension, $vb_include_image);
 
-add_to_file($vr_file, $va_itens_listagem ?? []);
+add_to_file($vr_file, $va_itens_listagem ?? [], ps_file_extension: $vs_file_extension, pb_include_image: $vb_include_image);
 
 for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pagina_atual++)
 {
@@ -60,7 +63,7 @@ for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pa
     utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
 }
 
-if(utils::is_phpspreadsheet_installed())
+if($vs_file_extension == ".xlsx" && utils::is_phpspreadsheet_installed())
 {
     $writer = new Xlsx($spreadsheet);
     $writer->save($vs_file_path);
@@ -71,7 +74,7 @@ utils::callback_progress($vs_file_name, 100);
 utils::clear_temp_folder("-5 minutes");
 exit();
 
-function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false)
+function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false, $ps_file_extension = ".csv", $pb_include_image = false)
 {
     $vn_contador = 1;
 
@@ -80,7 +83,7 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
     {
         $va_atributos = array();
 
-        if(utils::is_phpspreadsheet_installed())
+        if($ps_file_extension == ".xlsx" && $pb_include_image)
         {
             $va_atributos[] = "";
             $vs_real_path = realpath("../media/images/thumb/" . ($va_item_listagem["representante_digital"] ?? ""));
@@ -108,9 +111,9 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
             }
         }
 
-        if(utils::is_phpspreadsheet_installed())
+        if($ps_file_extension == ".xlsx")
         {
-            $newRow = $pr_file->getHighestRow();
+            $newRow = $pr_file->getHighestRow() + ($pb_include_image ? 0 : 1);
             $pr_file->fromArray($va_atributos, null, 'A' . $newRow);
         }
         else
@@ -118,16 +121,17 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
 
         $vn_contador++;
     }
-    $pr_file->getColumnDimension('A')->setWidth($max_width / 7);
+    if($ps_file_extension == ".xlsx" && $pb_include_image)
+        $pr_file->getColumnDimension('A')->setWidth($max_width / 7);
 }
 
-function create_header($pr_file, $pa_itens_listagem)
+function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = ".csv", $pb_include_image = false)
 {
     foreach ($pa_itens_listagem as $va_item_listagem)
     {
         $va_labels = array();
 
-        if(utils::is_phpspreadsheet_installed())
+        if($ps_file_extension == ".xlsx" && $pb_include_image)
             $va_labels[] = "Representante digital";
         $va_labels[] = $va_item_listagem["id_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["main_field_label"] ?? "";
@@ -142,7 +146,7 @@ function create_header($pr_file, $pa_itens_listagem)
 
         }
 
-        if(utils::is_phpspreadsheet_installed())
+        if($ps_file_extension == ".xlsx")
             $pr_file->fromArray($va_labels, null, 'A1');
         else
             fputcsv($pr_file, $va_labels, escape: "\\");
