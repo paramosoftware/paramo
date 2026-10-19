@@ -1,18 +1,6 @@
 <div class="filtro-row row" id="div_opcoes_exportacao">
 
     <?php
-
-        $va_parametros_campo = [
-            "html_checkbox_input",
-            "nome" => "incluir_representante_digital_exportacao",
-            "label" => "Incluir miniatura do representante digital?",
-            "valor_padrao" => "1"
-        ];
-
-        $vo_checkbox_incluir_porcentagem = new html_checkbox_input($vs_id_objeto_tela, "incluir_representante_digital_exportacao");
-        if(utils::is_phpspreadsheet_installed())
-            $vo_checkbox_incluir_porcentagem->build($va_valores, $va_parametros_campo);
-
         $va_parametros_campo = [
             "html_combo_input",
             "nome" => "formato_exportacao",
@@ -28,6 +16,19 @@
         $vo_combo_paginas_etiquetas = new html_combo_input($vs_id_objeto_tela, "formato_exportacao");
         $vo_combo_paginas_etiquetas->build($va_valores, $va_parametros_campo);
 
+        $va_script_name = explode("/",$_SERVER['SCRIPT_NAME']);
+        if(utils::is_phpspreadsheet_installed() && end($va_script_name) != "ficha.php")
+        {
+            $va_parametros_campo = [
+                "html_checkbox_input",
+                "nome" => "incluir_representante_digital_exportacao",
+                "label" => "Incluir miniatura do representante digital?",
+                "valor_padrao" => "1"
+            ];
+
+            $vo_checkbox_incluir_porcentagem = new html_checkbox_input($vs_id_objeto_tela, "incluir_representante_digital_exportacao");
+            $vo_checkbox_incluir_porcentagem->build($va_valores, $va_parametros_campo);
+        }
     ?>
 
     <div class="text-end">
@@ -40,11 +41,9 @@
 
 <script>
     $(document).on('click', "#btn_exportar", function () {
-
-
         let numeroRegistros = $("#listagem-numero-registros") ? $("#listagem-numero-registros")[0].innerText : 0;
         numeroRegistros = numeroRegistros.split(" ")[0];
-        if (numeroRegistros > 2000 && false !== <?= print (utils::is_phpspreadsheet_installed() ? "true" : "false"); ?>) {
+        if (numeroRegistros > 2000 && false !== <?= (utils::is_phpspreadsheet_installed() ? "true" : "false"); ?>) {
             if ($("#incluir_representante_digital_exportacao_chk").is(":checked")) {
                 if (!confirm("A impressão possui mais de 2000 registros com a opção para incluir representantes digitais marcada. " +
                     "O arquivo gerado pode ficar muito grande e difícil de ser manuseado. " +
@@ -56,14 +55,24 @@
 
         const form = $("#form_lista");
         $.ajax({
-            url: 'functions/exportacao.php',
+            url: 'functions/exportar.php',
             type: "POST",
             data: form.serialize(),
             processData: false,
-            complete: function (data) {
+            success: function (data) {
                 $("#modal-exportar").modal("hide");
-                getProgress(data);
+                getProgress(data, true);
             }
         });
+    });
+
+    if($("#formato_exportacao").val() == "csv" && $("#div_incluir_representante_digital_exportacao").length > 0)
+        $("#div_incluir_representante_digital_exportacao").hide();
+    $(document).on('change', "#formato_exportacao", function () {
+        if ($(this).val() == "xlsx" && $("#div_incluir_representante_digital_exportacao").length > 0) {
+            $("#div_incluir_representante_digital_exportacao").show();
+        } else if ($("#div_incluir_representante_digital_exportacao").length > 0) {
+            $("#div_incluir_representante_digital_exportacao").hide();
+        }
     });
 </script>

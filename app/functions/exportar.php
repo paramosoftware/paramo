@@ -58,7 +58,7 @@ for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pa
 {
     require dirname(__FILE__) . "/montar_listagem.php";
 
-    add_to_file($vr_file, $va_itens_listagem ?? []);
+    add_to_file($vr_file, $va_itens_listagem ?? [], ps_file_extension: $vs_file_extension, pb_include_image: $vb_include_image);
 
     utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
 }
@@ -82,12 +82,13 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
     foreach ($pa_itens_listagem as $index => $va_item_listagem)
     {
         $va_atributos = array();
-
+        $vb_image_included = false;
         if($ps_file_extension == ".xlsx" && $pb_include_image)
         {
             $va_atributos[] = "";
-            $vs_real_path = realpath("../media/images/thumb/" . ($va_item_listagem["representante_digital"] ?? ""));
-            if(file_exists($vs_real_path))
+            $vs_thumb_path = realpath("../media/images/thumb/");
+            $vs_real_path = $vs_thumb_path . ($va_item_listagem["representante_digital"] ?? "");
+            if(file_exists($vs_real_path) && $vs_thumb_path != $vs_real_path)
             {
                 $drawing = new Drawing();
                 $drawing->setName($va_item_listagem["representante_digital"]);
@@ -97,6 +98,7 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
                 $drawing->setCoordinates('A' . ($index+2));
                 $drawing->setWorksheet($pr_file);
                 $max_width = $max_width > $drawing->getWidth() ? $max_width : $drawing->getWidth();
+                $vb_image_included = true;
             }
         }
         $va_atributos[] = $va_item_listagem["id_field"] ?? "";
@@ -113,7 +115,7 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
 
         if($ps_file_extension == ".xlsx")
         {
-            $newRow = $pr_file->getHighestRow() + ($pb_include_image ? 0 : 1);
+            $newRow = $pr_file->getHighestRow() + ($vb_image_included ? 0 : 1);
             $pr_file->fromArray($va_atributos, null, 'A' . $newRow);
         }
         else

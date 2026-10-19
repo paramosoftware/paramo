@@ -223,9 +223,7 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <!-- <div class="btn-group" role="group"> -->
-                                                    <button class="btn btn-tab-rel btn-outline-primary active" type="button">Exportação</button>
-                                                <!-- </div> -->
+                                                <button class="btn btn-tab-rel btn-outline-primary active" type="button">Exportação</button>
 
                                                 <button class="btn-close" data-modal-id="exportar"></button>
                                             </div>
@@ -305,20 +303,6 @@ $(document).on('click', "#btn_novo", function () {
 
 $(document).on('click', "#btn_atualizar", function () {
     $("#form_lista").submit();
-});
-
-$(document).on('click', "#btn_exportar", function()
-{
-    const form = $("#form_lista");
-    $.ajax({
-        url: 'functions/exportar.php',
-        type: "POST",
-        data: form.serialize(),
-        processData: false,
-        success: function (data) {
-            getProgress(data, true);
-        }
-    });
 });
 
 $(document).on('click', "#btn_upload", function()
