@@ -4,6 +4,11 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class utils
 {
+    public const FORMATO_EXPORTACAO_CSV = "csv";
+    public const FORMATO_EXPORTACAO_XLSX = "xlsx";
+    public const EXTENSAO_EXPORTACAO_CSV = "." . self::FORMATO_EXPORTACAO_CSV;
+    public const EXTENSAO_EXPORTACAO_XLSX = "." . self::FORMATO_EXPORTACAO_XLSX;
+
     public static function get_image_base64($image_path, $ps_formato='image'): string
     {
         if (!file_exists($image_path))

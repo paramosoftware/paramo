@@ -8,7 +8,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 $vb_include_image = (isset($_POST["incluir_representante_digital_exportacao"]) && $_POST["incluir_representante_digital_exportacao"] == "1") ? true : false;
-$vs_file_extension = (!empty($_POST["formato_exportacao"]) && utils::is_phpspreadsheet_installed()) ? ("." . $_POST["formato_exportacao"]) : ".csv";
+$vs_formato_exportacao = $_POST["formato_exportacao"] ?? "";
+$vs_file_extension = (($vs_formato_exportacao === utils::FORMATO_EXPORTACAO_XLSX) && utils::is_phpspreadsheet_installed())
+    ? utils::EXTENSAO_EXPORTACAO_XLSX
+    : utils::EXTENSAO_EXPORTACAO_CSV;
 $vs_file_name = "exportar-" . date("Y-m-d-H-i-s") . $vs_file_extension;
 utils::callback_progress($vs_file_name, 0);
 require_once dirname(__FILE__) . "/../components/terminar_requisicao.php";
@@ -37,7 +40,7 @@ $vs_file_path = config::get(["pasta_media", "temp"]) . $vs_file_name;
 
 $vn_numero_maximo_paginas = $vn_numero_maximo_paginas ?? 0;
 
-if($vs_file_extension == ".xlsx")
+if($vs_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX)
 {
     $spreadsheet = new Spreadsheet();
     $vr_file = $spreadsheet->getActiveSheet();
@@ -63,7 +66,7 @@ for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pa
     utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
 }
 
-if($vs_file_extension == ".xlsx" && utils::is_phpspreadsheet_installed())
+if($vs_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && utils::is_phpspreadsheet_installed())
 {
     $writer = new Xlsx($spreadsheet);
     $writer->save($vs_file_path);
@@ -74,7 +77,7 @@ utils::callback_progress($vs_file_name, 100);
 utils::clear_temp_folder("-5 minutes");
 exit();
 
-function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false, $ps_file_extension = ".csv", $pb_include_image = false)
+function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false, $ps_file_extension = utils::EXTENSAO_EXPORTACAO_CSV, $pb_include_image = false)
 {
     $vn_contador = 1;
 
@@ -83,7 +86,7 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
     {
         $va_atributos = array();
         $vb_image_included = false;
-        if($ps_file_extension == ".xlsx" && $pb_include_image)
+        if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
         {
             $va_atributos[] = "";
 
@@ -117,7 +120,7 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
             }
         }
 
-        if($ps_file_extension == ".xlsx")
+        if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX)
         {
             $newRow = $pr_file->getHighestRow() + ($vb_image_included ? 0 : 1);
             $pr_file->fromArray($va_atributos, null, 'A' . $newRow);
@@ -127,18 +130,19 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
 
         $vn_contador++;
     }
-    if($ps_file_extension == ".xlsx" && $pb_include_image)
+    if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
         $pr_file->getColumnDimension('A')->setWidth($max_width / 7);
 }
 
-function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = ".csv", $pb_include_image = false)
+function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = utils::EXTENSAO_EXPORTACAO_CSV, $pb_include_image = false)
 {
     foreach ($pa_itens_listagem as $va_item_listagem)
     {
         $va_labels = array();
 
-        if($ps_file_extension == ".xlsx" && $pb_include_image)
+        if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
             $va_labels[] = "Representante digital";
+        
         $va_labels[] = $va_item_listagem["id_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["main_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";
@@ -152,7 +156,7 @@ function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = ".csv"
 
         }
 
-        if($ps_file_extension == ".xlsx")
+        if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX)
             $pr_file->fromArray($va_labels, null, 'A1');
         else
             fputcsv($pr_file, $va_labels, escape: "\\");

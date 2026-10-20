@@ -5,10 +5,10 @@
 
         if (utils::is_phpspreadsheet_installed()) 
         {
-            $va_valores_formato_exportacao["xlsx"] = "Planinha Excel (.xlsx)";
+            $va_valores_formato_exportacao[utils::FORMATO_EXPORTACAO_XLSX] = "Planinha Excel (" . utils::EXTENSAO_EXPORTACAO_XLSX . ")";
         }
 
-        $va_valores_formato_exportacao["csv"] = "Arquivo CSV (.csv)";
+        $va_valores_formato_exportacao[utils::FORMATO_EXPORTACAO_CSV] = "Arquivo CSV (" . utils::EXTENSAO_EXPORTACAO_CSV . ")";
 
         $va_parametros_campo = [
             "html_combo_input",
@@ -72,10 +72,10 @@
         });
     });
 
-    if($("#formato_exportacao").val() == "csv" && $("#div_incluir_representante_digital_exportacao").length > 0)
+    if($("#formato_exportacao").val() == "<?= utils::FORMATO_EXPORTACAO_CSV ?>" && $("#div_incluir_representante_digital_exportacao").length > 0)
         $("#div_incluir_representante_digital_exportacao").hide();
     $(document).on('change', "#formato_exportacao", function () {
-        if ($(this).val() == "xlsx" && $("#div_incluir_representante_digital_exportacao").length > 0) {
+        if ($(this).val() == "<?= utils::FORMATO_EXPORTACAO_XLSX ?>" && $("#div_incluir_representante_digital_exportacao").length > 0) {
             $("#div_incluir_representante_digital_exportacao").show();
         } else if ($("#div_incluir_representante_digital_exportacao").length > 0) {
             $("#div_incluir_representante_digital_exportacao").hide();
