@@ -5,7 +5,7 @@
 
         if (utils::is_phpspreadsheet_installed()) 
         {
-            $va_valores_formato_exportacao[utils::FORMATO_EXPORTACAO_XLSX] = "Planinha Excel (" . utils::EXTENSAO_EXPORTACAO_XLSX . ")";
+            $va_valores_formato_exportacao[utils::FORMATO_EXPORTACAO_XLSX] = "Planilha Excel (" . utils::EXTENSAO_EXPORTACAO_XLSX . ")";
         }
 
         $va_valores_formato_exportacao[utils::FORMATO_EXPORTACAO_CSV] = "Arquivo CSV (" . utils::EXTENSAO_EXPORTACAO_CSV . ")";
