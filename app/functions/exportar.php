@@ -86,13 +86,17 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
         if($ps_file_extension == ".xlsx" && $pb_include_image)
         {
             $va_atributos[] = "";
-            $vs_thumb_path = realpath("../media/images/thumb/");
-            $vs_real_path = $vs_thumb_path . ($va_item_listagem["representante_digital"] ?? "");
-            if(file_exists($vs_real_path) && $vs_thumb_path != $vs_real_path)
+
+            $vs_image_name = basename(str_replace("\\", "/", (string) ($va_item_listagem["representante_digital"] ?? "")));
+
+            $vs_thumb_dir = rtrim(config::get(["pasta_media", "images", "thumb"]), "/\\");
+            $vs_real_path = ($vs_image_name !== "") ? $vs_thumb_dir . DIRECTORY_SEPARATOR . $vs_image_name : "";
+
+            if($vs_real_path !== "" && is_file($vs_real_path))
             {
                 $drawing = new Drawing();
-                $drawing->setName($va_item_listagem["representante_digital"]);
-                $drawing->setDescription($va_item_listagem["representante_digital"]);
+                $drawing->setName($vs_image_name);
+                $drawing->setDescription($vs_image_name);
                 $drawing->setPath($vs_real_path);
                 $drawing->setHeight(120);
                 $drawing->setCoordinates('A' . ($index+2));
