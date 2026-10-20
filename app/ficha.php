@@ -99,7 +99,8 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             {
                                             ?>
                                                 <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="imprimir">Imprimir</button>
-                                                <button class="btn btn-outline-primary" type="button" id="btn_exportar">Exportar</button>
+
+                                                <button class="btn btn-outline-primary btn-modal" type="button" data-button-id="exportar">Exportar</button>
                                             <?php
                                             }
                                             ?>
@@ -146,20 +147,6 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                         ?>
 
                                         window.location.href= vs_url_editar;
-                                    });
-
-                                    $(document).on('click', "#btn_exportar", function()
-                                    {
-                                        const form = $("#form_lista");
-                                        $.ajax({
-                                            url: 'functions/exportar.php',
-                                            type: "POST",
-                                            data: form.serialize(),
-                                            processData: false,
-                                            success: function (data) {
-                                                getProgress(data, true);
-                                            }
-                                        });
                                     });
 
                                     $(document).on('click', "#btn_excluir", function()
@@ -259,6 +246,21 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
             </div>
         </div>
 
+        <div id="modal-exportar" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:rgb(0 0 21 / 3%);">
+                        <button class="btn btn-tab-rel btn-outline-primary active" type="button">Exportação</button>
+
+                        <button class="btn-close" data-modal-id="exportar"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <?php require_once dirname(__FILE__)."/components/barra_opcoes_exportacao.php"; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
 <?php require_once dirname(__FILE__)."/components/footer.php"; ?>
