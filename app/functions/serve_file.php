@@ -24,6 +24,8 @@ $vs_size = $_GET['size'] ?? null;
 $vs_folder = $_GET['folder'] ?? null;
 $vb_force_download = $_GET['download'] ?? false;
 $vs_download_file_name = $_GET['name'] ?? "";
+$vs_download_file_name = preg_replace('/[^\p{L}\p{N} ]+/u', '', $vs_download_file_name);
+$vs_download_file_name = substr($vs_download_file_name, 0, 50);
 
 $vs_file_path = get_file_path($vs_file, $vs_size, $vs_folder);
 
