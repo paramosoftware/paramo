@@ -130,7 +130,13 @@ function add_to_file($pr_file, $pa_itens_listagem, &$pn_proxima_linha, $ps_file_
 
         $va_atributos[] = $va_item_listagem["id_field"] ?? "";
         $va_atributos[] = $va_item_listagem["main_field"] ?? "";
-        $va_atributos[] = $va_item_listagem["descriptive_field"] ?? "";
+
+        // Só escreve o campo descritivo quando o cabeçalho também o possui,
+        // para que os valores não fiquem em colunas diferentes dos títulos
+        if (isset($va_item_listagem["descriptive_field_label"])) 
+        {
+            $va_atributos[] = $va_item_listagem["descriptive_field"] ?? "";
+        }
 
         foreach($va_item_listagem["atributos"] as $va_atributos_item_listagem)
         {
@@ -171,7 +177,11 @@ function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = utils:
 
         $va_labels[] = $va_item_listagem["id_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["main_field_label"] ?? "";
-        $va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";
+
+        if (isset($va_item_listagem["descriptive_field_label"])) 
+        {
+            $va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";
+        }
 
         foreach($va_item_listagem["atributos"] as $key => $va_atributos_item_listagem)
         {
