@@ -45,26 +45,29 @@ if($vs_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX)
     $spreadsheet = new Spreadsheet();
     $vr_file = $spreadsheet->getActiveSheet();
     if($vb_include_image)
-    {
-        $vr_file->getDefaultRowDimension()->setRowHeight(120);
         $vr_file->getRowDimension('1')->setRowHeight(20);
-    }
 }
 else
     $vr_file = fopen($vs_file_path, "w");
 
 create_header($vr_file, $va_itens_listagem ?? [], $vs_file_extension, $vb_include_image);
 
-add_to_file($vr_file, $va_itens_listagem ?? [], ps_file_extension: $vs_file_extension, pb_include_image: $vb_include_image);
+// linha 1 é o cabeçalho; o contador precisa atravessar todas as páginas
+$vn_proxima_linha = 2;
+
+add_to_file($vr_file, $va_itens_listagem ?? [], $vn_proxima_linha, $vs_file_extension, $vb_include_image);
 
 for ($vn_pagina_atual = 2; $vn_pagina_atual <= $vn_numero_maximo_paginas; $vn_pagina_atual++)
 {
     require dirname(__FILE__) . "/montar_listagem.php";
 
-    add_to_file($vr_file, $va_itens_listagem ?? [], ps_file_extension: $vs_file_extension, pb_include_image: $vb_include_image);
+    add_to_file($vr_file, $va_itens_listagem ?? [], $vn_proxima_linha, $vs_file_extension, $vb_include_image);
 
     utils::callback_progress($vs_file_name, $vn_pagina_atual / $vn_numero_maximo_paginas * 100);
 }
+
+if($vs_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $vb_include_image)
+    ajustar_largura_coluna_imagens($vr_file);
 
 if($vs_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && utils::is_phpspreadsheet_installed())
 {
@@ -77,17 +80,18 @@ utils::callback_progress($vs_file_name, 100);
 utils::clear_temp_folder("-5 minutes");
 exit();
 
-function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = false, $ps_file_extension = utils::EXTENSAO_EXPORTACAO_CSV, $pb_include_image = false)
+function add_to_file($pr_file, $pa_itens_listagem, &$pn_proxima_linha, $ps_file_extension = utils::EXTENSAO_EXPORTACAO_CSV, $pb_include_image = false)
 {
-    $vn_contador = 1;
+    $vn_tamanho_maximo_imagem = 120;
 
-    $max_width = 0;
-    foreach ($pa_itens_listagem as $index => $va_item_listagem)
+    foreach ($pa_itens_listagem as $va_item_listagem)
     {
         $va_atributos = array();
-        $vb_image_included = false;
+        $vn_linha = $pn_proxima_linha;
+
         if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
         {
+            // Coluna reservada ao representante digital (vazia quando o item não tem imagem)
             $va_atributos[] = "";
 
             $vs_image_name = basename(str_replace("\\", "/", (string) ($va_item_listagem["representante_digital"] ?? "")));
@@ -101,13 +105,29 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
                 $drawing->setName($vs_image_name);
                 $drawing->setDescription($vs_image_name);
                 $drawing->setPath($vs_real_path);
-                $drawing->setHeight(120);
-                $drawing->setCoordinates('A' . ($index+2));
+
+                // Redimensiona proporcionalmente para caber inteira na célula
+                $vn_fator_escala = min(
+                    $vn_tamanho_maximo_imagem / max(1, $drawing->getWidth()),
+                    $vn_tamanho_maximo_imagem / max(1, $drawing->getHeight())
+                );
+
+                $drawing->setWidthAndHeight(
+                    max(1, (int) round($drawing->getWidth() * $vn_fator_escala)),
+                    max(1, (int) round($drawing->getHeight() * $vn_fator_escala))
+                );
+
+                // Cada imagem fica ancorada na coluna A da linha do seu próprio registro
+                $drawing->setCoordinates('A' . $vn_linha);
+                $drawing->setOffsetX(0);
+                $drawing->setOffsetY(0);
                 $drawing->setWorksheet($pr_file);
-                $max_width = $max_width > $drawing->getWidth() ? $max_width : $drawing->getWidth();
-                $vb_image_included = true;
+
+                // Altura da linha acomoda a imagem, sem invadir a linha seguinte
+                $pr_file->getRowDimension($vn_linha)->setRowHeight($drawing->getHeight() + 2, 'px');
             }
         }
+
         $va_atributos[] = $va_item_listagem["id_field"] ?? "";
         $va_atributos[] = $va_item_listagem["main_field"] ?? "";
         $va_atributos[] = $va_item_listagem["descriptive_field"] ?? "";
@@ -121,17 +141,23 @@ function add_to_file($pr_file, $pa_itens_listagem, $pb_adicionar_cabecalho = fal
         }
 
         if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX)
-        {
-            $newRow = $pr_file->getHighestRow() + ($vb_image_included ? 0 : 1);
-            $pr_file->fromArray($va_atributos, null, 'A' . $newRow);
-        }
+            $pr_file->fromArray($va_atributos, null, 'A' . $vn_linha);
         else
             fputcsv($pr_file, $va_atributos, escape: "\\");
 
-        $vn_contador++;
+        $pn_proxima_linha = $vn_linha + 1;
     }
-    if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
-        $pr_file->getColumnDimension('A')->setWidth($max_width / 7);
+}
+
+function ajustar_largura_coluna_imagens($pr_file)
+{
+    $vn_largura_maxima = 0;
+
+    foreach ($pr_file->getDrawingCollection() as $vo_drawing)
+        $vn_largura_maxima = max($vn_largura_maxima, $vo_drawing->getWidth());
+
+    if($vn_largura_maxima > 0)
+        $pr_file->getColumnDimension('A')->setWidth($vn_largura_maxima + 5, 'px');
 }
 
 function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = utils::EXTENSAO_EXPORTACAO_CSV, $pb_include_image = false)
@@ -142,7 +168,7 @@ function create_header($pr_file, $pa_itens_listagem, $ps_file_extension = utils:
 
         if($ps_file_extension === utils::EXTENSAO_EXPORTACAO_XLSX && $pb_include_image)
             $va_labels[] = "Representante digital";
-        
+
         $va_labels[] = $va_item_listagem["id_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["main_field_label"] ?? "";
         $va_labels[] = $va_item_listagem["descriptive_field_label"] ?? "";
