@@ -1,23 +1,29 @@
 <div class="filtro-row row" id="div_opcoes_exportacao">
 
     <?php
+        $va_valores_formato_exportacao = [];
+
+        if (utils::is_phpspreadsheet_installed()) 
+        {
+            $va_valores_formato_exportacao["xlsx"] = "Planinha Excel (.xlsx)";
+        }
+
+        $va_valores_formato_exportacao["csv"] = "Arquivo CSV (.csv)";
+
         $va_parametros_campo = [
             "html_combo_input",
             "nome" => "formato_exportacao",
             "label" => "Formato do arquivo?",
             "sem_valor" => false,
-            "valores" => [
-                "csv" => ".csv"
-            ]
+            "valores" => $va_valores_formato_exportacao,
         ];
-        if(utils::is_phpspreadsheet_installed())
-            $va_parametros_campo["valores"]["xlsx"] = ".xlsx";
 
         $vo_combo_paginas_etiquetas = new html_combo_input($vs_id_objeto_tela, "formato_exportacao");
         $vo_combo_paginas_etiquetas->build($va_valores, $va_parametros_campo);
 
         $va_script_name = explode("/",$_SERVER['SCRIPT_NAME']);
-        if(utils::is_phpspreadsheet_installed() && end($va_script_name) != "ficha.php")
+
+        if (utils::is_phpspreadsheet_installed() && end($va_script_name) != "ficha.php")
         {
             $va_parametros_campo = [
                 "html_checkbox_input",
