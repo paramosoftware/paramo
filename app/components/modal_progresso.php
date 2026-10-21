@@ -26,6 +26,7 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated text-center" style="width: 0">0%</div>
                 </div>
                 <div id="modal-progresso-status" class="mt-2"></div>
+                <div id="modal-progresso-arquivos" class="mt-2"></div>
             </div>
 
         </div>

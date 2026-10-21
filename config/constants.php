@@ -53,6 +53,18 @@ return [
         "temp" => $vs_pasta_media . "temp/",
     ],
 
+    # ================================================ EXPORTAÇÃO ================================================ #
+
+    # Miniaturas reduzidas usadas apenas durante a exportação em XLSX.
+    # Ficam na pasta temp, com o nome da tarefa no prefixo, e são removidas
+    # quando a exportação termina (ou pela limpeza da pasta temp).
+    "pasta_thumb_exportacao" => $vs_pasta_media . "temp/",
+    "tamanho_thumb_exportacao" => 120,
+
+    # Tempo que os arquivos gerados pela exportação permanecem na pasta temp
+    # (qualquer valor aceito por strtotime, ex.: "-24 hours", "-7 days").
+    "retencao_exportacao" => "-24 hours",
+
 
     # É possível personalizar o logo do sistema pela parte administrativa.
     # Caso não seja definido um logo personalizado, o logo padrão será utilizado.
