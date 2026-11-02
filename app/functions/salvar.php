@@ -37,7 +37,14 @@
 
     $vs_id_objeto_tela = $_POST["obj"];
 
-    $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
+    $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto_tela);
+
+    if (!($vo_objeto instanceof objeto_base))
+    {
+        utils::log("Tentativa de salvar com objeto não permitido.", utils::sanitizar_requisicao_para_log());
+        http_response_code(400);
+        exit();
+    }
     
     $vs_chave_primaria_objeto = $vo_objeto->get_chave_primaria()[0];
 

@@ -12,6 +12,13 @@ $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
 $vb_montar_menu = true;
 $vn_step = $_POST["step"] ?? 1;
 $vs_id_objeto_importacao = $_GET["obj"] ?? $_POST["obj"];
+
+if (!autorizacao::resolver_objeto($vs_id_objeto_importacao))
+{
+    http_response_code(400);
+    exit();
+}
+
 $vs_parametros_importacao_json = isset($_POST["parametros_importacao"]) ? json_encode($_POST["parametros_importacao"]) : $_POST["parametros_importacao_json"] ?? "";
 $vs_campos_destino_selecao_json = isset($_POST["campos_destino_selecao"]) ? json_encode($_POST["campos_destino_selecao"]) : $_POST["campos_destino_selecao_json"] ?? "";
 $vo_importacao = new importacao_refatorado($vn_usuario_logado_instituicao_codigo, $vn_usuario_codigo, $vs_id_objeto_importacao);

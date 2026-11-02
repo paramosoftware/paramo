@@ -4,13 +4,26 @@ require_once dirname(__FILE__) . "/autenticar_usuario.php";
 
 if (isset($_GET['cod']) && $_GET['cod']) 
 {
-    $pn_objeto_codigo = $_GET['cod'];
-    $pn_img_number = $_GET['img'];
+    $pn_objeto_codigo = (int) $_GET['cod'];
+    $pn_img_number = (int) ($_GET['img'] ?? 0);
 
-    $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
+    $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto_tela);
+
+    if (!($vo_objeto instanceof objeto_base) || !autorizacao::autorizar_leitura_registro($vo_objeto, $pn_objeto_codigo))
+    {
+        http_response_code(404);
+        exit();
+    }
+
     $va_objeto = $vo_objeto->ler($pn_objeto_codigo, "ficha");
 
-    $va_valor_campo = $va_objeto["representante_digital_codigo"];
+    if (!is_array($va_objeto) || !count($va_objeto))
+    {
+        http_response_code(404);
+        exit();
+    }
+
+    $va_valor_campo = $va_objeto["representante_digital_codigo"] ?? [];
 
     echo '<div id="gallery" style="height:550px">';
 

@@ -127,6 +127,7 @@
     $vb_usuario_administrador = false;
     $vb_usuario_externo = false;
     $va_usuario_grupos_usuario = array();
+    $va_selecoes_compartilhadas_codigos = array();
     
     $vb_pode_ler = false;
     $vb_pode_inserir = false;
@@ -492,10 +493,21 @@
 
     $va_parametros_controle_acesso = array();
 
-    foreach (config::get(["controle_acesso", "_atributos_"]) as $vs_key_parametro => $vs_variavel_parametro)
+    $va_atributos_controle_acesso = config::get(["controle_acesso", "_atributos_"]);
+
+    if (!is_array($va_atributos_controle_acesso) || !count($va_atributos_controle_acesso))
+    {
+        $va_atributos_controle_acesso = array(
+            "instituicao_codigo" => "vn_usuario_logado_instituicao_codigo",
+            "acervo_codigo" => "vn_usuario_logado_acervo_codigo"
+        );
+    }
+
+    foreach ($va_atributos_controle_acesso as $vs_key_parametro => $vs_variavel_parametro)
     {
         $va_parametros_controle_acesso[$vs_key_parametro] = $$vs_variavel_parametro;
     }
 
-    $va_parametros_controle_acesso["_combinacao_"] = config::get(["controle_acesso", "_combinacao_"]);
+    $vs_combinacao_controle_acesso = config::get(["controle_acesso", "_combinacao_"]);
+    $va_parametros_controle_acesso["_combinacao_"] = ($vs_combinacao_controle_acesso === "OR") ? "OR" : "AND";
 ?>

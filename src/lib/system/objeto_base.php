@@ -3866,24 +3866,46 @@ class objeto_base
                 $vo_representante_digital = new representante_digital;
 
                 $va_codigos_excluir = explode(",", $pa_valores['rd_codigos_remover_' . $ps_campo_nome]);
+                $va_codigos_autorizados = [];
+                $vn_objeto_codigo = (int) ($pa_valores[$this->chave_primaria[0]] ?? 0);
+                $vn_tipo_esperado = ($ps_campo_nome === "arquivo_download_codigo") ? 2 : 1;
 
                 foreach ($va_codigos_excluir as $vn_codigo_excluir)
                 {
-                    $va_representante_digital = $vo_representante_digital->ler($vn_codigo_excluir);
-                    if (count($va_representante_digital))
-                    {
-                        $this->apagar_arquivo_pasta_media($va_representante_digital['representante_digital_path']);
-                    }
+                    if (!is_numeric($vn_codigo_excluir))
+                        continue;
+
+                    $va_representante_digital = $vo_representante_digital->ler((int) $vn_codigo_excluir, "lista");
+
+                    if (!is_array($va_representante_digital) || !count($va_representante_digital))
+                        continue;
+
+                    // Só remove representantes que pertencem ao registro e ao
+                    // recurso/campo que está sendo salvo.
+                    if ((int) ($va_representante_digital['representante_digital_registro_codigo'] ?? 0) !== $vn_objeto_codigo)
+                        continue;
+
+                    if ((int) ($va_representante_digital['representante_digital_recurso_sistema_codigo'] ?? 0) !== (int) $this->recurso_sistema_codigo)
+                        continue;
+
+                    if ((int) ($va_representante_digital['representante_digital_tipo_codigo'] ?? 0) !== $vn_tipo_esperado)
+                        continue;
+
+                    $va_codigos_autorizados[] = (int) $vn_codigo_excluir;
+                    $this->apagar_arquivo_pasta_media($va_representante_digital['representante_digital_path']);
                 }
 
-                $vo_representante_digital->excluir($pa_valores['rd_codigos_remover_' . $ps_campo_nome]);
+                if (count($va_codigos_autorizados))
+                {
+                    $vo_representante_digital->excluir(implode(",", $va_codigos_autorizados));
 
-                if (isset($pa_valores["representante_digital_tipo_codigo"]) && $pa_valores["representante_digital_tipo_codigo"] == 1)
-                    $vn_tipo_operacao_log_codigo = 7;
-                else
-                    $vn_tipo_operacao_log_codigo = 8;
+                    if (isset($pa_valores["representante_digital_tipo_codigo"]) && $pa_valores["representante_digital_tipo_codigo"] == 1)
+                        $vn_tipo_operacao_log_codigo = 7;
+                    else
+                        $vn_tipo_operacao_log_codigo = 8;
 
-                $this->salvar_log($pa_valores[$this->chave_primaria[0]], $pa_valores['usuario_logado_codigo'], $vn_tipo_operacao_log_codigo);
+                    $this->salvar_log($pa_valores[$this->chave_primaria[0]], $pa_valores['usuario_logado_codigo'], $vn_tipo_operacao_log_codigo);
+                }
             }
 
             // Atualiza a sequência dos representantes digitais a partir dos códigos enviados

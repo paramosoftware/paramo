@@ -74,7 +74,38 @@
     $_POST["usuario_logado_codigo"] = $vn_usuario_logado_codigo;
     $vs_id_objeto_tela = $_POST['obj'] ?? "";
     $vs_campo_nome = $_POST["representante_digital_campo_nome"] ?? "";
-    $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
+
+    $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto_tela);
+
+    if (!($vo_objeto instanceof objeto_base))
+    {
+        http_response_code(400);
+        exit();
+    }
+
+    if (!in_array($vs_campo_nome, ["representante_digital_codigo", "arquivo_download_codigo"], true))
+    {
+        http_response_code(400);
+        exit();
+    }
+
+    $vs_chave_primaria = $vo_objeto->get_chave_primaria()[0];
+    $vn_registro_codigo = $_POST[$vs_chave_primaria] ?? null;
+
+    if (!empty($vn_registro_codigo))
+    {
+        if (!autorizacao::autorizar_edicao_registro($vo_objeto, $vn_registro_codigo))
+        {
+            http_response_code(403);
+            exit();
+        }
+    }
+    elseif (empty($vb_pode_inserir) && empty($vb_usuario_administrador))
+    {
+        http_response_code(403);
+        exit();
+    }
+
     $_FILES = $files ?? $_FILES;
 
     $vb_salvo = $vo_objeto->salvar_representantes_digitais($vs_campo_nome, $_POST, $_FILES, true);
