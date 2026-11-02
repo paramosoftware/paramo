@@ -4363,6 +4363,12 @@ class objeto_base
 
     function apagar_arquivo_pasta_media($ps_arquivo): bool
     {
+        if (!is_string($ps_arquivo) || $ps_arquivo === "" || strpos($ps_arquivo, "\0") !== false)
+            return false;
+
+        if (strpos($ps_arquivo, "..") !== false || strpos($ps_arquivo, "/") !== false || strpos($ps_arquivo, "\\") !== false)
+            return false;
+
         $va_pasta_media = config::get(["pasta_media"]);
 
         foreach ($va_pasta_media as $pasta)
@@ -4371,14 +4377,22 @@ class objeto_base
             {
                 foreach ($pasta as $vs_pasta_media)
                 {
-                    $vs_arquivo = $vs_pasta_media . $ps_arquivo;
-                    $this->apagar_arquivo($vs_arquivo);
+                    $vs_arquivo = rtrim($vs_pasta_media, "/\\") . DIRECTORY_SEPARATOR . $ps_arquivo;
+                    $vs_base_real = realpath($vs_pasta_media);
+                    $vs_arquivo_real = realpath($vs_arquivo);
+
+                    if ($vs_base_real !== false && $vs_arquivo_real !== false && strpos($vs_arquivo_real, rtrim($vs_base_real, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0)
+                        $this->apagar_arquivo($vs_arquivo_real);
                 }
             }
             else
             {
-                $vs_arquivo = $pasta . $ps_arquivo;
-                $this->apagar_arquivo($vs_arquivo);
+                $vs_arquivo = rtrim($pasta, "/\\") . DIRECTORY_SEPARATOR . $ps_arquivo;
+                $vs_base_real = realpath($pasta);
+                $vs_arquivo_real = realpath($vs_arquivo);
+
+                if ($vs_base_real !== false && $vs_arquivo_real !== false && strpos($vs_arquivo_real, rtrim($vs_base_real, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0)
+                    $this->apagar_arquivo($vs_arquivo_real);
             }
         }
 
