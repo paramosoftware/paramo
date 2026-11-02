@@ -61,14 +61,7 @@ class session
 
     public static function generate_token(): string
     {
-        try
-        {
-            return bin2hex(random_bytes(32));
-        }
-        catch (Exception $e)
-        {
-            return md5(uniqid(rand(), true));
-        }
+        return bin2hex(random_bytes(32));
     }
 
     public static function generate_cookie_name($pb_token=false): string
@@ -76,6 +69,155 @@ class session
         return
             strtolower(preg_replace("/[^A-Za-z0-9]/", "", config::get(["nome_instituicao"])))
             . ($pb_token ? "_token" : "");
+    }
+
+    public static function csrf_token(): string
+    {
+        self::start_session();
+
+        if (empty($_SESSION["csrf_token"]) || !is_string($_SESSION["csrf_token"]))
+            $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+
+        return $_SESSION["csrf_token"];
+    }
+
+    public static function csrf_input(): string
+    {
+        return '<input type="hidden" name="csrf_token" value="'
+            . htmlspecialchars(self::csrf_token(), ENT_QUOTES, "UTF-8")
+            . '">';
+    }
+
+    public static function origem_permitida(): bool
+    {
+        $vs_host = $_SERVER["HTTP_HOST"] ?? "";
+
+        if ($vs_host === "")
+            return true;
+
+        $vs_host_sem_porta = strtolower(explode(":", $vs_host)[0]);
+
+        foreach (["HTTP_ORIGIN", "HTTP_REFERER"] as $vs_variavel)
+        {
+            if (empty($_SERVER[$vs_variavel]))
+                continue;
+
+            $vs_origem = parse_url($_SERVER[$vs_variavel], PHP_URL_HOST);
+
+            if (!is_string($vs_origem) || $vs_origem === "")
+                return false;
+
+            $vs_origem_sem_porta = strtolower(explode(":", $vs_origem)[0]);
+
+            if (!hash_equals($vs_host_sem_porta, $vs_origem_sem_porta))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static function validar_csrf(bool $pb_exigir_post = true): void
+    {
+        if ($pb_exigir_post && ($_SERVER["REQUEST_METHOD"] ?? "") !== "POST")
+        {
+            http_response_code(405);
+            exit();
+        }
+
+        if (!self::origem_permitida())
+        {
+            http_response_code(403);
+            exit();
+        }
+
+        $vs_token = $_POST["csrf_token"] ?? ($_SERVER["HTTP_X_CSRF_TOKEN"] ?? "");
+        $vs_esperado = $_SESSION["csrf_token"] ?? "";
+
+        if (!is_string($vs_token)
+            || !is_string($vs_esperado)
+            || $vs_esperado === ""
+            || !hash_equals($vs_esperado, $vs_token))
+        {
+            utils::log(
+                "Requisição rejeitada por ausência de token CSRF.",
+                utils::sanitizar_requisicao_para_log()
+            );
+
+            http_response_code(403);
+            exit();
+        }
+    }
+
+    public static function tarefa_id_valido($ps_tarefa): bool
+    {
+        if (!is_string($ps_tarefa) || strlen($ps_tarefa) < 1 || strlen($ps_tarefa) > 64)
+            return false;
+
+        if (strpos($ps_tarefa, "..") !== false || $ps_tarefa[0] === ".")
+            return false;
+
+        return preg_match('/\A[A-Za-z0-9][A-Za-z0-9._-]*\z/', $ps_tarefa) === 1;
+    }
+
+    public static function registrar_tarefa_progresso(string $ps_tarefa): void
+    {
+        if (!self::tarefa_id_valido($ps_tarefa) || session_status() !== PHP_SESSION_ACTIVE)
+            return;
+
+        $vn_usuario_codigo = (int) ($_SESSION["usuario_logado_codigo"] ?? 0);
+
+        if ($vn_usuario_codigo > 0)
+            $_SESSION["tarefas_progresso"][$ps_tarefa] = $vn_usuario_codigo;
+    }
+
+    public static function autorizar_tarefa_progresso($ps_tarefa): bool
+    {
+        if (!self::tarefa_id_valido($ps_tarefa) || session_status() !== PHP_SESSION_ACTIVE)
+            return false;
+
+        $vn_usuario_codigo = (int) ($_SESSION["usuario_logado_codigo"] ?? 0);
+
+        if ($vn_usuario_codigo <= 0)
+            return false;
+
+        $va_tarefas = $_SESSION["tarefas_progresso"] ?? [];
+
+        return is_array($va_tarefas)
+            && ((int) ($va_tarefas[$ps_tarefa] ?? 0) === $vn_usuario_codigo);
+    }
+
+    /**
+     * Arquivos em app/media/temp só podem ser servidos para o dono da tarefa
+     * que os gerou (nome exato ou partes prefixadas pelo nome-base da tarefa).
+     */
+    public static function autorizar_arquivo_temporario($ps_nome): bool
+    {
+        if (!self::tarefa_id_valido($ps_nome) || session_status() !== PHP_SESSION_ACTIVE)
+            return false;
+
+        $vn_usuario_codigo = (int) ($_SESSION["usuario_logado_codigo"] ?? 0);
+
+        if ($vn_usuario_codigo <= 0)
+            return false;
+
+        $va_tarefas = $_SESSION["tarefas_progresso"] ?? [];
+
+        if (!is_array($va_tarefas))
+            return false;
+
+        foreach ($va_tarefas as $vs_tarefa => $vn_dono)
+        {
+            if ((int) $vn_dono !== $vn_usuario_codigo)
+                continue;
+
+            if ($ps_nome === $vs_tarefa
+                || strpos($ps_nome, $vs_tarefa . ".") === 0
+                || strpos($ps_nome, $vs_tarefa . "-parte-") === 0
+                || strpos($ps_nome, $vs_tarefa . "-thumb-") === 0)
+                return true;
+        }
+
+        return false;
     }
 
     public static function log_and_redirect_error($ps_summary, $stacktrace=null, $pb_append_http_variables=false): void
@@ -88,9 +230,16 @@ class session
         if ($pb_append_http_variables)
         {
 
-            unset($_POST["usuario_senha"]);
-            unset($_POST["repetir_senha"]);
-            unset($_POST["usuario_senha_provisoria"]);
+            unset(
+                $_POST["usuario_senha"],
+                $_POST["repetir_senha"],
+                $_POST["usuario_senha_provisoria"],
+                $_POST["new_password"],
+                $_POST["usuario_token"],
+                $_POST["token"],
+                $_POST["csrf_token"],
+                $_POST["signature"]
+            );
 
             $stacktrace .= " - \$_GET: " . var_export($_GET, true);
             $stacktrace .= " - \$_POST: " . var_export($_POST, true);
@@ -212,7 +361,12 @@ class session
                 $vo_usuario = new usuario;
                 $vo_usuario->salvar($va_parametros, false);
 
+                // Evita fixação de sessão no momento da autenticação.
+                if (session_status() === PHP_SESSION_ACTIVE)
+                    session_regenerate_id(true);
+
                 $_SESSION["usuario_token"] = $vs_token;
+                $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 
                 session::set_token_cookie($vs_token);
 
@@ -230,8 +384,27 @@ class session
         return false;
     }
 
+    public static function revogar_token_atual(): void
+    {
+        $vs_token = $_SESSION["usuario_token"] ?? null;
+        $vn_usuario_codigo = (int) ($_SESSION["usuario_logado_codigo"] ?? 0);
+
+        if (!empty($vs_token) && $vn_usuario_codigo > 0)
+        {
+            $vo_usuario = new usuario;
+            $vo_usuario->salvar([
+                "usuario_codigo" => $vn_usuario_codigo,
+                "usuario_token" => "",
+            ], false);
+        }
+
+        unset($_SESSION["usuario_token"]);
+    }
+
     public static function logout($vb_redirect=true): void
     {
+        session::revogar_token_atual();
+
         session_unset();
         session_destroy();
         setcookie(session_name(), "", time() - 3600, "/");

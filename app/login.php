@@ -16,7 +16,24 @@
 
     $vs_usuario_login = $_POST['usuario_login'] ?? "";
     $vs_usuario_senha = $_POST['usuario_senha'] ?? "";
-    $vb_login_success = session::login($vs_usuario_login, $vs_usuario_senha);
+    $vb_login_success = false;
+    $vs_login_msg = "";
+
+    if (($_SERVER["REQUEST_METHOD"] ?? "") === "POST")
+    {
+        $vs_ip_login = $_SERVER["REMOTE_ADDR"] ?? "desconhecido";
+
+        if (!limite_tentativas::permitir("login:" . strtolower($vs_usuario_login) . ":" . $vs_ip_login, 20, 900))
+        {
+            http_response_code(429);
+            $vs_login_msg = "Muitas tentativas. Tente novamente mais tarde.";
+        }
+        else
+        {
+            session::validar_csrf();
+            $vb_login_success = session::login($vs_usuario_login, $vs_usuario_senha);
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -26,20 +43,21 @@
 
     require_once dirname(__FILE__) . "/components/header_html.php";;
 
-    $vs_login_msg = "";
-
-    if ($vs_usuario_login != "" && $vs_usuario_senha != "")
+    if ($vs_login_msg === "")
     {
-        if (!$vb_login_success)
+        if ($vs_usuario_login != "" && $vs_usuario_senha != "")
         {
-            $vs_login_msg = "Login ou senha incorretos.";
+            if (!$vb_login_success)
+            {
+                $vs_login_msg = "Login ou senha incorretos.";
+            }
         }
-    }
-    else
-    {
-        if (count($_POST))
+        else
         {
-            $vs_login_msg = "Login ou senha inválidos.";
+            if (count($_POST))
+            {
+                $vs_login_msg = "Login ou senha inválidos.";
+            }
         }
     }
 
@@ -64,6 +82,7 @@
 
 <form method="post" action="login.php">
     <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET["redirect"] ?? "") ; ?>">
+    <?= session::csrf_input() ?>
 
     <?php
         $va_valores_form = array();
