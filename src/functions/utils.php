@@ -180,6 +180,44 @@ class utils
         return '<img src="assets/img/placeholder-link.png">';
     }
 
+    public static function redigir_dados_sensiveis(string $ps_texto): string
+    {
+        $va_chaves = [
+            "usuario_senha", "repetir_senha", "usuario_senha_provisoria", "senha",
+            "password", "new_password", "usuario_token", "token", "csrf_token",
+            "signature", "authorization", "secret", "smtp_password", "db_password"
+        ];
+
+        foreach ($va_chaves as $vs_chave)
+        {
+            $vs_pattern = '/(["\']?' . preg_quote($vs_chave, "/") . '["\']?\s*(?:=>|=|:)\s*)(\[[^\]]*\]|"[^"]*"|\'[^\']*\'|[^\s,;&]+)/i';
+            $ps_texto = preg_replace($vs_pattern, '$1[REDACTED]', $ps_texto) ?? $ps_texto;
+        }
+
+        return $ps_texto;
+    }
+
+    public static function sanitizar_requisicao_para_log(): string
+    {
+        $va_dados = $_POST;
+
+        unset(
+            $va_dados["csrf_token"],
+            $va_dados["token"],
+            $va_dados["signature"],
+            $va_dados["usuario_senha"],
+            $va_dados["repetir_senha"],
+            $va_dados["new_password"],
+            $va_dados["usuario_senha_provisoria"],
+            $va_dados["usuario_token"]
+        );
+
+        return "POST: " . json_encode(
+            $va_dados,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
+
     public static function log(string $summary, $stacktrace) : string
     {
         $logs_folder = config::get(["pasta_logs"]);
@@ -191,6 +229,8 @@ class utils
         {
             $stacktrace = implode(" ", $stacktrace);
         }
+
+        $stacktrace = self::redigir_dados_sensiveis((string) $stacktrace);
 
         $stacktrace = str_replace("\r", " ", $stacktrace);
         $stacktrace = str_replace("\n", " ", $stacktrace);
@@ -392,6 +432,10 @@ class utils
      */
     public static function callback_progress($vs_file_name, $vn_progress, $pa_partes_exportacao = null, $pb_exportacao_concluida = false, $pb_exportacao_cancelada = false)
     {
+        // Vincula a tarefa ao usuário da sessão para que progress.php/serve_file.php
+        // não permitam que outro usuário consulte ou cancele a operação.
+        session::registrar_tarefa_progresso((string) $vs_file_name);
+
         $vs_temp = config::get(["pasta_media", "temp"]);
 
         $vs_file_path = $vs_temp . $vs_file_name . ".progress";
