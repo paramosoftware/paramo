@@ -16,6 +16,12 @@ return [
     "versao" => "1.4.53",
     "pasta_logs" => dirname(__FILE__) . "/../src/logs/",
 
+    # ================================================ ARMAZENAMENTO NÃO PÚBLICO ================================================ #
+    # Usado por fluxos de confirmação de e-mail, nonces de submissão e limitadores de tentativa.
+    "pasta_submissoes_pendentes" => dirname(__FILE__) . "/../src/storage/submissoes_pendentes/",
+    "pasta_submissoes_nonces" => dirname(__FILE__) . "/../src/storage/submissoes_nonces/",
+    "pasta_rate_limit" => dirname(__FILE__) . "/../src/storage/rate_limit/",
+
     # ================================================ ASSETS E MÍDIA  ================================================ #
 
     $vs_pasta_app = dirname(__FILE__) . "/../app/",

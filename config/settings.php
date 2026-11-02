@@ -118,7 +118,12 @@ return [
 
     # token usado para validar requisições externas de submissão de formulários.
     # deve ser configurado em config/custom/settings.php
-    "submissao_formulario_token" => ""
+    # O valor deve ter pelo menos 32 bytes e não pode ser um placeholder conhecido.
+    "submissao_formulario_token" => "",
+
+    # URL absoluta do endpoint de confirmação de e-mail (opcional).
+    # Quando vazia, o sistema usa /app/confirmar_submissao.php no host atual.
+    "submissao_formulario_url_confirmacao" => ""
 ];
 
 
