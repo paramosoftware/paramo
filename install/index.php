@@ -1,5 +1,13 @@
 <?php
 
+// Instalação concluída: o instalador deixa de responder, mesmo que o
+// servidor web não honre o .htaccess da pasta.
+if (file_exists(dirname(__DIR__) . "/config/custom/envs.php"))
+{
+    http_response_code(404);
+    exit();
+}
+
 const PHP_MIN_VERSION_REQUIRED = "7.4.0";
 const MYSQL_MIN_VERSION_REQUIRED = "5.5.0";
 const MARIADB_MIN_VERSION_REQUIRED = "10.0.0";
