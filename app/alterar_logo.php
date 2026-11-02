@@ -69,6 +69,8 @@
 
 
     if (isset($_FILES["logo"])) {
+        session::validar_csrf();
+
         $va_retorno = upload_logo();
         $vb_sucesso = $va_retorno[0];
 

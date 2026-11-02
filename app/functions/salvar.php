@@ -1,13 +1,15 @@
 <?php
     require_once dirname(__FILE__) . "/../components/entry_point.php";
 
+    session::validar_csrf();
+
     if (!isset($_POST["escopo"]) || ($_POST["escopo"] != "_senha"))
     {
         if (!$vb_pode_editar && !$vb_pode_inserir)
         {
             utils::log(
                 "Tentativa de alteração sem permissão: ",
-                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
             );
             session::redirect();
         }
@@ -20,7 +22,7 @@
             unset($_POST["repetir_senha"]);
             utils::log(
                 "Tentativa de alteração de senha de outro usuário: ",
-                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
             );
             session::redirect();
         }
@@ -56,6 +58,15 @@
 
         set_time_limit(3600);
 
+        if (empty($vb_pode_editar) && empty($vb_usuario_administrador))
+        {
+            utils::log(
+                "Tentativa de edição em lote sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
+            );
+            session::redirect();
+        }
+
         $vo_objeto->iniciar_transacao();
 
         $va_objetos_codigos = explode("|", $_POST[$vs_chave_primaria_objeto]);
@@ -78,7 +89,7 @@
                 {
                     utils::log(
                         "Tentativa de alteração sem permissão: ",
-                        __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                        __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
                     );
                     session::redirect();
                 }
@@ -107,7 +118,16 @@
         {
             utils::log(
                 "Tentativa de inserção sem permissão: ",
-                __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
+            );
+            exit();
+        }
+
+        if (!empty($_POST[$vs_chave_primaria_objeto]) && empty($vb_pode_editar) && empty($vb_usuario_administrador))
+        {
+            utils::log(
+                "Tentativa de edição sem permissão: ",
+                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
             );
             exit();
         }
@@ -130,7 +150,7 @@
             {
                 utils::log(
                     "Tentativa de alteração sem permissão: ",
-                    __FILE__ . " - " . __LINE__ . " - " . var_export($_SESSION, true) . " - " . var_export($_POST, true)
+                    __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
                 );
                 exit();
             }
@@ -139,6 +159,13 @@
         $vn_codigo = $vo_objeto->salvar($_POST, true, $vn_idioma_catalogacao_codigo);
         
         $_POST[$vs_id_objeto_tela . "_codigo"] = $vn_codigo;
+
+        if (isset($_POST["escopo"]) && $_POST["escopo"] === "_senha")
+        {
+            // Troca de senha invalida o token persistido e exige novo login.
+            session::revogar_token_atual();
+            session::logout();
+        }
 
         if (!isset($_POST["escopo"]))
         {

@@ -1,5 +1,9 @@
 <?php
 require_once dirname(__FILE__) . "/components/entry_point.php";
+
+if (($_SERVER["REQUEST_METHOD"] ?? "") === "POST")
+    session::validar_csrf();
+
 require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSX.php";
 require_once config::get(["pasta_vendors"]) . "/simplexlsx/src/SimpleXLSXEx.php";
 

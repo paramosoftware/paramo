@@ -5,6 +5,10 @@
     <meta name="description" content="Páramo - Sistema de Gerenciamento de Acervos">
     <meta name="author" content="Páramo Software">
     <meta name="keyword" content="Gerenciamento, Acervos, Biblioteca, Museu, Arquivo, Patrimônio, Cultura">
+    <?php
+        // O token CSRF é fornecido por session::csrf_token().
+    ?>
+    <meta name="csrf-token" content="<?= htmlspecialchars(session::csrf_token(), ENT_QUOTES, "UTF-8"); ?>">
     <!--
         * CoreUI - Free Bootstrap Admin Template
         * @version v4.2.0

@@ -2,6 +2,8 @@
 
     require_once dirname(__FILE__) . "/autenticar_usuario.php";
 
+    session::validar_csrf();
+
     $vn_usuario_logado_codigo = $_SESSION["usuario_logado_codigo"];
 
 
