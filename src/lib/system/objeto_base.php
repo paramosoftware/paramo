@@ -839,6 +839,23 @@ class objeto_base
         return $va_resultado;
     }
 
+    private function normalizar_operador_busca($ps_operador): string
+    {
+        if (!is_string($ps_operador))
+            return "=";
+
+        $vs_operador = strtoupper(trim($ps_operador));
+
+        if ($vs_operador === "EXACT")
+            return "=";
+
+        $va_operadores_permitidos = [
+            "=", "<=>", "NOT", "_EXISTS_", "LIKE", "LIKERIGHT", "LIKELEFT", "IN", "NOT IN"
+        ];
+
+        return in_array($vs_operador, $va_operadores_permitidos, true) ? $vs_operador : "=";
+    }
+
     private function montar_valores_busca($pa_parametro, &$pa_valores_busca = array(), &$ps_operador = "=", &$ps_interrogacoes = "(?)", &$ps_operador_logico = "AND")
     {
         if (!is_array($pa_parametro))
@@ -856,6 +873,14 @@ class objeto_base
             $ps_operador = "=";
         else
             $ps_operador = $pa_parametro[1];
+
+        // O operador é interpolado no SQL em vários pontos. Ele nunca pode vir
+        // livremente do request: qualquer valor fora da lista é tratado como "=".
+        //////////////////////////////////////////////////////////////////////////
+        $ps_operador = $this->normalizar_operador_busca($ps_operador);
+
+        if (!in_array($ps_operador_logico, ["AND", "OR"], true))
+            $ps_operador_logico = "AND";
 
         // Se o operador é o null safe equal, estamos comparando com null e deixa pra lá todo o resto
 
