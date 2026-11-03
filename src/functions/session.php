@@ -733,20 +733,37 @@ class session
 
     public static function get_body(): array
     {
-        $body = file_get_contents("php://input");
+        $body = (string) file_get_contents("php://input");
+
+        # O formato do corpo decide como ler, não a presença de "=": um JSON com
+        # URL que tem query string ("...?id=x") era interpretado como formulário,
+        # e aí a assinatura não casava mais.
+        $vs_inicio = ltrim($body);
+
+        if ($vs_inicio !== "" && ($vs_inicio[0] === "{" || $vs_inicio[0] === "["))
+        {
+            $va_json = json_decode($vs_inicio, true);
+
+            if (is_array($va_json))
+                return $va_json;
+        }
+
         if (str_contains($body, "="))
         {
             parse_str($body, $output);
             return $output;
         }
-        elseif (str_contains($body, ":") && $body_ = json_decode($body, true))
+
+        if (str_contains($body, ":"))
         {
-            return $body_;
+            $va_json = json_decode($body, true);
+
+            if (is_array($va_json))
+                return $va_json;
         }
-        elseif (!empty($_POST))
-        {
+
+        if (!empty($_POST))
             return $_POST;
-        }
 
         return [];
     }

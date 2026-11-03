@@ -46,13 +46,24 @@ class limite_tentativas
         $vs_arquivo = self::arquivo($ps_chave);
         $vh_handle = @fopen($vs_arquivo, "c+");
 
+        # Não conseguir abrir/travar o contador não é "limite atingido": bloquear
+        # aqui fazia qualquer falha de disco/permissão responder "muitas
+        # tentativas" para todo mundo. O que protege os endpoints é a
+        # assinatura/token; o limite é melhor esforço.
         if ($vh_handle === false)
-            return false;
+        {
+            utils::log("Não foi possível abrir o contador de tentativas: " . $vs_arquivo, "limite_tentativas::permitir");
+
+            return true;
+        }
 
         if (!flock($vh_handle, LOCK_EX))
         {
             fclose($vh_handle);
-            return false;
+
+            utils::log("Não foi possível travar o contador de tentativas: " . $vs_arquivo, "limite_tentativas::permitir");
+
+            return true;
         }
 
         $vs_conteudo = stream_get_contents($vh_handle);

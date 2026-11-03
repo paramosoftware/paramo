@@ -7,7 +7,7 @@
 class submissao_pendente
 {
     public const VALIDADE_SEGUNDOS = 86400;
-    public const MAXIMO_PENDENTES_POR_EMAIL = 3;
+    public const MAXIMO_PENDENTES_POR_EMAIL = 5;
 
     public static function diretorio(): string
     {
@@ -48,7 +48,7 @@ class submissao_pendente
      *
      * @return array{ok:bool,token:string,erro:string}
      */
-    public static function criar(string $ps_objeto_id, array $pa_payload, string $ps_email, string $ps_nome): array
+    public static function criar(string $ps_objeto_id, array $pa_payload, string $ps_email, string $ps_nome, string $ps_url_confirmacao = ""): array
     {
         $vs_email_normalizado = strtolower(trim($ps_email));
 
@@ -60,7 +60,7 @@ class submissao_pendente
             self::MAXIMO_PENDENTES_POR_EMAIL,
             3600
         ))
-            return ["ok" => false, "token" => "", "erro" => "Muitas solicitações. Aguarde antes de tentar novamente."];
+            return ["ok" => false, "token" => "", "erro" => "Você já solicitou confirmação para este e-mail há pouco tempo. Verifique sua caixa de entrada (inclusive o spam) e aguarde alguns minutos antes de pedir outra."];
 
         self::limpar_expirados();
 
@@ -70,6 +70,9 @@ class submissao_pendente
             "payload" => $pa_payload,
             "email" => $vs_email_normalizado,
             "nome" => $ps_nome,
+            # Página do portal público que confirma a submissão (informada pela
+            # própria submissão, que é assinada).
+            "url_confirmacao" => $ps_url_confirmacao,
             "criado_em" => time(),
             "expira_em" => time() + self::VALIDADE_SEGUNDOS,
             "usado" => false,
@@ -176,9 +179,16 @@ class submissao_pendente
         }
     }
 
-    public static function url_confirmacao(string $ps_token): string
+    /**
+     * URL que confirma a submissão.
+     *
+     * $ps_url_base vem do payload assinado pela submissão: o portal público
+     * informa a própria base, então nenhum ambiente precisa configurar nada.
+     * "submissao_formulario_url_confirmacao" fica apenas como override.
+     */
+    public static function url_confirmacao(string $ps_token, string $ps_url_base = ""): string
     {
-        $vs_url_configurada = config::get(["submissao_formulario_url_confirmacao"]);
+        $vs_url_configurada = trim($ps_url_base) !== "" ? $ps_url_base : config::get(["submissao_formulario_url_confirmacao"]);
 
         if (is_string($vs_url_configurada) && $vs_url_configurada !== "")
             return $vs_url_configurada . (strpos($vs_url_configurada, "?") === false ? "?" : "&") . "token=" . rawurlencode($ps_token);
@@ -201,7 +211,10 @@ class submissao_pendente
         if (!config::get(["f_envio_email"]))
             return false;
 
-        $vs_link = htmlspecialchars(self::url_confirmacao($ps_token), ENT_QUOTES, "UTF-8");
+        $va_pendente = self::espiar($ps_token);
+        $vs_url_confirmacao = (string) ($va_pendente["url_confirmacao"] ?? "");
+
+        $vs_link = htmlspecialchars(self::url_confirmacao($ps_token, $vs_url_confirmacao), ENT_QUOTES, "UTF-8");
         $vs_nome = htmlspecialchars($ps_nome, ENT_QUOTES, "UTF-8");
 
         $vs_mensagem = "<p>Olá, " . $vs_nome . "</p>";
