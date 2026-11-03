@@ -162,9 +162,9 @@
 
         if (isset($_POST["escopo"]) && $_POST["escopo"] === "_senha")
         {
-            // Troca de senha invalida o token persistido e exige novo login.
-            session::revogar_token_atual();
-            session::logout();
+            // A troca de senha mantém a sessão atual e invalida os demais
+            // dispositivos ao rotacionar o token persistido.
+            session::renovar_token_sessao();
         }
 
         if (!isset($_POST["escopo"]))

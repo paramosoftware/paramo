@@ -260,15 +260,7 @@ class session
 
         if ($vb_absolute)
         {
-            $va_url = parse_url($ps_script);
-            $va_path = explode("/", $va_url["path"]);
-            $vs_script = end($va_path);
-
-            if (file_exists(config::get(["pasta_app"]) . $vs_script))
-            {
-                $vs_redirect_url = $va_url["path"] . (isset($va_url["query"]) ? "?" . $va_url["query"] : "");
-            }
-
+            $vs_redirect_url = self::caminho_de_pagina_valido($ps_script);
         }
         elseif (!empty($_SESSION["redirect_url"]))
         {
@@ -278,6 +270,10 @@ class session
         {
             $vs_redirect_url = self::recover_redirect_url($ps_script);
         }
+
+        // Nunca envie um cabeçalho Location vazio: isso deixa a tela em branco.
+        if ($vs_redirect_url === "")
+            $vs_redirect_url = "index.php";
 
         if (!headers_sent())
         {
@@ -384,6 +380,47 @@ class session
         return false;
     }
 
+    /**
+     * Aceita apenas o caminho de uma página real da aplicação. Endpoints de
+     * functions/, destinos externos e arquivos inexistentes retornam vazio.
+     */
+    public static function caminho_de_pagina_valido($ps_url): string
+    {
+        if (!is_string($ps_url) || $ps_url === "" || strpos($ps_url, "\0") !== false)
+            return "";
+
+        $va_url = parse_url($ps_url);
+
+        if (!is_array($va_url) || empty($va_url["path"]))
+            return "";
+
+        if (isset($va_url["host"]))
+        {
+            $vs_host_atual = strtolower(explode(":", (string) ($_SERVER["HTTP_HOST"] ?? ""))[0]);
+
+            if ($vs_host_atual === "" || strtolower($va_url["host"]) !== $vs_host_atual)
+                return "";
+        }
+
+        $vs_path = $va_url["path"];
+
+        if (strpos($vs_path, "..") !== false)
+            return "";
+
+        $vs_script = basename($vs_path);
+
+        if (preg_match('/\A[A-Za-z0-9_-]+\.php\z/', $vs_script) !== 1)
+            return "";
+
+        $vs_base = realpath(config::get(["pasta_app"]));
+        $vs_real = realpath($vs_base . DIRECTORY_SEPARATOR . $vs_script);
+
+        if ($vs_base === false || $vs_real === false || dirname($vs_real) !== $vs_base)
+            return "";
+
+        return $vs_path . (isset($va_url["query"]) ? "?" . $va_url["query"] : "");
+    }
+
     public static function revogar_token_atual(): void
     {
         $vs_token = $_SESSION["usuario_token"] ?? null;
@@ -401,6 +438,34 @@ class session
         unset($_SESSION["usuario_token"]);
     }
 
+    /**
+     * Mantém a sessão atual após a troca de senha: rotaciona o token
+     * persistido (invalidando os demais dispositivos) e o id da sessão.
+     */
+    public static function renovar_token_sessao(): bool
+    {
+        $vn_usuario_codigo = (int) ($_SESSION["usuario_logado_codigo"] ?? 0);
+
+        if ($vn_usuario_codigo <= 0)
+            return false;
+
+        $vs_token = self::generate_token();
+
+        $vo_usuario = new usuario;
+        $vo_usuario->salvar([
+            "usuario_codigo" => $vn_usuario_codigo,
+            "usuario_token" => $vs_token,
+        ], false);
+
+        if (session_status() === PHP_SESSION_ACTIVE)
+            session_regenerate_id(true);
+
+        $_SESSION["usuario_token"] = $vs_token;
+        self::set_token_cookie($vs_token);
+
+        return true;
+    }
+
     public static function logout($vb_redirect=true): void
     {
         session::revogar_token_atual();
@@ -409,7 +474,9 @@ class session
         session_destroy();
         setcookie(session_name(), "", time() - 3600, "/");
         setcookie(session::generate_cookie_name(true), "", time() - 3600, "/");
-        $vs_login = "login.php" . ($vb_redirect ? "?redirect=" . urlencode($_SERVER["REQUEST_URI"] ?? "") : "");
+
+        $vs_destino = self::caminho_de_pagina_valido($_SERVER["REQUEST_URI"] ?? "");
+        $vs_login = "login.php" . (($vb_redirect && $vs_destino !== "") ? "?redirect=" . urlencode($vs_destino) : "");
         session::redirect($vs_login);
         exit();
     }
