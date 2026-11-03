@@ -3,20 +3,15 @@
 
     session::validar_csrf();
 
-    if (!isset($_POST["escopo"]) || ($_POST["escopo"] != "_senha"))
+    $vb_troca_de_senha = isset($_POST["escopo"]) && ($_POST["escopo"] === "_senha");
+
+    if ($vb_troca_de_senha)
     {
-        if (!$vb_pode_editar && !$vb_pode_inserir)
-        {
-            utils::log(
-                "Tentativa de alteração sem permissão: ",
-                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
-            );
-            session::redirect();
-        }
-    }
-    elseif (isset($_POST["escopo"]) || ($_POST["escopo"] == "_senha"))
-    {
-        if (isset($_POST["usuario_codigo"]) && ($_POST["usuario_codigo"] != $vn_usuario_logado_codigo))
+        # Troca da própria senha: só pode atingir o usuário logado e não
+        # depende de permissão de edição no recurso "usuario".
+        if (($_POST["obj"] ?? "") !== "usuario"
+            || !isset($_POST["usuario_codigo"])
+            || ((int) $_POST["usuario_codigo"] !== (int) $vn_usuario_logado_codigo))
         {
             unset($_POST["usuario_senha"]);
             unset($_POST["repetir_senha"]);
@@ -32,6 +27,14 @@
             if (!in_array($vs_variavel_postada, ["usuario_codigo", "usuario_senha", "obj", "modo", "escopo", "usuario_alterar_senha"]))
                 unset($_POST[$vs_variavel_postada]);
         }
+    }
+    elseif (!$vb_pode_editar && !$vb_pode_inserir)
+    {
+        utils::log(
+            "Tentativa de alteração sem permissão: ",
+            __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
+        );
+        session::redirect();
     }
 
     $_POST["usuario_logado_codigo"] = $vn_usuario_logado_codigo;
@@ -114,45 +117,50 @@
     }
     else
     {
-        if (empty($_POST[$vs_chave_primaria_objeto]) && !$vb_pode_inserir)
+        # A troca da própria senha já foi validada acima e não depende das
+        # permissões de edição do recurso "usuario".
+        if (!$vb_troca_de_senha)
         {
-            utils::log(
-                "Tentativa de inserção sem permissão: ",
-                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
-            );
-            exit();
-        }
-
-        if (!empty($_POST[$vs_chave_primaria_objeto]) && empty($vb_pode_editar) && empty($vb_usuario_administrador))
-        {
-            utils::log(
-                "Tentativa de edição sem permissão: ",
-                __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
-            );
-            exit();
-        }
-
-        if (!$vb_usuario_administrador || !$vb_usuario_logado_instituicao_admin)
-        {
-            $vb_acesso_registro = true;
-
-            if (!empty($_POST[$vs_chave_primaria_objeto]))
-            {
-                $vb_acesso_registro = $vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso);
-            }
-
-            if ($vb_acesso_registro)
-            {
-                $vb_edicao_registro = $vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso);
-            }
-
-            if (!$vb_acesso_registro || !$vb_edicao_registro)
+            if (empty($_POST[$vs_chave_primaria_objeto]) && !$vb_pode_inserir)
             {
                 utils::log(
-                    "Tentativa de alteração sem permissão: ",
+                    "Tentativa de inserção sem permissão: ",
                     __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
                 );
                 exit();
+            }
+
+            if (!empty($_POST[$vs_chave_primaria_objeto]) && empty($vb_pode_editar) && empty($vb_usuario_administrador))
+            {
+                utils::log(
+                    "Tentativa de edição sem permissão: ",
+                    __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
+                );
+                exit();
+            }
+
+            if (!$vb_usuario_administrador || !$vb_usuario_logado_instituicao_admin)
+            {
+                $vb_acesso_registro = true;
+
+                if (!empty($_POST[$vs_chave_primaria_objeto]))
+                {
+                    $vb_acesso_registro = $vo_objeto->validar_acesso_registro($_POST[$vs_chave_primaria_objeto], $va_parametros_controle_acesso);
+                }
+
+                if ($vb_acesso_registro)
+                {
+                    $vb_edicao_registro = $vo_objeto->validar_edicao_registro($_POST, $va_parametros_controle_acesso);
+                }
+
+                if (!$vb_acesso_registro || !$vb_edicao_registro)
+                {
+                    utils::log(
+                        "Tentativa de alteração sem permissão: ",
+                        __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
+                    );
+                    exit();
+                }
             }
         }
 
