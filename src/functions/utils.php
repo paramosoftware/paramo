@@ -45,7 +45,13 @@ class utils
         $port = config::get(["smtp_port"]);
         $from_name = config::get(["smtp_name"]);
         $image_footer_path = config::get(["smtp_email_footer"]);
-        $logo_path = "../" . config::get(["logo"]);
+
+        # Caminho absoluto: "logo" é relativo à pasta do app. Resolvido a partir do
+        # diretório de trabalho, o mesmo envio achava o logo quando partia de
+        # app/functions/ e não achava quando partia de app/ — e o addEmbeddedImage
+        # lançava exceção, derrubando o e-mail inteiro sem deixar rastro.
+        $vs_logo = (string) config::get(["logo"]);
+        $logo_path = $vs_logo !== "" ? config::get(["pasta_app"]) . $vs_logo : "";
 
         $mail = new PHPMailer(true);
 
@@ -81,8 +87,15 @@ class utils
             $mail->isHTML();
             $mail->Subject = $subject;
             
-            if(!empty($logo_path))
-                $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+            # Só embute o logo quando o HTML o referencia: uma imagem embutida e
+            # não usada no corpo chega ao destinatário como arquivo anexado.
+            if ($logo_path !== "" && str_contains($message, "cid:logo-image"))
+            {
+                if (is_file($logo_path))
+                    $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+                else
+                    self::log("Logo do e-mail não encontrado: " . $logo_path, "utils::send_email");
+            }
 
             if ($image_footer_path != "") {
                 $mail->addEmbeddedImage($image_footer_path, 'rodape-email', 'custom-email-footer.png');
@@ -95,7 +108,11 @@ class utils
             $mail->send();
 
             return true;
-        } catch (Exception $e) {
+        } catch (Throwable $po_exception) {
+            # Sem registro, uma falha de envio (SMTP, anexo, endereço) desaparece:
+            # quem chamou só recebe false e ninguém fica sabendo do motivo.
+            self::log("Falha ao enviar e-mail: " . $po_exception->getMessage(), "utils::send_email");
+
             return false;
         }
     }

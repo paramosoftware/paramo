@@ -210,6 +210,9 @@ class submissao_pendente
         $vs_mensagem .= "<p><a href=\"" . $vs_link . "\">Confirmar pedido de pesquisa</a></p>";
         $vs_mensagem .= "<p>Este link é de uso único e expira em 24 horas. Se você não fez esta solicitação, ignore esta mensagem.</p>";
 
+        # Rodapé: a imagem embutida só aparece no corpo se o HTML a referenciar.
+        $vs_mensagem .= "<p style=\"margin-top:24px;\"><img src=\"cid:logo-image\" alt=\"logo e-mail\" width=\"200\"></p>";
+
         return utils::send_email(
             $ps_email,
             $ps_nome,
