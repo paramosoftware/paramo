@@ -5,20 +5,6 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
 
-if (!isset($vb_ignorar_autenticacao))
-{
-    session::start_session();
-    if (!isset($_SESSION["usuario_token"]))
-    {
-        if (!session::get_logged_user())
-        {
-            media_file_handler::send_not_found();
-        }
-    }
-
-    require_once dirname(__FILE__) . "/autenticar_usuario.php";
-}
-
 $vs_file = $_GET['file'] ?? "";
 $vs_size = $_GET['size'] ?? null;
 $vs_folder = $_GET['folder'] ?? null;
@@ -39,6 +25,42 @@ $vs_file_path = media_file_handler::get_file_path($vs_file, $vs_size, $vs_folder
 if ($vs_file_path === "" || !is_file($vs_file_path))
 {
     media_file_handler::send_not_found();
+}
+
+// A mídia pertence a um recurso; a autenticação precisa calcular as permissões
+// para esse recurso, não para a tela que apenas referenciou a imagem.
+if (!isset($vb_ignorar_autenticacao) && $vs_folder !== "temp")
+{
+    $vo_representante_recurso = new representante_digital();
+    $va_representantes_recurso = $vo_representante_recurso->ler_lista(
+        ["representante_digital_path" => $vs_file],
+        "lista",
+        0,
+        1
+    );
+
+    if (count($va_representantes_recurso))
+    {
+        $vn_recurso_codigo = (int) ($va_representantes_recurso[0]["representante_digital_recurso_sistema_codigo"] ?? 0);
+        $vo_objeto_recurso = autorizacao::resolver_objeto_por_recurso($vn_recurso_codigo);
+
+        if ($vo_objeto_recurso instanceof objeto_base)
+            $_GET["obj"] = get_class($vo_objeto_recurso);
+    }
+}
+
+if (!isset($vb_ignorar_autenticacao))
+{
+    session::start_session();
+    if (!isset($_SESSION["usuario_token"]))
+    {
+        if (!session::get_logged_user())
+        {
+            media_file_handler::send_not_found();
+        }
+    }
+
+    require_once dirname(__FILE__) . "/autenticar_usuario.php";
 }
 
 // Arquivos temporários pertencem ao usuário que gerou a tarefa.
