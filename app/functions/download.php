@@ -5,8 +5,6 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
 
-require_once dirname(__FILE__) . "/file_handler.php";
-
 if (!isset($vb_ignorar_autenticacao))
 {
     session::start_session();
@@ -14,7 +12,7 @@ if (!isset($vb_ignorar_autenticacao))
     {
         if (!session::get_logged_user())
         {
-            send_not_found_response();
+            media_file_handler::send_not_found();
         }
     }
 
@@ -22,13 +20,13 @@ if (!isset($vb_ignorar_autenticacao))
 
     if (empty($vb_pode_ler) && empty($vb_pode_editar) && empty($vb_usuario_administrador))
     {
-        send_not_found_response();
+        media_file_handler::send_not_found();
     }
 }
 
 if (!isset($_GET['obj']) || !isset($_GET['cod']) || !isset($_GET['tipo_rd']))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 $vs_id_objeto = $_GET['obj'];
@@ -39,14 +37,14 @@ $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto);
 
 if (!($vo_objeto instanceof objeto_base) || !autorizacao::autorizar_leitura_registro($vo_objeto, $pn_objeto_codigo))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 $va_objeto = $vo_objeto->ler($pn_objeto_codigo, "ficha");
 
 if (!is_array($va_objeto) || !count($va_objeto))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 if ($vs_tipo_rd == "representante_digital_codigo" || $vs_tipo_rd == "arquivo_download_codigo")
@@ -55,12 +53,12 @@ if ($vs_tipo_rd == "representante_digital_codigo" || $vs_tipo_rd == "arquivo_dow
 }
 else
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 if (!is_array($va_files) || !count($va_files))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 $vs_identificador = utils::sanitize_file_name((string) ($va_objeto['item_acervo_identificador'] ?? ""));
@@ -77,7 +75,7 @@ $vs_zip_path = rtrim($vs_temp_dir, "/\\") . DIRECTORY_SEPARATOR . $vs_zip_name;
 $zip = new ZipArchive();
 if (!is_writable($vs_temp_dir) || $zip->open($vs_zip_path, ZipArchive::CREATE) !== true)
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 $counter = 1;
@@ -85,7 +83,7 @@ foreach ($va_files as $va_rd)
 {
     $ps_size = 'original';
 
-    $vs_file_path = get_file_path($va_rd['representante_digital_path'], $ps_size, null, $va_rd['representante_digital_nome_original']);
+    $vs_file_path = media_file_handler::get_file_path($va_rd['representante_digital_path'], $ps_size, null, $va_rd['representante_digital_nome_original']);
 
     if (file_exists($vs_file_path))
     {
@@ -96,9 +94,9 @@ foreach ($va_files as $va_rd)
 
 if ($zip->numFiles > 0 && $zip->close())
 {
-    send_file_response($vs_zip_path, pb_force_download: true, pb_unlink_afterwards: true);
+    media_file_handler::send_file($vs_zip_path, pb_force_download: true, pb_unlink_afterwards: true);
 }
 else
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }

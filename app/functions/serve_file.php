@@ -5,8 +5,6 @@ if (!defined("AUTOLOAD"))
     require_once dirname(__FILE__) . "/../../autoload.php";
 }
 
-require_once dirname(__FILE__) . "/file_handler.php";
-
 if (!isset($vb_ignorar_autenticacao))
 {
     session::start_session();
@@ -14,7 +12,7 @@ if (!isset($vb_ignorar_autenticacao))
     {
         if (!session::get_logged_user())
         {
-            send_not_found_response();
+            media_file_handler::send_not_found();
         }
     }
 
@@ -29,25 +27,25 @@ $vs_download_file_name = $_GET['name'] ?? "";
 $vs_download_file_name = preg_replace('/[^\p{L}\p{N} ]+/u', '', $vs_download_file_name);
 $vs_download_file_name = substr($vs_download_file_name, 0, 50);
 
-$vs_file = validar_nome_arquivo_media($vs_file);
+$vs_file = media_file_handler::validar_nome($vs_file);
 
-if ($vs_file === "" || ($vs_folder !== null && !in_array($vs_folder, media_folder_keys(), true)))
+if ($vs_file === "" || ($vs_folder !== null && !in_array($vs_folder, media_file_handler::pastas_permitidas(), true)))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
-$vs_file_path = get_file_path($vs_file, $vs_size, $vs_folder);
+$vs_file_path = media_file_handler::get_file_path($vs_file, $vs_size, $vs_folder);
 
 if ($vs_file_path === "" || !is_file($vs_file_path))
 {
-    send_not_found_response();
+    media_file_handler::send_not_found();
 }
 
 // Arquivos temporários pertencem ao usuário que gerou a tarefa.
 if ($vs_folder === "temp")
 {
     if (!session::autorizar_arquivo_temporario($vs_file))
-        send_not_found_response();
+        media_file_handler::send_not_found();
 }
 else
 {
@@ -78,7 +76,7 @@ else
     }
 
     if (!$vb_autorizado)
-        send_not_found_response();
+        media_file_handler::send_not_found();
 }
 
-send_file_response($vs_file_path, $vb_force_download, $vs_download_file_name);
+media_file_handler::send_file($vs_file_path, $vb_force_download, $vs_download_file_name);
