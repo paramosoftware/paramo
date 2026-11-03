@@ -48,5 +48,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="assets/js/custom.js?v=<?= config::get(["versao"]); ?>"></script>
+    <?php
+    $vs_custom_js_file = dirname(__FILE__) . "/../assets/js/custom.js";
+    $vs_custom_js_version = is_file($vs_custom_js_file) ? (string) filemtime($vs_custom_js_file) : (string) config::get(["versao"]);
+    ?>
+    <script src="assets/js/custom.js?v=<?= htmlspecialchars($vs_custom_js_version, ENT_QUOTES, "UTF-8"); ?>"></script>
 </head>
