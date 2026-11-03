@@ -120,14 +120,12 @@ class session
     {
         if ($pb_exigir_post && ($_SERVER["REQUEST_METHOD"] ?? "") !== "POST")
         {
-            http_response_code(405);
-            exit();
+            self::responder_falha_csrf(405, "Este formulário precisa ser enviado pelo método POST.");
         }
 
         if (!self::origem_permitida())
         {
-            http_response_code(403);
-            exit();
+            self::responder_falha_csrf(403, "A origem da requisição não é permitida.");
         }
 
         $vs_token = $_POST["csrf_token"] ?? ($_SERVER["HTTP_X_CSRF_TOKEN"] ?? "");
@@ -143,9 +141,41 @@ class session
                 utils::sanitizar_requisicao_para_log()
             );
 
-            http_response_code(403);
+            self::responder_falha_csrf(403, "O formulário expirou ou não pôde ser confirmado. Recarregue a página e tente novamente.");
+        }
+    }
+
+    /**
+     * Falha de CSRF nunca pode terminar em resposta vazia: o navegador do
+     * usuário mostraria uma tela em branco sem explicação.
+     */
+    private static function responder_falha_csrf(int $pn_status, string $ps_mensagem): void
+    {
+        if (!headers_sent())
+        {
+            http_response_code($pn_status);
+            header("Content-Type: text/html; charset=UTF-8");
+        }
+
+        $vb_ajax = (strtolower((string) ($_SERVER["HTTP_X_REQUESTED_WITH"] ?? "")) === "xmlhttprequest")
+            || (stripos((string) ($_SERVER["HTTP_ACCEPT"] ?? ""), "application/json") !== false);
+
+        if ($vb_ajax)
+        {
+            echo $ps_mensagem;
             exit();
         }
+
+        $vs_destino = self::recover_redirect_url("index.php");
+
+        echo '<!DOCTYPE html><html lang="pt-br"><head><meta charset="utf-8">'
+            . '<title>Sessão expirada</title></head><body>'
+            . '<h1>Sessão expirada</h1>'
+            . '<p>' . htmlspecialchars($ps_mensagem, ENT_QUOTES, "UTF-8") . '</p>'
+            . '<p><a href="' . htmlspecialchars($vs_destino, ENT_QUOTES, "UTF-8") . '">Voltar para a página inicial</a></p>'
+            . '</body></html>';
+
+        exit();
     }
 
     public static function tarefa_id_valido($ps_tarefa): bool
