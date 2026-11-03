@@ -339,8 +339,19 @@ class autorizacao
         if (!empty($GLOBALS["vb_usuario_administrador"]))
             return true;
 
-        $vn_dono = (int) ($va_selecao[0]["selecao_usuario_codigo"]["usuario_codigo"] ?? 0);
+        # selecao::ler_lista restringe o filtro a selecao_usuario_codigo do
+        # usuário logado. Quando a visualização traz o dono, confere também.
+        $va_dono = $va_selecao[0]["selecao_usuario_codigo"] ?? null;
+        $vn_dono = 0;
 
-        return $vn_dono === $vn_usuario_codigo;
+        if (is_array($va_dono))
+            $vn_dono = (int) ($va_dono["usuario_codigo"] ?? 0);
+        elseif (is_numeric($va_dono))
+            $vn_dono = (int) $va_dono;
+
+        if ($vn_dono > 0)
+            return $vn_dono === $vn_usuario_codigo;
+
+        return true;
     }
 }

@@ -74,6 +74,7 @@ $(document).on('click', ".check-selecao", function()
     vo_post_data = {};
     vo_post_data.item_codigo = vn_item_codigo;
     vo_post_data.selecao_codigo = $("#selecao").val();
+    vo_post_data.obj = <?= json_encode($vs_id_objeto_tela); ?>;
 
     if ($(this).is(':checked'))
     {
