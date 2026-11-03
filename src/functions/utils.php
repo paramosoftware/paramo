@@ -168,9 +168,18 @@ class utils
             $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
 
             $response = file_get_contents($src, false, $context);
-            $response_ok = strpos($http_response_header[0], "200") !== false;
+
+            # No PHP 8.5 a leitura direta de $http_response_header é depreciada na
+            # compilação, mesmo em código que só roda em versões antigas. A API
+            # equivalente existe a partir do 8.4; abaixo disso o valor local é lido
+            # pelo nome, sem a sintaxe que dispara o aviso.
+            $va_response_headers = function_exists("http_get_last_response_headers")
+                ? (http_get_last_response_headers() ?? array())
+                : (get_defined_vars()["http_response_header"] ?? array());
+
+            $response_ok = isset($va_response_headers[0]) && strpos($va_response_headers[0], "200") !== false;
             preg_match('/"docs-dm":"(.+?)"/', $response, $matches);
-            $type = $matches[1] ? explode("/", $matches[1])[0] : null;
+            $type = isset($matches[1]) ? explode("/", $matches[1])[0] : null;
 
 
             if ($response_ok && !in_array($type, ["audio", "video"]))
