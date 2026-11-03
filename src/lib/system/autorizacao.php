@@ -61,6 +61,25 @@ class autorizacao
     }
 
     /**
+     * Objetos editáveis cuja classe fica em lib/system (seleção, grupo de
+     * usuário, fluxo etc.). Aqui a classe de infraestrutura sozinha não basta:
+     * o identificador precisa estar registrado em recurso_sistema.
+     */
+    public static function classe_sistema_registrada($ps_id): bool
+    {
+        if (!self::objeto_id_valido($ps_id))
+            return false;
+
+        $vs_arquivo = rtrim((string) config::get(["pasta_lib"]), "/\\")
+            . DIRECTORY_SEPARATOR . "system" . DIRECTORY_SEPARATOR . $ps_id . ".php";
+
+        if (!is_file($vs_arquivo))
+            return false;
+
+        return self::recurso_instalado($ps_id);
+    }
+
+    /**
      * Resolve um identificador de objeto para uma instância de objeto_base.
      *
      * $pa_registros_adicionais permite que fluxos com allowlist própria (por
@@ -69,7 +88,7 @@ class autorizacao
      */
     public static function resolver_objeto($ps_id, array $pa_registros_adicionais = []): ?objeto_base
     {
-        if (!self::classe_objeto_instalada($ps_id))
+        if (!self::classe_objeto_instalada($ps_id) && !self::classe_sistema_registrada($ps_id))
             return null;
 
         if (!class_exists($ps_id))
