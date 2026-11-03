@@ -465,18 +465,25 @@
     {
 
 
+        $vo_objeto_tela = new $vs_id_objeto_tela('');
+        $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
+
+        # O campo de código nem sempre é um campo do formulário do objeto: na tela de
+        # substituição ele é só o nome do campo de destino ("substituir_codigo"), que
+        # não existe em get_campos_edicao(). Nesse caso vale o campo configurado no
+        # próprio autocomplete ou, por último, o atributo exibido.
+        $va_campos_salvar_relacionamento = $va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"]
+            ?? $va_parametros_campo["campo_salvar"]
+            ?? $vs_campo_valor;
+
         if (isset($vb_lote) && $vb_lote) {
-            $vo_objeto_tela = new $vs_id_objeto_tela('');
-            $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
             $va_items_lote = explode(";", $vs_termo);
             foreach ($va_items_lote as $vn_item_index => $va_item_lote)  {
-                load_link_cadastro($vs_id_objeto_campo, $vs_campo, $va_item_lote, $va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"], $vn_item_index);
+                load_link_cadastro($vs_id_objeto_campo, $vs_campo, $va_item_lote, $va_campos_salvar_relacionamento, $vn_item_index);
             }
 
         } else {
-            $vo_objeto_tela = new $vs_id_objeto_tela('');
-            $va_campos_edicao_objeto_tela = $vo_objeto_tela->get_campos_edicao();
-            load_link_cadastro($vs_id_objeto_campo, $vs_campo, $vs_termo, $va_campos_edicao_objeto_tela[$vs_campo_codigos]["campo_salvar"]);
+            load_link_cadastro($vs_id_objeto_campo, $vs_campo, $vs_termo, $va_campos_salvar_relacionamento);
         }
 
 //        $vo_html_link_cadastrar = new html_link_cadastrar($vs_id_objeto_campo, $vs_campo);
