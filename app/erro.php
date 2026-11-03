@@ -6,7 +6,7 @@ if (!defined("AUTOLOAD"))
 }
 
 session::start_session();
-if (!isset($_SESSION["usuario_token"]) || !$_GET["codigo"])
+if (!isset($_SESSION["usuario_token"]) || empty($_GET["codigo"]))
 {
     session::redirect();
 }

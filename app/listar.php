@@ -49,7 +49,7 @@
         
     require_once dirname(__FILE__)."/functions/montar_filtros_busca.php";
 
-    if ($vb_aplicar_controle_acesso)
+    if (!empty($vb_aplicar_controle_acesso))
         require_once "components/sidebar.php";
 ?>
 

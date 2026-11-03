@@ -1,6 +1,9 @@
 <?php
+    if (!isset($vs_id_campo))
+        $vs_id_campo = $_GET['campo'] ?? "";
+
     if (!isset($vs_novo_id_campo))
-        $vs_novo_id_campo = $_GET['campo'] . "_F_" . $_GET["instancia"];
+        $vs_novo_id_campo = ($_GET['campo'] ?? "") . "_F_" . ($_GET['instancia'] ?? "");
 
     $vs_id_campo_normalizado = str_replace(",", "_", $vs_id_campo);
     $vs_novo_id_campo_normalizado = str_replace(",", "_", $vs_novo_id_campo);

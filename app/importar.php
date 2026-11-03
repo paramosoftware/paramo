@@ -15,7 +15,7 @@ $vn_usuario_codigo = $va_usuario["usuario_codigo"];
 $vs_caminho_arquivo = $_POST["caminho_arquivo"] ?? null;
 $vb_montar_menu = true;
 $vn_step = $_POST["step"] ?? 1;
-$vs_id_objeto_importacao = $_GET["obj"] ?? $_POST["obj"];
+$vs_id_objeto_importacao = $_GET["obj"] ?? $_POST["obj"] ?? "";
 
 if (!autorizacao::resolver_objeto($vs_id_objeto_importacao))
 {

@@ -465,7 +465,7 @@ class objeto_base
         if (isset($this->visualizacoes[$ps_visualizacao]))
             return $this->visualizacoes[$ps_visualizacao];
         else 
-            return $this->visualizacoes["navegacao"];
+            return $this->visualizacoes["navegacao"] ?? array();
     }
 
     public function get_campos_visualizacao($ps_visualizacao)
@@ -773,7 +773,7 @@ class objeto_base
                     }
                 }
 
-                $va_tabelas_adicionadas[$vo_objeto->tabela_banco][] = $vo_objeto->tabela_banco;
+                $va_tabelas_adicionadas[(string) $vo_objeto->tabela_banco][] = $vo_objeto->tabela_banco;
 
                 $va_campos_select[] = " DISTINCT " . $vo_objeto->tabela_banco . ".Codigo as " . $vo_objeto->tabela_banco . "_codigo";
 

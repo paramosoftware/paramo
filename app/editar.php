@@ -25,6 +25,12 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
     if (!$vb_pode_editar && !config::get(["f_acesso_leitura_form_cadastro"]) && !$vb_pode_inserir)
         exit();
 
+    if (!$vs_id_objeto_tela)
+    {
+        print "Não é possível carregar o formulário. (objeto)";
+        exit();
+    }
+
     // editar.php será alterada para permitir edição em lote
     // Na edição em lote, os dados dos registros vêm no $_POST, não no $_GET
     ///////////////////////////////////////////////////////////////////////

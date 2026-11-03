@@ -408,8 +408,10 @@
                 }
             }
 
-            $_SESSION[$vs_id_objeto_tela]["codigo_primeiro_lista"] = $va_objetos_primeiro_lista[0][$vo_objeto->get_chave_primaria()[0]];
-            $_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"] = $va_objetos_ultimo_lista[0][$vo_objeto->get_chave_primaria()[0]];
+            $vs_chave_primaria_objeto = $vo_objeto->get_chave_primaria()[0] ?? "";
+
+            $_SESSION[$vs_id_objeto_tela]["codigo_primeiro_lista"] = $va_objetos_primeiro_lista[0][$vs_chave_primaria_objeto] ?? null;
+            $_SESSION[$vs_id_objeto_tela]["codigo_ultimo_lista"] = $va_objetos_ultimo_lista[0][$vs_chave_primaria_objeto] ?? null;
             $_SESSION[$vs_id_objeto_tela]["listagem_codigos"] = $va_itens_listagem_codigos;
         }
     }       

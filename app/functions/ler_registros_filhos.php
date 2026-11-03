@@ -31,6 +31,14 @@
         exit();
     }
 
+    $vb_multiplas_instancias_campo = true;
+    $vs_modo = "listagem";
+
+    if (!$vo_objeto->get_campo_hierarquico())
+    {
+        exit();
+    }
+
     $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $vn_objeto_codigo], "navegacao", null, null, null, null, null, 1, false);
 
     $va_registros_filhos = array_values(array_filter($va_registros_filhos, function ($va_item) use ($vo_objeto)
