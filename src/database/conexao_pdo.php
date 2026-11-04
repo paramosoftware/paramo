@@ -21,7 +21,12 @@ class conexao_pdo
     private function criar_conexao(): ?PDO
     {
         try {
-            $options = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8');
+            # No PHP 8.5 a constante passou a ser Pdo\Mysql::ATTR_INIT_COMMAND.
+            $vn_atributo_init_command = defined('Pdo\Mysql::ATTR_INIT_COMMAND')
+                ? \Pdo\Mysql::ATTR_INIT_COMMAND
+                : PDO::MYSQL_ATTR_INIT_COMMAND;
+
+            $options = array($vn_atributo_init_command => 'SET NAMES utf8');
             $conexao = new PDO("mysql:host=$this->host;dbname=$this->database", $this->user, $this->password, $options);
             $conexao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $conexao->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);

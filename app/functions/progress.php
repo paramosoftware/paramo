@@ -14,8 +14,17 @@ if (!isset($_SESSION["usuario_token"]))
     }
 }
 
+if (!empty($_SESSION["csrf_token"]))
+    session::validar_csrf();
+
 $vs_temp_folder = config::get(["pasta_media", "temp"]);
-$vs_file = $_POST['file'];
+$vs_file = $_POST["file"] ?? "";
+
+if (!session::autorizar_tarefa_progresso($vs_file))
+{
+    http_response_code(404);
+    exit();
+}
 
 if ($_POST["stop"] ?? false)
 {

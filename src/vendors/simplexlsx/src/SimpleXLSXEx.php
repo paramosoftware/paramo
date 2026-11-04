@@ -581,7 +581,7 @@ class SimpleXLSXEx
         }
         return $r;
     }
-    public function getColorValue(SimpleXMLElement $a = null, $default = '')
+    public function getColorValue(?SimpleXMLElement $a = null, $default = '')
     {
         if ($a === null) {
             return $default;

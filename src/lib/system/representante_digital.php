@@ -42,6 +42,12 @@ class representante_digital extends objeto_base
             'tipo_dado' => 'i'
         ];
 
+        $va_atributos['representante_digital_recurso_sistema_codigo'] = [
+            'representante_digital_recurso_sistema_codigo',
+            'coluna_tabela' => 'recurso_sistema_codigo',
+            'tipo_dado' => 'i'
+        ];
+
         $va_atributos['representante_digital_tipo_codigo'] = [
             'representante_digital_tipo_codigo',
             'coluna_tabela' => 'tipo_codigo',
@@ -88,6 +94,7 @@ class representante_digital extends objeto_base
         $va_campos_visualizacao["representante_digital_codigo"] = ["nome" => "representante_digital_codigo", "exibir" => false];
         $va_campos_visualizacao["representante_digital_path"] = ["nome" => "representante_digital_path"];
         $va_campos_visualizacao["representante_digital_registro_codigo"] = ["nome" => "representante_digital_registro_codigo", "exibir" => false];
+        $va_campos_visualizacao["representante_digital_recurso_sistema_codigo"] = ["nome" => "representante_digital_recurso_sistema_codigo", "exibir" => false];
         $va_campos_visualizacao["representante_digital_tipo_codigo"] = ["nome" => "representante_digital_tipo_codigo", "exibir" => false];
         $va_campos_visualizacao["representante_digital_legenda"] = ["nome" => "representante_digital_legenda"];
         $va_campos_visualizacao["representante_digital_sequencia"] = ["nome" => "representante_digital_sequencia"];

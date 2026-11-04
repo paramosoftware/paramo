@@ -63,6 +63,13 @@ class Banco
                             if (isset($va_select["concatenadores"][$vn_contador]))
                                 $vs_concatenador = $va_select["concatenadores"][$vn_contador];
 
+                            // Os concatenadores também são interpolados no SQL.
+                            // Aceita apenas os valores que a aplicação produz.
+                            $vs_concatenador = strtoupper(trim((string) $vs_concatenador));
+
+                            if (!in_array($vs_concatenador, ["AND", "OR", "NOT", "_SEM_VALOR_"], true))
+                                $vs_concatenador = "AND";
+
                             if ($vn_contador == 0) 
                             {
                                 if ($vs_concatenador != "NOT")

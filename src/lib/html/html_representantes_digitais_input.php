@@ -15,8 +15,19 @@ public function build($pa_valores_form=array(), $pa_parametros_campo=array(), $p
         $va_valor_campo = $pa_valores_form[$pa_parametros_campo["nome"]];
 
     $vn_objeto_codigo = "";
-    if ($pa_valores_form[$vs_tela . "_codigo"])
-        $vn_objeto_codigo = $pa_valores_form[$vs_tela . "_codigo"];
+
+    # Em alguns formulários o código chega como o array do registro lido
+    # (ex. ["agrupamento_codigo" => 1, ...]); o componente imprime esse valor
+    # no JavaScript, então precisa ser sempre um escalar.
+    if (!empty($pa_valores_form[$vs_tela . "_codigo"]))
+    {
+        $vm_objeto_codigo = $pa_valores_form[$vs_tela . "_codigo"];
+
+        if (is_array($vm_objeto_codigo))
+            $vm_objeto_codigo = $vm_objeto_codigo[$vs_chave_primaria_objeto] ?? $vm_objeto_codigo[$vs_tela . "_codigo"] ?? "";
+
+        $vn_objeto_codigo = $vm_objeto_codigo;
+    }
 
     // Vou tentar recuperar aqui o label identificador do objeto
     ////////////////////////////////////////////////////////////

@@ -21,10 +21,31 @@
         exit();
     }
     else
-        $vn_objeto_codigo = $va_parametros['cod'];
+        $vn_objeto_codigo = (int) $va_parametros['cod'];
 
-    $vo_objeto = new $vs_id_objeto;
+    $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto);
+
+    if (!($vo_objeto instanceof objeto_base) || !autorizacao::autorizar_leitura_registro($vo_objeto, $vn_objeto_codigo))
+    {
+        print "erro";
+        exit();
+    }
+
+    $vb_multiplas_instancias_campo = true;
+    $vs_modo = "listagem";
+
+    if (!$vo_objeto->get_campo_hierarquico())
+    {
+        exit();
+    }
+
     $va_registros_filhos = $vo_objeto->ler_lista([$vo_objeto->get_campo_hierarquico() => $vn_objeto_codigo], "navegacao", null, null, null, null, null, 1, false);
+
+    $va_registros_filhos = array_values(array_filter($va_registros_filhos, function ($va_item) use ($vo_objeto)
+    {
+        $vs_chave = $vo_objeto->get_chave_primaria()[0];
+        return autorizacao::autorizar_leitura_registro($vo_objeto, (int) ($va_item[$vs_chave] ?? 0));
+    }));
 
     $va_visualizacao_lista = $vo_objeto->get_visualizacao("navegacao");
     

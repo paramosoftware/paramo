@@ -1,6 +1,40 @@
 
 let cancelProcessing = false;
 let modalProgress = null;
+
+// Injeta o token CSRF em formulários e requisições AJAX existentes.
+$(function () {
+    const csrfToken = $('meta[name="csrf-token"]').attr("content") || "";
+
+    if (csrfToken) {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-Token": csrfToken
+            }
+        });
+
+        $("form").each(function () {
+            const $form = $(this);
+
+            if (($form.attr("method") || "get").toLowerCase() !== "post")
+                return;
+
+            if ($form.find('input[name="csrf_token"]').length === 0)
+                $form.append($('<input type="hidden" name="csrf_token">').val(csrfToken));
+        });
+
+        $(document).on("submit", "form", function () {
+            const $form = $(this);
+
+            if (($form.attr("method") || "get").toLowerCase() !== "post")
+                return;
+
+            if ($form.find('input[name="csrf_token"]').length === 0)
+                $form.append($('<input type="hidden" name="csrf_token">').val(csrfToken));
+        });
+    }
+});
+
 function showLoadingSpinner() {
     $("body").css("overflow", "hidden");
     $("#backdrop-spinner").show();

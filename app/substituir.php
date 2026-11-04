@@ -13,16 +13,21 @@
 
     if (isset($_POST['substituir_codigo']))
     {
+        session::validar_csrf();
+
         $vs_id_objeto_tela = $_POST['obj'];
-        $vn_codigo_destino = $_POST['substituir_codigo'];
-        $vn_objeto_codigo = $_POST['cod'];
+        $vn_codigo_destino = (int) $_POST['substituir_codigo'];
+        $vn_objeto_codigo = (int) $_POST['cod'];
         
         if ($vn_codigo_destino)
         {
 
-            $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
+            $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto_tela);
 
-            if (!$vo_objeto->validar_acesso_registro($vn_objeto_codigo, $va_parametros_controle_acesso) || in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
+            if (!($vo_objeto instanceof objeto_base)
+                || !autorizacao::autorizar_edicao_registro($vo_objeto, $vn_objeto_codigo, "substituir")
+                || !autorizacao::autorizar_edicao_registro($vo_objeto, $vn_codigo_destino, "substituir")
+                || in_array($vn_objeto_codigo, $vo_objeto->registros_protegidos))
             {
                 print "Sem permissão para substituir este registro.";
                 exit();
@@ -65,7 +70,13 @@
     $va_objeto = array();
     if ($vn_objeto_codigo)
     {
-        $vo_objeto = new $vs_id_objeto_tela($vs_id_objeto_tela);
+        $vo_objeto = autorizacao::resolver_objeto($vs_id_objeto_tela);
+
+        if (!($vo_objeto instanceof objeto_base) || !autorizacao::autorizar_leitura_registro($vo_objeto, (int) $vn_objeto_codigo))
+        {
+            print "Sem permissão para acessar este registro.";
+            exit();
+        }
         
         $va_objeto = $vo_objeto->ler($vn_objeto_codigo, $vs_visualizacao);
         $va_visualizacao_lista = $vo_objeto->get_visualizacao($vs_visualizacao);

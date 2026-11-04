@@ -1,0 +1,20 @@
+# Proteção de diretórios e arquivos sensíveis (Apache 2.4, com fallback 2.2)
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Nunca serve dotfiles/dotdirs (.git, .env, .idea etc.)
+    RewriteRule (^|/)\. - [F,L]
+    # Código-fonte, configuração, instalador e ferramentas não são públicos
+    RewriteRule ^(src|config|install|tools)(/|$) - [F,L]
+</IfModule>
+
+<FilesMatch "(?i)^(\..*|.*\.(md|sql|log|sh|bak|lock|ini|yml|yaml|json|dist|example|sample)|composer\.(json|lock)|package(-lock)?\.json|README.*|LICENSE.*)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

@@ -45,7 +45,13 @@ class utils
         $port = config::get(["smtp_port"]);
         $from_name = config::get(["smtp_name"]);
         $image_footer_path = config::get(["smtp_email_footer"]);
-        $logo_path = "../" . config::get(["logo"]);
+
+        # Caminho absoluto: "logo" é relativo à pasta do app. Resolvido a partir do
+        # diretório de trabalho, o mesmo envio achava o logo quando partia de
+        # app/functions/ e não achava quando partia de app/ — e o addEmbeddedImage
+        # lançava exceção, derrubando o e-mail inteiro sem deixar rastro.
+        $vs_logo = (string) config::get(["logo"]);
+        $logo_path = $vs_logo !== "" ? config::get(["pasta_app"]) . $vs_logo : "";
 
         $mail = new PHPMailer(true);
 
@@ -81,8 +87,15 @@ class utils
             $mail->isHTML();
             $mail->Subject = $subject;
             
-            if(!empty($logo_path))
-                $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+            # Só embute o logo quando o HTML o referencia: uma imagem embutida e
+            # não usada no corpo chega ao destinatário como arquivo anexado.
+            if ($logo_path !== "" && str_contains($message, "cid:logo-image"))
+            {
+                if (is_file($logo_path))
+                    $mail->addEmbeddedImage($logo_path, "logo-image", "custom-email-logo.png");
+                else
+                    self::log("Logo do e-mail não encontrado: " . $logo_path, "utils::send_email");
+            }
 
             if ($image_footer_path != "") {
                 $mail->addEmbeddedImage($image_footer_path, 'rodape-email', 'custom-email-footer.png');
@@ -95,7 +108,11 @@ class utils
             $mail->send();
 
             return true;
-        } catch (Exception $e) {
+        } catch (Throwable $po_exception) {
+            # Sem registro, uma falha de envio (SMTP, anexo, endereço) desaparece:
+            # quem chamou só recebe false e ninguém fica sabendo do motivo.
+            self::log("Falha ao enviar e-mail: " . $po_exception->getMessage(), "utils::send_email");
+
             return false;
         }
     }
@@ -151,9 +168,18 @@ class utils
             $thumbnail = "https://drive.google.com/thumbnail?authuser=0&id=" . $file_id;
 
             $response = file_get_contents($src, false, $context);
-            $response_ok = strpos($http_response_header[0], "200") !== false;
+
+            # No PHP 8.5 a leitura direta de $http_response_header é depreciada na
+            # compilação, mesmo em código que só roda em versões antigas. A API
+            # equivalente existe a partir do 8.4; abaixo disso o valor local é lido
+            # pelo nome, sem a sintaxe que dispara o aviso.
+            $va_response_headers = function_exists("http_get_last_response_headers")
+                ? (http_get_last_response_headers() ?? array())
+                : (get_defined_vars()["http_response_header"] ?? array());
+
+            $response_ok = isset($va_response_headers[0]) && strpos($va_response_headers[0], "200") !== false;
             preg_match('/"docs-dm":"(.+?)"/', $response, $matches);
-            $type = $matches[1] ? explode("/", $matches[1])[0] : null;
+            $type = isset($matches[1]) ? explode("/", $matches[1])[0] : null;
 
 
             if ($response_ok && !in_array($type, ["audio", "video"]))
@@ -180,6 +206,44 @@ class utils
         return '<img src="assets/img/placeholder-link.png">';
     }
 
+    public static function redigir_dados_sensiveis(string $ps_texto): string
+    {
+        $va_chaves = [
+            "usuario_senha", "repetir_senha", "usuario_senha_provisoria", "senha",
+            "password", "new_password", "usuario_token", "token", "csrf_token",
+            "signature", "authorization", "secret", "smtp_password", "db_password"
+        ];
+
+        foreach ($va_chaves as $vs_chave)
+        {
+            $vs_pattern = '/(["\']?' . preg_quote($vs_chave, "/") . '["\']?\s*(?:=>|=|:)\s*)(\[[^\]]*\]|"[^"]*"|\'[^\']*\'|[^\s,;&]+)/i';
+            $ps_texto = preg_replace($vs_pattern, '$1[REDACTED]', $ps_texto) ?? $ps_texto;
+        }
+
+        return $ps_texto;
+    }
+
+    public static function sanitizar_requisicao_para_log(): string
+    {
+        $va_dados = $_POST;
+
+        unset(
+            $va_dados["csrf_token"],
+            $va_dados["token"],
+            $va_dados["signature"],
+            $va_dados["usuario_senha"],
+            $va_dados["repetir_senha"],
+            $va_dados["new_password"],
+            $va_dados["usuario_senha_provisoria"],
+            $va_dados["usuario_token"]
+        );
+
+        return "POST: " . json_encode(
+            $va_dados,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
+
     public static function log(string $summary, $stacktrace) : string
     {
         $logs_folder = config::get(["pasta_logs"]);
@@ -191,6 +255,8 @@ class utils
         {
             $stacktrace = implode(" ", $stacktrace);
         }
+
+        $stacktrace = self::redigir_dados_sensiveis((string) $stacktrace);
 
         $stacktrace = str_replace("\r", " ", $stacktrace);
         $stacktrace = str_replace("\n", " ", $stacktrace);
@@ -392,6 +458,10 @@ class utils
      */
     public static function callback_progress($vs_file_name, $vn_progress, $pa_partes_exportacao = null, $pb_exportacao_concluida = false, $pb_exportacao_cancelada = false)
     {
+        // Vincula a tarefa ao usuário da sessão para que progress.php/serve_file.php
+        // não permitam que outro usuário consulte ou cancele a operação.
+        session::registrar_tarefa_progresso((string) $vs_file_name);
+
         $vs_temp = config::get(["pasta_media", "temp"]);
 
         $vs_file_path = $vs_temp . $vs_file_name . ".progress";

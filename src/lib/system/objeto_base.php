@@ -465,7 +465,7 @@ class objeto_base
         if (isset($this->visualizacoes[$ps_visualizacao]))
             return $this->visualizacoes[$ps_visualizacao];
         else 
-            return $this->visualizacoes["navegacao"];
+            return $this->visualizacoes["navegacao"] ?? array();
     }
 
     public function get_campos_visualizacao($ps_visualizacao)
@@ -773,7 +773,7 @@ class objeto_base
                     }
                 }
 
-                $va_tabelas_adicionadas[$vo_objeto->tabela_banco][] = $vo_objeto->tabela_banco;
+                $va_tabelas_adicionadas[(string) $vo_objeto->tabela_banco][] = $vo_objeto->tabela_banco;
 
                 $va_campos_select[] = " DISTINCT " . $vo_objeto->tabela_banco . ".Codigo as " . $vo_objeto->tabela_banco . "_codigo";
 
@@ -839,6 +839,23 @@ class objeto_base
         return $va_resultado;
     }
 
+    private function normalizar_operador_busca($ps_operador): string
+    {
+        if (!is_string($ps_operador))
+            return "=";
+
+        $vs_operador = strtoupper(trim($ps_operador));
+
+        if ($vs_operador === "EXACT")
+            return "=";
+
+        $va_operadores_permitidos = [
+            "=", "<=>", "NOT", "_EXISTS_", "LIKE", "LIKERIGHT", "LIKELEFT", "IN", "NOT IN"
+        ];
+
+        return in_array($vs_operador, $va_operadores_permitidos, true) ? $vs_operador : "=";
+    }
+
     private function montar_valores_busca($pa_parametro, &$pa_valores_busca = array(), &$ps_operador = "=", &$ps_interrogacoes = "(?)", &$ps_operador_logico = "AND")
     {
         if (!is_array($pa_parametro))
@@ -856,6 +873,14 @@ class objeto_base
             $ps_operador = "=";
         else
             $ps_operador = $pa_parametro[1];
+
+        // O operador é interpolado no SQL em vários pontos. Ele nunca pode vir
+        // livremente do request: qualquer valor fora da lista é tratado como "=".
+        //////////////////////////////////////////////////////////////////////////
+        $ps_operador = $this->normalizar_operador_busca($ps_operador);
+
+        if (!in_array($ps_operador_logico, ["AND", "OR"], true))
+            $ps_operador_logico = "AND";
 
         // Se o operador é o null safe equal, estamos comparando com null e deixa pra lá todo o resto
 
@@ -3841,24 +3866,46 @@ class objeto_base
                 $vo_representante_digital = new representante_digital;
 
                 $va_codigos_excluir = explode(",", $pa_valores['rd_codigos_remover_' . $ps_campo_nome]);
+                $va_codigos_autorizados = [];
+                $vn_objeto_codigo = (int) ($pa_valores[$this->chave_primaria[0]] ?? 0);
+                $vn_tipo_esperado = ($ps_campo_nome === "arquivo_download_codigo") ? 2 : 1;
 
                 foreach ($va_codigos_excluir as $vn_codigo_excluir)
                 {
-                    $va_representante_digital = $vo_representante_digital->ler($vn_codigo_excluir);
-                    if (count($va_representante_digital))
-                    {
-                        $this->apagar_arquivo_pasta_media($va_representante_digital['representante_digital_path']);
-                    }
+                    if (!is_numeric($vn_codigo_excluir))
+                        continue;
+
+                    $va_representante_digital = $vo_representante_digital->ler((int) $vn_codigo_excluir, "lista");
+
+                    if (!is_array($va_representante_digital) || !count($va_representante_digital))
+                        continue;
+
+                    // Só remove representantes que pertencem ao registro e ao
+                    // recurso/campo que está sendo salvo.
+                    if ((int) ($va_representante_digital['representante_digital_registro_codigo'] ?? 0) !== $vn_objeto_codigo)
+                        continue;
+
+                    if ((int) ($va_representante_digital['representante_digital_recurso_sistema_codigo'] ?? 0) !== (int) $this->recurso_sistema_codigo)
+                        continue;
+
+                    if ((int) ($va_representante_digital['representante_digital_tipo_codigo'] ?? 0) !== $vn_tipo_esperado)
+                        continue;
+
+                    $va_codigos_autorizados[] = (int) $vn_codigo_excluir;
+                    $this->apagar_arquivo_pasta_media($va_representante_digital['representante_digital_path']);
                 }
 
-                $vo_representante_digital->excluir($pa_valores['rd_codigos_remover_' . $ps_campo_nome]);
+                if (count($va_codigos_autorizados))
+                {
+                    $vo_representante_digital->excluir(implode(",", $va_codigos_autorizados));
 
-                if (isset($pa_valores["representante_digital_tipo_codigo"]) && $pa_valores["representante_digital_tipo_codigo"] == 1)
-                    $vn_tipo_operacao_log_codigo = 7;
-                else
-                    $vn_tipo_operacao_log_codigo = 8;
+                    if (isset($pa_valores["representante_digital_tipo_codigo"]) && $pa_valores["representante_digital_tipo_codigo"] == 1)
+                        $vn_tipo_operacao_log_codigo = 7;
+                    else
+                        $vn_tipo_operacao_log_codigo = 8;
 
-                $this->salvar_log($pa_valores[$this->chave_primaria[0]], $pa_valores['usuario_logado_codigo'], $vn_tipo_operacao_log_codigo);
+                    $this->salvar_log($pa_valores[$this->chave_primaria[0]], $pa_valores['usuario_logado_codigo'], $vn_tipo_operacao_log_codigo);
+                }
             }
 
             // Atualiza a sequência dos representantes digitais a partir dos códigos enviados
@@ -4316,6 +4363,12 @@ class objeto_base
 
     function apagar_arquivo_pasta_media($ps_arquivo): bool
     {
+        if (!is_string($ps_arquivo) || $ps_arquivo === "" || strpos($ps_arquivo, "\0") !== false)
+            return false;
+
+        if (strpos($ps_arquivo, "..") !== false || strpos($ps_arquivo, "/") !== false || strpos($ps_arquivo, "\\") !== false)
+            return false;
+
         $va_pasta_media = config::get(["pasta_media"]);
 
         foreach ($va_pasta_media as $pasta)
@@ -4324,14 +4377,22 @@ class objeto_base
             {
                 foreach ($pasta as $vs_pasta_media)
                 {
-                    $vs_arquivo = $vs_pasta_media . $ps_arquivo;
-                    $this->apagar_arquivo($vs_arquivo);
+                    $vs_arquivo = rtrim($vs_pasta_media, "/\\") . DIRECTORY_SEPARATOR . $ps_arquivo;
+                    $vs_base_real = realpath($vs_pasta_media);
+                    $vs_arquivo_real = realpath($vs_arquivo);
+
+                    if ($vs_base_real !== false && $vs_arquivo_real !== false && strpos($vs_arquivo_real, rtrim($vs_base_real, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0)
+                        $this->apagar_arquivo($vs_arquivo_real);
                 }
             }
             else
             {
-                $vs_arquivo = $pasta . $ps_arquivo;
-                $this->apagar_arquivo($vs_arquivo);
+                $vs_arquivo = rtrim($pasta, "/\\") . DIRECTORY_SEPARATOR . $ps_arquivo;
+                $vs_base_real = realpath($pasta);
+                $vs_arquivo_real = realpath($vs_arquivo);
+
+                if ($vs_base_real !== false && $vs_arquivo_real !== false && strpos($vs_arquivo_real, rtrim($vs_base_real, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0)
+                    $this->apagar_arquivo($vs_arquivo_real);
             }
         }
 

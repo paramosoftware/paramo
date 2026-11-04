@@ -195,7 +195,7 @@ require_once dirname(__FILE__) . "/components/entry_point.php";
                                             <script>
                                                 $(document).on('click', "#btn_novo_<?php print $vs_key_registro_filho ?>", function()
                                                 {
-                                                    vs_url_editar = "editar.php?obj=<?php print $vs_key_registro_filho; ?>&<?php print $vs_campo_relacionamento_registro_filho; ?>=<?php print $vn_objeto_codigo; ?>";
+                                                    vs_url_editar = "editar.php?obj=<?php print $vs_key_registro_filho; ?>&<?php print $vs_campo_relacionamento_registro_filho["atributo_relacionamento"]; ?>=<?php print $vn_objeto_codigo; ?>";
 
                                                     <?php if ($vn_bibliografia_codigo)
                                                     {

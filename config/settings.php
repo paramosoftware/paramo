@@ -118,7 +118,21 @@ return [
 
     # token usado para validar requisições externas de submissão de formulários.
     # deve ser configurado em config/custom/settings.php
-    "submissao_formulario_token" => ""
+    # O valor deve ter pelo menos 32 bytes e não pode ser um placeholder conhecido.
+    "submissao_formulario_token" => "",
+
+    # URL absoluta do endpoint de confirmação de e-mail (opcional).
+    # O normal é NÃO configurar: o portal público envia a própria URL de
+    # confirmação no payload assinado da submissão e ela é usada automaticamente.
+    # Preenchida, esta opção sobrepõe a URL enviada pelo portal.
+    "submissao_formulario_url_confirmacao" => "",
+
+    # Limitar submissões externas por endereço IP (o portal envia o IP do
+    # visitante no payload assinado). Desligue quando o portal estiver atrás de
+    # CDN/proxy e o IP recebido não for o do visitante: nesse caso todos caem no
+    # mesmo balde. Desligado, continuam valendo o limite por e-mail (3 pedidos de
+    # confirmação por hora) e a proteção contra enxurrada no servidor.
+    "submissao_limite_por_ip" => true
 ];
 
 

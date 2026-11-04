@@ -6,8 +6,7 @@
     {
         utils::log(
             "Tentativa de alterar logo sem permissão: ",
-            __FILE__ . " - " . __LINE__ . " - " . __FUNCTION__ . " - " .
-            var_export($_SESSION, true) . " - " . var_export($_POST, true)
+            __FILE__ . " - " . __LINE__ . " - " . utils::sanitizar_requisicao_para_log()
         );
         session::redirect();
     }
@@ -69,6 +68,8 @@
 
 
     if (isset($_FILES["logo"])) {
+        session::validar_csrf();
+
         $va_retorno = upload_logo();
         $vb_sucesso = $va_retorno[0];
 

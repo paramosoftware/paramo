@@ -22,6 +22,12 @@
 <?php require_once dirname(__FILE__)."/components/sidebar.php"; ?>
 
 <?php
+    if (!$vs_id_objeto_tela)
+    {
+        print "Não é possível carregar a tela de upload em lote. (objeto)";
+        exit();
+    }
+
     $va_campos_upload["tipo_representante_digital_codigo"] = [
         "html_combo_input",
         "nome" => "tipo_representante_digital_codigo",

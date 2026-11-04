@@ -209,7 +209,14 @@ public function inicializar_visualizacoes()
 public function salvar($pa_valores, $pb_logar_operacao = true, $pn_idioma_codigo = 1, $pb_salvar_objeto_pai = true, $ps_id_objeto_filho = '', $pb_sobrescrever = true)
 {
     if (isset($pa_valores["usuario_alterar_senha"]) && ($pa_valores["usuario_alterar_senha"]))
+    {
         $pa_valores["usuario_senha"] = password_hash($pa_valores["usuario_senha"], PASSWORD_DEFAULT);
+
+        // Troca de senha revoga o token persistido e a senha provisória anterior.
+        $pa_valores["usuario_token"] = "";
+        $pa_valores["usuario_senha_provisoria"] = "";
+        $pa_valores["usuario_data_expiracao_senha_provisoria"] = "";
+    }
 
     if (!isset($pa_valores["usuario_ativo"]))
         $pa_valores["usuario_ativo"] = 1;
@@ -235,13 +242,15 @@ public function ler_lista($pa_filtros_busca = null, $ps_visualizacao = "lista", 
 
 public function recuperar_senha($pn_usuario_codigo, $ps_usuario_email, $ps_usuario_nome)
 {
-    $vs_nova_senha = substr(md5(uniqid(rand(), true)), 0, 12);
+    // Senha provisória forte (256 bits), de uso único e com validade curta.
+    $vs_nova_senha = bin2hex(random_bytes(32));
 
     $vd_data_expiracao_nova_senha = date_create();
     date_add($vd_data_expiracao_nova_senha, date_interval_create_from_date_string("5 minutes"));
 
     $va_usuario["usuario_codigo"] = $pn_usuario_codigo;
     $va_usuario["usuario_logado_codigo"] = $pn_usuario_codigo;
+    $va_usuario["usuario_token"] = "";
     $va_usuario["usuario_senha_provisoria"] = password_hash($vs_nova_senha, PASSWORD_DEFAULT);
     $va_usuario["usuario_data_expiracao_senha_provisoria"] = date_format($vd_data_expiracao_nova_senha, 'Y-m-d H:i:s');
 
