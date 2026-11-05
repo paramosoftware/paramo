@@ -2,6 +2,15 @@
 
 class session
 {
+    /**
+     * Mesma duração usada no gc_maxlifetime e no cookie da sessão.
+     *
+     * Cookie e sessão precisam durar o mesmo: com cookie de 1h, uma aba
+     * aberta por mais tempo recebia uma sessão nova (sem csrf_token) e
+     * qualquer formulário enviado por ela era recusado.
+     */
+    public const DURACAO_SESSAO_SEGUNDOS = 60 * 60 * 12;
+
     public static function start_session(): void
     {
         $vs_session_name = session::generate_cookie_name();
@@ -9,7 +18,7 @@ class session
         if (session_status() == PHP_SESSION_NONE)
         {
             session_name($vs_session_name);
-            session_start(['gc_maxlifetime' => 60 * 60 * 12]);
+            session_start(['gc_maxlifetime' => self::DURACAO_SESSAO_SEGUNDOS]);
             session::refresh_session_cookie();
         }
     }
@@ -139,10 +148,25 @@ class session
             utils::log(
                 "Requisição rejeitada por ausência de token CSRF.",
                 utils::sanitizar_requisicao_para_log()
+                    . " | metodo=" . ($_SERVER["REQUEST_METHOD"] ?? "")
+                    . " | token_enviado=" . self::descrever_token($vs_token)
+                    . " | token_na_sessao=" . (is_string($vs_esperado) && $vs_esperado !== "" ? "presente" : "ausente")
+                    . " | cabecalho_x_csrf=" . (isset($_SERVER["HTTP_X_CSRF_TOKEN"]) ? "presente" : "ausente")
             );
 
             self::responder_falha_csrf(403, "O formulário expirou ou não pôde ser confirmado. Recarregue a página e tente novamente.");
         }
+    }
+
+    /**
+     * Descreve o token recebido sem registrá-lo em log.
+     */
+    private static function descrever_token($ps_token): string
+    {
+        if (!is_string($ps_token) || $ps_token === "")
+            return "ausente";
+
+        return "presente(" . strlen($ps_token) . " bytes)";
     }
 
     /**
@@ -323,7 +347,7 @@ class session
 
         $options = [
             'path' => '/',
-            'expires' => time() + 60 * 60,
+            'expires' => time() + self::DURACAO_SESSAO_SEGUNDOS,
             'secure' => ($_SERVER["HTTPS"] ?? false),
             'httponly' => true,
             'samesite' => 'lax',

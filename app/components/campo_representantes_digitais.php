@@ -471,6 +471,7 @@ $(document).on('click', "#btn_adicionar_campo_<?php print $vs_nome_campo; ?>", f
             {
                 url: 'functions/upload.php',
                 ondata: (formData) => {
+                    formData.append('csrf_token', $('meta[name="csrf-token"]').attr('content') || "");
                     formData.append('obj', '<?php print $vs_tela; ?>');
                     formData.append('<?php print $vs_chave_primaria_objeto; ?>', <?php print $vn_objeto_codigo; ?>);
                     formData.append('representante_digital_tipo_codigo', '<?php print $pa_parametros_campo["tipo"]; ?>');

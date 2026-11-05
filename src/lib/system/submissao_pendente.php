@@ -11,25 +11,7 @@ class submissao_pendente
 
     public static function diretorio(): string
     {
-        $vs_diretorio = config::get(["pasta_submissoes_pendentes"]);
-
-        if (!is_string($vs_diretorio) || $vs_diretorio === "")
-            $vs_diretorio = dirname(__FILE__) . "/../../storage/submissoes_pendentes/";
-
-        $vs_diretorio = rtrim($vs_diretorio, "/\\") . DIRECTORY_SEPARATOR;
-
-        if (!is_dir($vs_diretorio))
-            @mkdir($vs_diretorio, 0700, true);
-
-        if (!is_dir($vs_diretorio) || !is_writable($vs_diretorio))
-        {
-            $vs_diretorio = rtrim(sys_get_temp_dir(), "/\\") . DIRECTORY_SEPARATOR . "paramo_submissoes_pendentes" . DIRECTORY_SEPARATOR;
-
-            if (!is_dir($vs_diretorio))
-                @mkdir($vs_diretorio, 0700, true);
-        }
-
-        return $vs_diretorio;
+        return armazenamento_interno::diretorio("pasta_submissoes_pendentes", "submissoes_pendentes");
     }
 
     public static function token_valido($ps_token): bool
