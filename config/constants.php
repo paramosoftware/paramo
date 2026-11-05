@@ -10,17 +10,20 @@
 #  ];
 # Não altere este arquivo diretamente, pois ele poderá ser sobrescrito em atualizações futuras.
 
+$vs_pasta_logs = dirname(__FILE__) . "/../src/logs/";
+
 return [
     # ================================================ DEPURAÇÃO ================================================ #
 
     "versao" => "1.4.53",
-    "pasta_logs" => dirname(__FILE__) . "/../src/logs/",
+    "pasta_logs" => $vs_pasta_logs,
 
     # ================================================ ARMAZENAMENTO NÃO PÚBLICO ================================================ #
     # Usado por fluxos de confirmação de e-mail, nonces de submissão e limitadores de tentativa.
-    "pasta_submissoes_pendentes" => dirname(__FILE__) . "/../src/storage/submissoes_pendentes/",
-    "pasta_submissoes_nonces" => dirname(__FILE__) . "/../src/storage/submissoes_nonces/",
-    "pasta_rate_limit" => dirname(__FILE__) . "/../src/storage/rate_limit/",
+    # Ficam dentro da pasta de logs porque o aplicativo já tem escrita nela.
+    "pasta_submissoes_pendentes" => $vs_pasta_logs . "submissoes_pendentes/",
+    "pasta_submissoes_nonces" => $vs_pasta_logs . "submissoes_nonces/",
+    "pasta_rate_limit" => $vs_pasta_logs . "rate_limit/",
 
     # ================================================ ASSETS E MÍDIA  ================================================ #
 

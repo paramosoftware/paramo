@@ -96,25 +96,7 @@ class submissao_assinatura
 
     private static function diretorio_nonces(): string
     {
-        $vs_diretorio = config::get(["pasta_submissoes_nonces"]);
-
-        if (!is_string($vs_diretorio) || $vs_diretorio === "")
-            $vs_diretorio = dirname(__FILE__) . "/../../storage/submissoes_nonces/";
-
-        $vs_diretorio = rtrim($vs_diretorio, "/\\") . DIRECTORY_SEPARATOR;
-
-        if (!is_dir($vs_diretorio))
-            @mkdir($vs_diretorio, 0700, true);
-
-        if (!is_dir($vs_diretorio) || !is_writable($vs_diretorio))
-        {
-            $vs_diretorio = rtrim(sys_get_temp_dir(), "/\\") . DIRECTORY_SEPARATOR . "paramo_submissoes_nonces" . DIRECTORY_SEPARATOR;
-
-            if (!is_dir($vs_diretorio))
-                @mkdir($vs_diretorio, 0700, true);
-        }
-
-        return $vs_diretorio;
+        return armazenamento_interno::diretorio("pasta_submissoes_nonces", "submissoes_nonces");
     }
 
     /**
