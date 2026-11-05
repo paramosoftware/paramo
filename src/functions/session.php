@@ -148,10 +148,25 @@ class session
             utils::log(
                 "Requisição rejeitada por ausência de token CSRF.",
                 utils::sanitizar_requisicao_para_log()
+                    . " | metodo=" . ($_SERVER["REQUEST_METHOD"] ?? "")
+                    . " | token_enviado=" . self::descrever_token($vs_token)
+                    . " | token_na_sessao=" . (is_string($vs_esperado) && $vs_esperado !== "" ? "presente" : "ausente")
+                    . " | cabecalho_x_csrf=" . (isset($_SERVER["HTTP_X_CSRF_TOKEN"]) ? "presente" : "ausente")
             );
 
             self::responder_falha_csrf(403, "O formulário expirou ou não pôde ser confirmado. Recarregue a página e tente novamente.");
         }
+    }
+
+    /**
+     * Descreve o token recebido sem registrá-lo em log.
+     */
+    private static function descrever_token($ps_token): string
+    {
+        if (!is_string($ps_token) || $ps_token === "")
+            return "ausente";
+
+        return "presente(" . strlen($ps_token) . " bytes)";
     }
 
     /**
