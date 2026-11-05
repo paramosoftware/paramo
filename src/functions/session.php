@@ -2,6 +2,15 @@
 
 class session
 {
+    /**
+     * Mesma duração usada no gc_maxlifetime e no cookie da sessão.
+     *
+     * Cookie e sessão precisam durar o mesmo: com cookie de 1h, uma aba
+     * aberta por mais tempo recebia uma sessão nova (sem csrf_token) e
+     * qualquer formulário enviado por ela era recusado.
+     */
+    public const DURACAO_SESSAO_SEGUNDOS = 60 * 60 * 12;
+
     public static function start_session(): void
     {
         $vs_session_name = session::generate_cookie_name();
@@ -9,7 +18,7 @@ class session
         if (session_status() == PHP_SESSION_NONE)
         {
             session_name($vs_session_name);
-            session_start(['gc_maxlifetime' => 60 * 60 * 12]);
+            session_start(['gc_maxlifetime' => self::DURACAO_SESSAO_SEGUNDOS]);
             session::refresh_session_cookie();
         }
     }
@@ -323,7 +332,7 @@ class session
 
         $options = [
             'path' => '/',
-            'expires' => time() + 60 * 60,
+            'expires' => time() + self::DURACAO_SESSAO_SEGUNDOS,
             'secure' => ($_SERVER["HTTPS"] ?? false),
             'httponly' => true,
             'samesite' => 'lax',
