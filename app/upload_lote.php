@@ -259,13 +259,17 @@ FilePond.setOptions({
         {
             url: 'functions/upload.php',
             ondata: (formData) => {
+                // FilePond envia XHR próprio, então o cabeçalho injetado pelo
+                // custom.js não chega ao servidor: o token vai no formulário.
+                formData.append('csrf_token', $('meta[name="csrf-token"]').attr('content') || "");
                 formData.append('representante_digital_tipo_codigo', '1');
                 formData.append('representante_digital_campo_nome', 'representante_digital_codigo');
 
                 // Adiciona todos os campos de edição no form a ser enviado
                 jQuery.each( $("#form_upload").serializeArray(), function( i, field )
                 {
-                    formData.append(field.name, field.value);
+                    if (field.name !== 'csrf_token')
+                        formData.append(field.name, field.value);
                 });
 
                 return formData;
